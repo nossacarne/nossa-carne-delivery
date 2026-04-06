@@ -220,7 +220,7 @@
     <div class="container mt-4 mb-5">
         <div class="categorias-container">
             <div class="categorias-scroll" id="menu-categorias">
-                <button class="btn-categoria ativo" id="btn-cat-default" onclick="filtrarCategoria('Para Começar', this)">Entradas</button>
+                <button class="btn-categoria ativo" id="btn-cat-default" onclick="filtrarCategoria('Entradas', this)">Entradas</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Monte Seu Prato', this)">Monte Seu Prato</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Burgers Especiais', this)">Burgers Especiais</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Lanches Especiais', this)">Lanches Especiais</button>
@@ -287,8 +287,8 @@
         const db = firebase.firestore();
 
         let saldoAtual = 0; let clienteLogado = false; let nomeDoClienteLogado = "";
-        // Corrigido para carregar "Para Começar" primeiro, resolvendo o mistério!
-        let todosProdutos = []; let categoriaAtual = 'Para Começar'; 
+        // Corrigido para carregar "Entradas" primeiro, batendo com o banco de dados!
+        let todosProdutos = []; let categoriaAtual = 'Entradas'; 
         let carrinho = []; let modoEntregaAtual = 'delivery'; 
 
         document.addEventListener('DOMContentLoaded', () => { carregarDadosDoBanco(); });
@@ -515,10 +515,10 @@
 
         async function carregarDadosDoBanco() {
             try {
-                const snapshot = await db.collection('produtos').get();
+                const snapshot = await db.collection('cardapio').get(); // <-- Alterado para 'cardapio'
                 todosProdutos = []; snapshot.forEach((doc) => { todosProdutos.push(doc.data()); });
-                // Agora o site vai carregar e procurar no banco o que realmente está lá: "Para Começar"
-                const btnDefault = document.getElementById('btn-cat-default'); filtrarCategoria('Para Começar', btnDefault); 
+                // Agora o site vai carregar e procurar no banco o que realmente está lá: "Entradas"
+                const btnDefault = document.getElementById('btn-cat-default'); filtrarCategoria('Entradas', btnDefault); 
             } catch (error) { console.error("Erro:", error); }
         }
 
