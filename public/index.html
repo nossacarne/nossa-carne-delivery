@@ -334,11 +334,18 @@
 
             const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
             const isLanche = categoriasLanches.includes(produto.categoria) || produto.nome.toLowerCase().includes('burger');
+            
+            // Regras de exceção (para não perguntar o ponto de itens que não precisam)
             const isCarnivoro = produto.nome.toLowerCase().includes('carnivoro') || produto.nome.toLowerCase().includes('carnívoro');
+            const isFrangoOuPeixe = produto.nome.toLowerCase().includes('frango') || produto.nome.toLowerCase().includes('flango') || produto.nome.toLowerCase().includes('chicken') || produto.nome.toLowerCase().includes('salmão') || produto.nome.toLowerCase().includes('tilápia');
 
             if (isLanche) {
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
-                if (!isCarnivoro) { htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto"); }
+            }
+
+            // Mostra o Ponto da Carne (Selado, Ao Ponto, Seco) para Lanches e "Monte Seu Prato" (se for carne bovina/suína)
+            if ((isLanche || produto.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) {
+                htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Selado", "Ao Ponto", "Seco"], "opcao_ponto");
             }
 
             if (produto.categoria === "Monte Seu Prato") {
