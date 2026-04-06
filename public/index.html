@@ -32,9 +32,10 @@
         .btn-principal { background-color: #8b0000; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; width: 100%; transition: 0.3s; }
         .btn-principal:hover { background-color: #6b0000; }
 
-        .radio-opcao { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-weight: 500; color: #444; background: #fafafa;}
-        .radio-opcao:hover { border-color: #8b0000; background-color: #fff9f9; }
-        .radio-opcao input[type="radio"] { accent-color: #8b0000; transform: scale(1.3); margin-top: -2px; }
+        /* Estilo para Radio Buttons e Checkboxes Customizados */
+        .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-weight: 500; color: #444; background: #fafafa;}
+        .radio-opcao:hover, .checkbox-opcao:hover { border-color: #8b0000; background-color: #fff9f9; }
+        .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: #8b0000; transform: scale(1.3); margin-top: -2px; }
 
         .cart-sidebar { position: fixed; top: 0; right: -400px; width: 100%; max-width: 400px; height: 100vh; background-color: white; box-shadow: -5px 0 15px rgba(0,0,0,0.1); z-index: 1050; transition: 0.3s ease-in-out; display: flex; flex-direction: column; }
         .cart-sidebar.open { right: 0; }
@@ -223,6 +224,9 @@
         <div class="categorias-container">
             <div class="categorias-scroll" id="menu-categorias">
                 <button class="btn-categoria ativo" id="btn-cat-default" onclick="filtrarCategoria('Para Começar', this)">Para Começar</button>
+                
+                <button class="btn-categoria" onclick="filtrarCategoria('Monte Seu Prato', this)">Monte Seu Prato</button>
+                
                 <button class="btn-categoria" onclick="filtrarCategoria('Burgers Especiais', this)">Burgers Especiais</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Lanches Especiais', this)">Lanches Especiais</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Clássicos', this)">Clássicos</button>
@@ -246,7 +250,7 @@
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-md-5 text-center">
-                    <img src="COLE_O_LINK_DA_IMAGEM_AQUI" alt="Mascote Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 500px; border: 4px solid #fcfaf8;">
+                    <img src="./leaozinho.jpg" alt="Mascote Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 500px; border: 4px solid #fcfaf8;">
                 </div>
                 <div class="col-md-7 texto-historia">
                     <h2 class="titulo-destaque mb-4" style="font-size: 40px;"><i class="fa-solid fa-book-open"></i> Nossa História</h2>
@@ -276,17 +280,17 @@
 
     <script>
         // ====================================================================
-        // COLE AQUI AS SUAS CHAVES REAIS DO FIREBASE
+        // CHAVES OFICIAIS DO FIREBASE
         // ====================================================================
         const firebaseConfig = {
-  apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
-  authDomain: "nossa-carne-fidelidade.firebaseapp.com",
-  projectId: "nossa-carne-fidelidade",
-  storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
-  messagingSenderId: "837465163879",
-  appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2",
-  measurementId: "G-627CV07JEM"
-};
+            apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
+            authDomain: "nossa-carne-fidelidade.firebaseapp.com",
+            projectId: "nossa-carne-fidelidade",
+            storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
+            messagingSenderId: "837465163879",
+            appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2",
+            measurementId: "G-627CV07JEM"
+        };
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
@@ -318,8 +322,17 @@
             }
         }
 
+        // Função de Limite para os 3 Acompanhamentos
+        function limitarAcompanhamentos(checkbox) {
+            const selecionados = document.querySelectorAll('input[name="opcao_acompanhamento"]:checked');
+            if (selecionados.length > 3) {
+                checkbox.checked = false;
+                alert("Você só pode escolher até 3 acompanhamentos!");
+            }
+        }
+
         // ==========================================
-        // NOVO FLUXO: MODAL DE OPÇÕES E OBSERVAÇÕES UNIVERSAL
+        // NOVO FLUXO: REGRAS DE NEGÓCIO AVANÇADAS
         // ==========================================
         function processarAcaoProduto(idItem, acaoDesejada) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
@@ -329,7 +342,7 @@
             
             let htmlOpcoes = "";
 
-            // 1. Regra para Sabores ou Proteínas
+            // 1. Regra para Sabores (Bebidas e Saladas)
             if (produto.categoria === "Sucos" || produto.nome.includes("Sucos Naturais")) {
                 htmlOpcoes += criarSessaoOpcoes("Sabor do Suco", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
             } else if (produto.categoria === "Milk Shakes" || produto.nome.includes("Milk Shakes Variados")) {
@@ -338,18 +351,42 @@
                 htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_sabor");
             }
 
-            // 2. Regra para Ponto da Carne (Apenas Lanches, EXCETO Carnivoro)
+            // 2. Regra dos Lanches (Pão + Ponto da Carne)
             const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
             const isLanche = categoriasLanches.includes(produto.categoria) || produto.nome.toLowerCase().includes('burger');
             const isCarnivoro = produto.nome.toLowerCase().includes('carnivoro') || produto.nome.toLowerCase().includes('carnívoro');
 
-            if (isLanche && !isCarnivoro) {
-                htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto");
+            if (isLanche) {
+                htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
+                if (!isCarnivoro) {
+                    htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto");
+                }
             }
 
-            // 3. Regra para Observações Livres (Aparece para TODOS os itens)
+            // 3. Regra MONTE SEU PRATO (3 Acompanhamentos)
+            if (produto.categoria === "Monte Seu Prato") {
+                const acompanhamentos = [
+                    "Abóbora Grelhada", 'Aligot "Creme de Queijo com Batata"', "Saladinha", "2 Ovos Fritos",
+                    "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia",
+                    "Maionese de Legumes", "Feijão", "Farofa (Azeitona + Ovo)", "Rodelas de Pão", "Banana à Milanesa"
+                ];
+                htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos (Obrigatório)</label>`;
+                htmlOpcoes += `<div class="row g-2 mb-3">`;
+                acompanhamentos.forEach((acomp) => {
+                    htmlOpcoes += `
+                    <div class="col-12 col-md-6">
+                        <label class="checkbox-opcao w-100 m-0" style="padding: 10px;">
+                            <input type="checkbox" name="opcao_acompanhamento" value='${acomp}' onchange="limitarAcompanhamentos(this)">
+                            <span style="font-size: 13px;">${acomp}</span>
+                        </label>
+                    </div>`;
+                });
+                htmlOpcoes += `</div>`;
+            }
+
+            // 4. Regra para Observações Livres (Aparece para TODOS os itens)
             htmlOpcoes += `
-                <div class="mt-4">
+                <div class="mt-4 pt-3 border-top">
                     <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
                     <textarea id="obs-pedido" class="form-control" rows="2" placeholder="Ex: Tirar a cebola, maionese à parte, sem gelo..."></textarea>
                 </div>
@@ -357,7 +394,6 @@
 
             document.getElementById('lista-opcoes-conteudo').innerHTML = htmlOpcoes;
 
-            // Renderiza o botão final do Modal
             const areaBotao = document.getElementById('area-botao-modal');
             if(acaoDesejada === 'comprar') {
                 areaBotao.innerHTML = `<button type="button" class="btn btn-outline-danger w-100 fw-bold py-3" style="border-width: 2px;" onclick="adicionarAoCarrinho('${produto.id_item}', 'compra')"><i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho (R$ ${produto.preco_atual.toFixed(2).replace('.',',')})</button>`;
@@ -368,7 +404,7 @@
             document.getElementById('modal-opcoes').style.display = 'flex';
         }
 
-        // Função auxiliar para criar as "bolinhas" de seleção
+        // Função auxiliar para criar as bolinhas de seleção
         function criarSessaoOpcoes(titulo, arrayOpcoes, nomeRadio) {
             let html = `<label class="fw-bold small mb-2 mt-3">${titulo}</label>`;
             arrayOpcoes.forEach((opcao, index) => {
@@ -380,18 +416,30 @@
         function adicionarAoCarrinho(idItem, tipoAcao) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
             
-            // Coleta os dados que o cliente preencheu no Modal
-            let valSabor = ""; let valPonto = ""; let valObs = "";
+            // Coleta os dados que o cliente preencheu
+            let valSabor = ""; let valPao = ""; let valPonto = ""; let valObs = ""; let valAcomp = [];
+            
             const radSabor = document.querySelector('input[name="opcao_sabor"]:checked');
             if(radSabor) valSabor = radSabor.value;
+            
+            const radPao = document.querySelector('input[name="opcao_pao"]:checked');
+            if(radPao) valPao = radPao.value;
+            
             const radPonto = document.querySelector('input[name="opcao_ponto"]:checked');
             if(radPonto) valPonto = radPonto.value;
+            
+            document.querySelectorAll('input[name="opcao_acompanhamento"]:checked').forEach(cb => valAcomp.push(cb.value));
+
             const textObs = document.getElementById('obs-pedido');
             if(textObs) valObs = textObs.value.trim();
 
-            fecharModalOpcoes();
+            // VALIDAÇÃO: Se for prato, EXIGE 3 itens.
+            if (produto.categoria === "Monte Seu Prato" && valAcomp.length !== 3) {
+                alert("Por favor, selecione exatamente 3 acompanhamentos para o seu prato!");
+                return; // Impede que o item vá para o carrinho
+            }
 
-            // Validação de resgate
+            // Validação de resgate de pontos
             let totalPontosCarrinho = carrinho.filter(i => i.tipo === 'resgate').reduce((sum, item) => sum + item.pontos, 0);
             if (tipoAcao === 'resgate' || tipoAcao === 'resgatar') {
                 if ((totalPontosCarrinho + produto.fidelidade.custo_em_pontos) > saldoAtual) {
@@ -399,16 +447,21 @@
                 }
             }
 
-            // Junta as personalizações para o Carrinho
+            // Pode fechar o modal, pois passou nas validações!
+            fecharModalOpcoes();
+
+            // Junta as personalizações para exibir no Carrinho e WhatsApp
             let detalhesItem = [];
             if(valSabor) detalhesItem.push(valSabor);
+            if(valPao) detalhesItem.push(`Pão: ${valPao}`);
             if(valPonto) detalhesItem.push(`Ponto: ${valPonto}`);
+            if(valAcomp.length > 0) detalhesItem.push(`Acompanhamentos: ${valAcomp.join(', ')}`);
             if(valObs) detalhesItem.push(`Obs: ${valObs}`);
 
             carrinho.push({
                 idIdemUnico: Math.random().toString(36).substr(2, 9),
                 nome: produto.nome,
-                textoDetalhes: detalhesItem.join(" | "), // Ex: Laranja | Obs: Sem gelo
+                textoDetalhes: detalhesItem.join(" | "), 
                 tipo: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? 'compra' : 'resgate',
                 preco: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? produto.preco_atual : 0,
                 pontos: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? 0 : produto.fidelidade.custo_em_pontos
@@ -440,7 +493,7 @@
             carrinho.forEach(item => {
                 totalReais += item.preco; totalPontos += item.pontos;
                 
-                let detalhesExtra = item.textoDetalhes ? `<div class="mt-1" style="font-size: 12px; color: #888; line-height: 1.3;"><i class="fa-solid fa-arrow-turn-up fa-rotate-90"></i> ${item.textoDetalhes}</div>` : '';
+                let detalhesExtra = item.textoDetalhes ? `<div class="mt-1" style="font-size: 11px; color: #888; line-height: 1.4; padding-left: 5px; border-left: 2px solid #ddd;">${item.textoDetalhes}</div>` : '';
                 let textoValor = item.tipo === 'compra' 
                                 ? `<span class="fw-bold">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>` 
                                 : `<span class="fw-bold text-success"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`;
@@ -450,7 +503,7 @@
                         <div style="width: 90%;">
                             <span class="fw-bold" style="font-size: 14px; color: #222;">${item.nome}</span>
                             ${detalhesExtra}
-                            <div class="mt-1">${textoValor}</div>
+                            <div class="mt-2">${textoValor}</div>
                         </div>
                         <button class="btn-remover" onclick="removerDoCarrinho('${item.idIdemUnico}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
@@ -465,12 +518,9 @@
         // CHECKOUT E WHATSAPP COM OBSERVAÇÕES
         // ==========================================
         async function iniciarCheckout() {
-            // TRAVA DE SEGURANÇA: Exige Login para Finalizar!
             if (!clienteLogado) {
                 alert("Para acumular seus pontos e finalizar o pedido, por favor identifique-se!");
-                fecharCarrinho();
-                abrirModalLogin();
-                return;
+                fecharCarrinho(); abrirModalLogin(); return;
             }
 
             if(carrinho.length === 0) return;
@@ -534,8 +584,6 @@
             carrinho.forEach(item => {
                 totalReais += item.preco; totalPontos += item.pontos;
                 let tipoTxt = item.tipo === 'compra' ? `[R$ ${item.preco.toFixed(2)}]` : `[Resgate: ${item.pontos} pts]`;
-                
-                // Formata os detalhes bonitinhos no zap
                 let opTxt = item.textoDetalhes ? `%0a   ↳ _Detalhes:_ ${item.textoDetalhes}` : '';
                 msg += `- 1x *${item.nome}* ${tipoTxt}${opTxt}%0a`;
             });
