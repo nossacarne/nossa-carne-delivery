@@ -32,7 +32,6 @@
         .btn-principal { background-color: #8b0000; color: white; font-weight: 700; padding: 12px; border-radius: 8px; border: none; width: 100%; transition: 0.3s; }
         .btn-principal:hover { background-color: #6b0000; }
 
-        /* Estilo para Radio Buttons e Checkboxes Customizados */
         .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 12px; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; font-weight: 500; color: #444; background: #fafafa;}
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: #8b0000; background-color: #fff9f9; }
         .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: #8b0000; transform: scale(1.3); margin-top: -2px; }
@@ -72,7 +71,6 @@
 
         .pix-container { background-color: #f8f9fa; border: 2px dashed #28a745; padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-size: 13px; color: #555; }
         
-        /* Formatação da Seção Nossa História */
         .historia-section { background-color: #fff; padding: 70px 0; border-top: 1px solid #eee; }
         .texto-historia p { line-height: 1.8; color: #555; font-size: 16px; text-align: justify; }
         .citacao-historia { background-color: #fdf5f5; border-left: 5px solid #8b0000; padding: 20px; border-radius: 0 8px 8px 0; margin-top: 25px; }
@@ -144,8 +142,7 @@
                 <p class="text-muted small mb-0" id="subtitulo-modal-opcoes">Descrição do item</p>
             </div>
             <form id="form-opcoes" class="text-start">
-                <div id="lista-opcoes-conteudo">
-                    </div>
+                <div id="lista-opcoes-conteudo"></div>
                 <div class="mt-4" id="area-botao-modal"></div>
             </form>
         </div>
@@ -223,7 +220,7 @@
     <div class="container mt-4 mb-5">
         <div class="categorias-container">
             <div class="categorias-scroll" id="menu-categorias">
-                <button class="btn-categoria ativo" id="btn-cat-default" onclick="filtrarCategoria('Entradas', this)">Entradas</button>
+                <button class="btn-categoria ativo" id="btn-cat-default" onclick="filtrarCategoria('Para Começar', this)">Entradas</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Monte Seu Prato', this)">Monte Seu Prato</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Burgers Especiais', this)">Burgers Especiais</button>
                 <button class="btn-categoria" onclick="filtrarCategoria('Lanches Especiais', this)">Lanches Especiais</button>
@@ -248,14 +245,13 @@
         <div class="container">
             <div class="row align-items-center g-5">
                 <div class="col-md-5 text-center">
-                    <img src="./leaozinho.jpg" alt="Mascote Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 500px; border: 4px solid #fcfaf8;">
+                    <img src="/leaozinho.jpg" alt="Mascote Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 500px; border: 4px solid #fcfaf8;">
                 </div>
                 <div class="col-md-7 texto-historia">
                     <h2 class="titulo-destaque mb-4" style="font-size: 40px;"><i class="fa-solid fa-book-open"></i> Nossa História</h2>
                     <p>Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial de muitos restaurantes, padarias e hotéis e no mesmo preço de atacado.</p>
                     <p>Com os anos viemos evoluindo e acabamos nos especializando em Hamburguers, virando até fornecedores para outras Hamburguerias da região. Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
                     <p>Agora com pratos que trazem para nós e para nossos clientes uma memória afetiva de um bom almoço em família, com pratos como nosso parmegiana, nossa feijoada, nossa costela e cupim no bafo que passa 16 horas assando em baixa temperatura para ficar no ponto perfeito entre muitos outros, para sempre ter um motivo para voltar.</p>
-                    
                     <div class="citacao-historia">
                         <p>"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p>
                     </div>
@@ -277,9 +273,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        // ====================================================================
-        // CHAVES OFICIAIS DO FIREBASE
-        // ====================================================================
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
             authDomain: "nossa-carne-fidelidade.firebaseapp.com",
@@ -294,12 +287,12 @@
         const db = firebase.firestore();
 
         let saldoAtual = 0; let clienteLogado = false; let nomeDoClienteLogado = "";
-        let todosProdutos = []; let categoriaAtual = 'Entradas'; // Alterado aqui para Entradas!
+        // Corrigido para carregar "Para Começar" primeiro, resolvendo o mistério!
+        let todosProdutos = []; let categoriaAtual = 'Para Começar'; 
         let carrinho = []; let modoEntregaAtual = 'delivery'; 
 
         document.addEventListener('DOMContentLoaded', () => { carregarDadosDoBanco(); });
 
-        // Telas
         function abrirModalLogin() { document.getElementById('modal-login').style.display = 'flex'; mostrarLogin(); }
         function fecharModalLogin() { document.getElementById('modal-login').style.display = 'none'; }
         function mostrarCadastro() { document.getElementById('box-login').style.display = 'none'; document.getElementById('box-cadastro').style.display = 'block'; }
@@ -320,27 +313,17 @@
             }
         }
 
-        // Função de Limite para os 3 Acompanhamentos
         function limitarAcompanhamentos(checkbox) {
             const selecionados = document.querySelectorAll('input[name="opcao_acompanhamento"]:checked');
-            if (selecionados.length > 3) {
-                checkbox.checked = false;
-                alert("Você só pode escolher até 3 acompanhamentos!");
-            }
+            if (selecionados.length > 3) { checkbox.checked = false; alert("Você só pode escolher até 3 acompanhamentos!"); }
         }
 
-        // ==========================================
-        // NOVO FLUXO: REGRAS DE NEGÓCIO AVANÇADAS
-        // ==========================================
         function processarAcaoProduto(idItem, acaoDesejada) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
-            
             document.getElementById('titulo-modal-opcoes').innerText = produto.nome;
             document.getElementById('subtitulo-modal-opcoes').innerText = produto.descricao || "Personalize seu pedido abaixo.";
-            
             let htmlOpcoes = "";
 
-            // 1. Regra para Sabores (Bebidas e Saladas)
             if (produto.categoria === "Sucos" || produto.nome.includes("Sucos Naturais")) {
                 htmlOpcoes += criarSessaoOpcoes("Sabor do Suco", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
             } else if (produto.categoria === "Milk Shakes" || produto.nome.includes("Milk Shakes Variados")) {
@@ -349,19 +332,15 @@
                 htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_sabor");
             }
 
-            // 2. Regra dos Lanches (Pão + Ponto da Carne)
             const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
             const isLanche = categoriasLanches.includes(produto.categoria) || produto.nome.toLowerCase().includes('burger');
             const isCarnivoro = produto.nome.toLowerCase().includes('carnivoro') || produto.nome.toLowerCase().includes('carnívoro');
 
             if (isLanche) {
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
-                if (!isCarnivoro) {
-                    htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto");
-                }
+                if (!isCarnivoro) { htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto"); }
             }
 
-            // 3. Regra MONTE SEU PRATO (3 Acompanhamentos)
             if (produto.categoria === "Monte Seu Prato") {
                 const acompanhamentos = [
                     "Abóbora Grelhada", 'Aligot "Creme de Queijo com Batata"', "Saladinha", "2 Ovos Fritos",
@@ -382,7 +361,6 @@
                 htmlOpcoes += `</div>`;
             }
 
-            // 4. Regra para Observações Livres (Aparece para TODOS os itens)
             htmlOpcoes += `
                 <div class="mt-4 pt-3 border-top">
                     <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
@@ -391,18 +369,15 @@
             `;
 
             document.getElementById('lista-opcoes-conteudo').innerHTML = htmlOpcoes;
-
             const areaBotao = document.getElementById('area-botao-modal');
             if(acaoDesejada === 'comprar') {
                 areaBotao.innerHTML = `<button type="button" class="btn btn-outline-danger w-100 fw-bold py-3" style="border-width: 2px;" onclick="adicionarAoCarrinho('${produto.id_item}', 'compra')"><i class="fa-solid fa-cart-plus"></i> Adicionar ao Carrinho (R$ ${produto.preco_atual.toFixed(2).replace('.',',')})</button>`;
             } else {
                 areaBotao.innerHTML = `<button type="button" class="btn btn-success w-100 fw-bold py-3" onclick="adicionarAoCarrinho('${produto.id_item}', 'resgate')"><i class="fa-solid fa-star"></i> Confirmar Resgate (${produto.fidelidade.custo_em_pontos} pts)</button>`;
             }
-
             document.getElementById('modal-opcoes').style.display = 'flex';
         }
 
-        // Função auxiliar para criar as bolinhas de seleção
         function criarSessaoOpcoes(titulo, arrayOpcoes, nomeRadio) {
             let html = `<label class="fw-bold small mb-2 mt-3">${titulo}</label>`;
             arrayOpcoes.forEach((opcao, index) => {
@@ -413,42 +388,24 @@
 
         function adicionarAoCarrinho(idItem, tipoAcao) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
-            
-            // Coleta os dados que o cliente preencheu
             let valSabor = ""; let valPao = ""; let valPonto = ""; let valObs = ""; let valAcomp = [];
-            
-            const radSabor = document.querySelector('input[name="opcao_sabor"]:checked');
-            if(radSabor) valSabor = radSabor.value;
-            
-            const radPao = document.querySelector('input[name="opcao_pao"]:checked');
-            if(radPao) valPao = radPao.value;
-            
-            const radPonto = document.querySelector('input[name="opcao_ponto"]:checked');
-            if(radPonto) valPonto = radPonto.value;
-            
+            const radSabor = document.querySelector('input[name="opcao_sabor"]:checked'); if(radSabor) valSabor = radSabor.value;
+            const radPao = document.querySelector('input[name="opcao_pao"]:checked'); if(radPao) valPao = radPao.value;
+            const radPonto = document.querySelector('input[name="opcao_ponto"]:checked'); if(radPonto) valPonto = radPonto.value;
             document.querySelectorAll('input[name="opcao_acompanhamento"]:checked').forEach(cb => valAcomp.push(cb.value));
+            const textObs = document.getElementById('obs-pedido'); if(textObs) valObs = textObs.value.trim();
 
-            const textObs = document.getElementById('obs-pedido');
-            if(textObs) valObs = textObs.value.trim();
-
-            // VALIDAÇÃO: Se for prato, EXIGE 3 itens.
             if (produto.categoria === "Monte Seu Prato" && valAcomp.length !== 3) {
-                alert("Por favor, selecione exatamente 3 acompanhamentos para o seu prato!");
-                return; // Impede que o item vá para o carrinho
+                alert("Por favor, selecione exatamente 3 acompanhamentos para o seu prato!"); return;
             }
 
-            // Validação de resgate de pontos
             let totalPontosCarrinho = carrinho.filter(i => i.tipo === 'resgate').reduce((sum, item) => sum + item.pontos, 0);
             if (tipoAcao === 'resgate' || tipoAcao === 'resgatar') {
-                if ((totalPontosCarrinho + produto.fidelidade.custo_em_pontos) > saldoAtual) {
-                    alert("Atenção: Saldo de pontos insuficiente para resgatar mais este item."); return;
-                }
+                if ((totalPontosCarrinho + produto.fidelidade.custo_em_pontos) > saldoAtual) { alert("Atenção: Saldo de pontos insuficiente para resgatar mais este item."); return; }
             }
 
-            // Pode fechar o modal, pois passou nas validações!
             fecharModalOpcoes();
 
-            // Junta as personalizações para exibir no Carrinho e WhatsApp
             let detalhesItem = [];
             if(valSabor) detalhesItem.push(valSabor);
             if(valPao) detalhesItem.push(`Pão: ${valPao}`);
@@ -464,38 +421,20 @@
                 preco: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? produto.preco_atual : 0,
                 pontos: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? 0 : produto.fidelidade.custo_em_pontos
             });
-
-            atualizarInterfaceCarrinho();
-            abrirCarrinho();
+            atualizarInterfaceCarrinho(); abrirCarrinho();
         }
 
-        function removerDoCarrinho(idIdemUnico) {
-            carrinho = carrinho.filter(item => item.idIdemUnico !== idIdemUnico);
-            atualizarInterfaceCarrinho();
-        }
+        function removerDoCarrinho(idIdemUnico) { carrinho = carrinho.filter(item => item.idIdemUnico !== idIdemUnico); atualizarInterfaceCarrinho(); }
 
         function atualizarInterfaceCarrinho() {
-            const containerItems = document.getElementById('cart-items');
-            const cartFooter = document.getElementById('cart-footer');
-            const badge = document.getElementById('badge-cart-qtd');
+            const containerItems = document.getElementById('cart-items'); const cartFooter = document.getElementById('cart-footer'); const badge = document.getElementById('badge-cart-qtd');
             badge.innerText = carrinho.length;
-
-            if(carrinho.length === 0) {
-                containerItems.innerHTML = '<p class="text-center text-muted mt-5">Seu carrinho está vazio.</p>';
-                cartFooter.style.display = 'none'; return;
-            }
-
-            cartFooter.style.display = 'block'; containerItems.innerHTML = '';
-            let totalReais = 0; let totalPontos = 0;
-
+            if(carrinho.length === 0) { containerItems.innerHTML = '<p class="text-center text-muted mt-5">Seu carrinho está vazio.</p>'; cartFooter.style.display = 'none'; return; }
+            cartFooter.style.display = 'block'; containerItems.innerHTML = ''; let totalReais = 0; let totalPontos = 0;
             carrinho.forEach(item => {
                 totalReais += item.preco; totalPontos += item.pontos;
-                
                 let detalhesExtra = item.textoDetalhes ? `<div class="mt-1" style="font-size: 11px; color: #888; line-height: 1.4; padding-left: 5px; border-left: 2px solid #ddd;">${item.textoDetalhes}</div>` : '';
-                let textoValor = item.tipo === 'compra' 
-                                ? `<span class="fw-bold">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>` 
-                                : `<span class="fw-bold text-success"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`;
-
+                let textoValor = item.tipo === 'compra' ? `<span class="fw-bold">R$ ${item.preco.toFixed(2).replace('.', ',')}</span>` : `<span class="fw-bold text-success"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`;
                 containerItems.innerHTML += `
                     <div class="item-carrinho pr-4">
                         <div style="width: 90%;">
@@ -504,112 +443,60 @@
                             <div class="mt-2">${textoValor}</div>
                         </div>
                         <button class="btn-remover" onclick="removerDoCarrinho('${item.idIdemUnico}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
+                    </div>`;
             });
-
-            document.getElementById('total-reais').innerText = `R$ ${totalReais.toFixed(2).replace('.', ',')}`;
-            document.getElementById('total-pontos').innerText = `${totalPontos} pts`;
+            document.getElementById('total-reais').innerText = `R$ ${totalReais.toFixed(2).replace('.', ',')}`; document.getElementById('total-pontos').innerText = `${totalPontos} pts`;
         }
 
-        // ==========================================
-        // CHECKOUT E WHATSAPP COM OBSERVAÇÕES
-        // ==========================================
         async function iniciarCheckout() {
-            if (!clienteLogado) {
-                alert("Para acumular seus pontos e finalizar o pedido, por favor identifique-se!");
-                fecharCarrinho(); abrirModalLogin(); return;
-            }
-
+            if (!clienteLogado) { alert("Para acumular seus pontos e finalizar o pedido, por favor identifique-se!"); fecharCarrinho(); abrirModalLogin(); return; }
             if(carrinho.length === 0) return;
-
-            let rua = document.getElementById('end-rua').value.trim();
-            let bairro = document.getElementById('end-bairro').value.trim();
-
-            if(modoEntregaAtual === 'delivery' && (rua === "" || bairro === "")) {
-                alert("Por favor, preencha o endereço completo para o Delivery."); return;
-            }
-
+            let rua = document.getElementById('end-rua').value.trim(); let bairro = document.getElementById('end-bairro').value.trim();
+            if(modoEntregaAtual === 'delivery' && (rua === "" || bairro === "")) { alert("Por favor, preencha o endereço completo para o Delivery."); return; }
             let totalReais = carrinho.reduce((sum, item) => sum + item.preco, 0);
 
             if (totalReais > 0) {
-                document.getElementById('modal-pix').style.display = 'flex';
-                document.getElementById('loading-pix').style.display = 'block';
-                document.getElementById('area-codigo-pix').style.display = 'none';
-
+                document.getElementById('modal-pix').style.display = 'flex'; document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none';
                 try {
-                    const response = await fetch('/gerar-pix', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ valorTotal: totalReais })
-                    });
-                    
+                    const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: totalReais }) });
                     const data = await response.json();
-                    
                     if (data.qr_code_copia_cola) {
-                        document.getElementById('loading-pix').style.display = 'none';
-                        document.getElementById('area-codigo-pix').style.display = 'block';
-                        document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
-                    } else if (data.erro_detalhado) {
-                        alert("⚠️ O Mercado Pago recusou o pagamento. Motivo: " + data.erro_detalhado); fecharModalPix();
-                    } else {
-                        alert("Erro ao gerar PIX. Tente novamente."); fecharModalPix();
-                    }
-                } catch(error) {
-                    console.error(error); alert("Erro de conexão com o servidor. Tente novamente."); fecharModalPix();
-                }
-
+                        document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
+                    } else if (data.erro_detalhado) { alert("⚠️ O Mercado Pago recusou o pagamento. Motivo: " + data.erro_detalhado); fecharModalPix(); } else { alert("Erro ao gerar PIX. Tente novamente."); fecharModalPix(); }
+                } catch(error) { console.error(error); alert("Erro de conexão com o servidor. Tente novamente."); fecharModalPix(); }
             } else { enviarPedidoWhatsApp(); }
         }
 
-        function copiarPix() {
-            const textoPix = document.getElementById('texto-copia-cola').innerText;
-            navigator.clipboard.writeText(textoPix).then(() => { alert("Código PIX copiado! Pague no seu banco e depois clique em 'Já Paguei'."); });
-        }
+        function copiarPix() { navigator.clipboard.writeText(document.getElementById('texto-copia-cola').innerText).then(() => { alert("Código PIX copiado! Pague no seu banco e depois clique em 'Já Paguei'."); }); }
 
         function enviarPedidoWhatsApp() {
             let rua = document.getElementById('end-rua').value.trim(); let bairro = document.getElementById('end-bairro').value.trim(); let comp = document.getElementById('end-comp').value.trim();
-
             let msg = `Olá, Nossa Carne! Gostaria de finalizar um pedido.%0a%0a`;
             if (clienteLogado) { msg += `👤 *Cliente:* ${nomeDoClienteLogado}%0a`; }
             msg += `🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada no Local'}%0a`;
-            
             if(modoEntregaAtual === 'delivery') { msg += `📍 *Endereço:* ${rua}, ${bairro} ${comp ? '- ' + comp : ''}%0a`; }
             msg += `%0a🛒 *MEU PEDIDO:*%0a`;
-
             let totalReais = 0; let totalPontos = 0;
-
             carrinho.forEach(item => {
                 totalReais += item.preco; totalPontos += item.pontos;
                 let tipoTxt = item.tipo === 'compra' ? `[R$ ${item.preco.toFixed(2)}]` : `[Resgate: ${item.pontos} pts]`;
                 let opTxt = item.textoDetalhes ? `%0a   ↳ _Detalhes:_ ${item.textoDetalhes}` : '';
                 msg += `- 1x *${item.nome}* ${tipoTxt}${opTxt}%0a`;
             });
-
             msg += `%0a💰 *Total Pago (PIX/Site):* R$ ${totalReais.toFixed(2).replace('.',',')}`;
             if(totalPontos > 0) { msg += `%0a⭐ *Pontos utilizados:* ${totalPontos} pts`; }
-
-            let numeroWhatsapp = "5511944889002"; 
-            let linkWA = `https://wa.me/${numeroWhatsapp}?text=${msg}`;
-            
-            fecharModalPix(); window.open(linkWA, '_blank').focus();
+            fecharModalPix(); window.open(`https://wa.me/5511944889002?text=${msg}`, '_blank').focus();
         }
 
-        // ==========================================
-        // SISTEMA DE LOGIN E CADASTRO
-        // ==========================================
         async function fazerLogin() {
-            const telemovel = document.getElementById('input-telemovel').value.trim();
-            if(!telemovel) return;
+            const telemovel = document.getElementById('input-telemovel').value.trim(); if(!telemovel) return;
             try {
                 const docRef = await db.collection('clientes').doc(telemovel).get();
                 if (docRef.exists) {
                     const dadosCliente = docRef.data(); saldoAtual = dadosCliente.pontos; clienteLogado = true; nomeDoClienteLogado = dadosCliente.nome;
-                    fecharModalLogin();
-                    document.getElementById('btn-abrir-login').style.display = 'none'; document.getElementById('badge-saldo').style.display = 'flex';
+                    fecharModalLogin(); document.getElementById('btn-abrir-login').style.display = 'none'; document.getElementById('badge-saldo').style.display = 'flex';
                     document.getElementById('nome-cliente-nav').innerText = "Olá, " + dadosCliente.nome; document.getElementById('nome-cliente-nav').style.display = 'block';
-                    document.getElementById('saldo-nav').innerText = saldoAtual; document.getElementById('mensagem-erro').style.display = 'none';
-                    reaplicarFiltroAtual();
+                    document.getElementById('saldo-nav').innerText = saldoAtual; document.getElementById('mensagem-erro').style.display = 'none'; reaplicarFiltroAtual();
                 } else { document.getElementById('mensagem-erro').style.display = 'block'; }
             } catch (error) { console.error("Erro no login:", error); }
         }
@@ -630,8 +517,8 @@
             try {
                 const snapshot = await db.collection('produtos').get();
                 todosProdutos = []; snapshot.forEach((doc) => { todosProdutos.push(doc.data()); });
-                // Alterado aqui também para carregar a aba Entradas por padrão
-                const btnDefault = document.getElementById('btn-cat-default'); filtrarCategoria('Entradas', btnDefault); 
+                // Agora o site vai carregar e procurar no banco o que realmente está lá: "Para Começar"
+                const btnDefault = document.getElementById('btn-cat-default'); filtrarCategoria('Para Começar', btnDefault); 
             } catch (error) { console.error("Erro:", error); }
         }
 
