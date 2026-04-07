@@ -352,6 +352,11 @@
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
             }
 
+            // Exige o Molho se o cliente pedir uma Salada
+            if (produto.categoria === "Saladas") {
+                htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_sabor");
+            }
+
             if ((isLanche || produto.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) {
                 htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Selado", "Ao Ponto", "Seco"], "opcao_ponto");
             }
