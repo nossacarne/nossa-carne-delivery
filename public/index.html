@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Berkshire+Swash&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #fcfaf8; color: #333; overflow-x: hidden; }
@@ -71,7 +73,7 @@
 
         .pix-container { background-color: #f8f9fa; border: 2px dashed #28a745; padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all; font-size: 13px; color: #555; }
         
-        .historia-section { background-color: #fff; padding: 70px 0; border-top: 1px solid #eee; }
+        .historia-section { background-color: #fff; padding: 70px 0; border-top: 1px solid #eee; overflow: hidden; }
         .texto-historia p { line-height: 1.8; color: #555; font-size: 16px; text-align: justify; }
         .citacao-historia { background-color: #fdf5f5; border-left: 5px solid #8b0000; padding: 20px; border-radius: 0 8px 8px 0; margin-top: 25px; }
         .citacao-historia p { font-size: 18px; font-weight: bold; color: #8b0000; font-style: italic; margin: 0; text-align: center;}
@@ -211,7 +213,7 @@
     </button>
 
     <section class="hero">
-        <div class="container">
+        <div class="container" data-aos="zoom-in">
             <h1 class="titulo-destaque display-3 mb-3 text-white">Nosso Cardápio</h1>
             <p class="lead" style="font-weight: 300; font-size: 20px;">Peça as melhores carnes da região ou troque seus pontos.</p>
         </div>
@@ -244,10 +246,10 @@
     <section class="historia-section">
         <div class="container">
             <div class="row align-items-center g-5">
-                <div class="col-md-5 text-center">
+                <div class="col-md-5 text-center" data-aos="fade-right">
                     <img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" alt="Logo Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 500px; border: 4px solid #fcfaf8;">
                 </div>
-                <div class="col-md-7 texto-historia">
+                <div class="col-md-7 texto-historia" data-aos="fade-left">
                     <h2 class="titulo-destaque mb-4" style="font-size: 40px;"><i class="fa-solid fa-book-open"></i> Nossa História</h2>
                     <p>Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial de muitos restaurantes, padarias e hotéis e no mesmo preço de atacado.</p>
                     <p>Com os anos viemos evoluindo e acabamos nos especializando em Hamburguers, virando até fornecedores para outras Hamburguerias da região. Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
@@ -271,8 +273,17 @@
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <script>
+        // Inicializa as animações na rolagem da página
+        AOS.init({
+            duration: 800,
+            once: true,
+            offset: 100
+        });
+
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
             authDomain: "nossa-carne-fidelidade.firebaseapp.com",
@@ -287,7 +298,6 @@
         const db = firebase.firestore();
 
         let saldoAtual = 0; let clienteLogado = false; let nomeDoClienteLogado = "";
-        // Corrigido para carregar "Entradas" primeiro, batendo com o banco de dados!
         let todosProdutos = []; let categoriaAtual = 'Entradas'; 
         let carrinho = []; let modoEntregaAtual = 'delivery'; 
 
@@ -335,7 +345,6 @@
             const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
             const isLanche = categoriasLanches.includes(produto.categoria) || produto.nome.toLowerCase().includes('burger');
             
-            // Regras de exceção (para não perguntar o ponto de itens que não precisam)
             const isCarnivoro = produto.nome.toLowerCase().includes('carnivoro') || produto.nome.toLowerCase().includes('carnívoro');
             const isFrangoOuPeixe = produto.nome.toLowerCase().includes('frango') || produto.nome.toLowerCase().includes('flango') || produto.nome.toLowerCase().includes('chicken') || produto.nome.toLowerCase().includes('salmão') || produto.nome.toLowerCase().includes('tilápia');
 
@@ -343,7 +352,6 @@
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
             }
 
-            // Mostra o Ponto da Carne (Selado, Ao Ponto, Seco) para Lanches e "Monte Seu Prato" (se for carne bovina/suína)
             if ((isLanche || produto.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) {
                 htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Selado", "Ao Ponto", "Seco"], "opcao_ponto");
             }
@@ -522,9 +530,8 @@
 
         async function carregarDadosDoBanco() {
             try {
-                const snapshot = await db.collection('cardapio').get(); // <-- Alterado para 'cardapio'
+                const snapshot = await db.collection('cardapio').get(); 
                 todosProdutos = []; snapshot.forEach((doc) => { todosProdutos.push(doc.data()); });
-                // Agora o site vai carregar e procurar no banco o que realmente está lá: "Entradas"
                 const btnDefault = document.getElementById('btn-cat-default'); filtrarCategoria('Entradas', btnDefault); 
             } catch (error) { console.error("Erro:", error); }
         }
@@ -543,7 +550,7 @@
         function renderizarVitrine(listaDeProdutos) {
             const vitrine = document.getElementById('vitrine-itens'); vitrine.innerHTML = ''; 
             if(listaDeProdutos.length === 0) { vitrine.innerHTML = '<div class="col-12 text-center py-5"><p class="text-muted">Nenhum item encontrado nesta categoria.</p></div>'; return; }
-            listaDeProdutos.forEach(produto => {
+            listaDeProdutos.forEach((produto, index) => {
                 const custo = produto.fidelidade ? produto.fidelidade.custo_em_pontos : 0; const permiteResgate = produto.fidelidade ? produto.fidelidade.permite_resgate : false;
                 const precoReal = produto.preco_atual ? produto.preco_atual.toFixed(2).replace('.', ',') : '0,00';
                 const imagemUrl = (produto.imagem_url && produto.imagem_url.includes('http')) ? produto.imagem_url : 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=600&auto=format&fit=crop';
@@ -553,7 +560,14 @@
                     else if (saldoAtual >= custo) { htmlBotaoResgate = `<button class="btn fw-bold w-100 d-flex flex-column align-items-center justify-content-center" style="background-color: #28a745; color: white;" onclick="processarAcaoProduto('${produto.id_item}', 'resgatar')"><span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Resgatar</span><span style="font-size: 15px;"><i class="fa-solid fa-star"></i> ${custo} pts</span></button>`; } 
                     else { htmlBotaoResgate = `<button class="btn fw-bold w-100 d-flex flex-column align-items-center justify-content-center" style="background-color: #dc3545; color: white;" disabled><span style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px;">Faltam Pontos</span><span style="font-size: 15px;"><i class="fa-solid fa-ban"></i> ${custo} pts</span></button>`; }
                 }
+                
                 const col = document.createElement('div'); col.className = 'col-12 col-md-6 col-lg-4';
+                
+                // Configuração das animações AOS e do atraso (delay em cascata)
+                const delayAnimacao = (index % 10) * 100; 
+                col.setAttribute('data-aos', 'fade-up');
+                col.setAttribute('data-aos-delay', delayAnimacao);
+
                 col.innerHTML = `
                     <div class="produto-card">
                         <img src="${imagemUrl}" class="produto-img" alt="${produto.nome}">
