@@ -1,0 +1,16 @@
+{
+  "name": "Nossa Carne Delivery",
+  "short_name": "Nossa Carne",
+  "description": "Peça as melhores carnes e lanches da região!",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#8B0000",
+  "icons": [
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
