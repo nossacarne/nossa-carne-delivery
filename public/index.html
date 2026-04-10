@@ -158,7 +158,7 @@
             <button class="btn-fechar" onclick="fecharModalPix()"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-brands fa-pix" style="font-size: 40px; color: #32bcad; margin-bottom: 15px;"></i>
             <h4 class="fw-bold" style="color: #222;">Pagamento via PIX</h4>
-            <p class="text-muted small">Copie o código abaixo e pague no app do seu banco para confirmar o pedido.</p>
+            <p class="text-muted small">Abra o app do seu banco, escolha "PIX Copia e Cola" e confirme. O pedido será processado automaticamente!</p>
             
             <div id="loading-pix" class="my-4">
                 <div class="spinner-border text-success" role="status"></div>
@@ -169,8 +169,11 @@
                 <div class="pix-container" id="texto-copia-cola"></div>
                 <button class="btn btn-outline-success w-100 fw-bold mb-3" onclick="copiarPix()"><i class="fa-regular fa-copy"></i> Copiar Código PIX</button>
                 <hr>
-                <p class="small text-muted mb-2">Após realizar o pagamento, clique abaixo para enviar o pedido para a cozinha.</p>
-                <button class="btn-principal w-100" style="background-color: #25D366;" onclick="concluirPedidoGeral()"><i class="fa-brands fa-whatsapp"></i> Já Paguei! Enviar Pedido</button>
+                <div class="d-flex align-items-center justify-content-center mt-3 mb-2" style="gap: 10px;">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                    <span class="small text-muted fw-bold">Aguardando seu pagamento...</span>
+                </div>
+                <button class="btn btn-outline-secondary w-100 mt-2" style="font-size: 12px;" onclick="concluirPedidoGeral()">Já paguei (Confirmar Manualmente)</button>
             </div>
         </div>
     </div>
@@ -299,11 +302,7 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <script>
-        AOS.init({
-            duration: 800,
-            once: true,
-            offset: 100
-        });
+        AOS.init({ duration: 800, once: true, offset: 100 });
 
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
@@ -318,9 +317,13 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        // Variáveis de estado da loja
         let saldoAtual = 0; let clienteLogado = false; let nomeDoClienteLogado = "";
         let todosProdutos = []; let categoriaAtual = 'Entradas'; 
         let carrinho = []; let modoEntregaAtual = 'delivery'; 
+        
+        // NOVIDADE: Variável que controla o cronômetro do PIX
+        let verificadorPix = null; 
 
         document.addEventListener('DOMContentLoaded', () => { carregarDadosDoBanco(); });
 
@@ -331,7 +334,12 @@
         function fecharModalOpcoes() { document.getElementById('modal-opcoes').style.display = 'none'; }
         function abrirCarrinho() { document.getElementById('cart-sidebar').classList.add('open'); }
         function fecharCarrinho() { document.getElementById('cart-sidebar').classList.remove('open'); }
-        function fecharModalPix() { document.getElementById('modal-pix').style.display = 'none'; }
+        
+        // ATUALIZADO: Desliga o cronômetro se o cliente fechar o PIX antes de pagar
+        function fecharModalPix() { 
+            if (verificadorPix) clearInterval(verificadorPix);
+            document.getElementById('modal-pix').style.display = 'none'; 
+        }
 
         function mudarModoEntrega(modo) {
             modoEntregaAtual = modo;
@@ -369,17 +377,9 @@
             const isCarnivoro = produto.nome.toLowerCase().includes('carnivoro') || produto.nome.toLowerCase().includes('carnívoro');
             const isFrangoOuPeixe = produto.nome.toLowerCase().includes('frango') || produto.nome.toLowerCase().includes('flango') || produto.nome.toLowerCase().includes('chicken') || produto.nome.toLowerCase().includes('salmão') || produto.nome.toLowerCase().includes('tilápia');
 
-            if (isLanche) {
-                htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
-            }
-
-            if (produto.categoria === "Saladas") {
-                htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_sabor");
-            }
-
-            if ((isLanche || produto.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) {
-                htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Selado", "Ao Ponto", "Seco"], "opcao_ponto");
-            }
+            if (isLanche) { htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao"); }
+            if (produto.categoria === "Saladas") { htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_sabor"); }
+            if ((isLanche || produto.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) { htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Selado", "Ao Ponto", "Seco"], "opcao_ponto"); }
 
             if (produto.categoria === "Monte Seu Prato") {
                 const acompanhamentos = [
@@ -387,26 +387,14 @@
                     "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia",
                     "Maionese de Legumes", "Feijão", "Farofa (Azeitona + Ovo)", "Rodelas de Pão", "Banana à Milanesa"
                 ];
-                htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos (Obrigatório)</label>`;
-                htmlOpcoes += `<div class="row g-2 mb-3">`;
+                htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos (Obrigatório)</label><div class="row g-2 mb-3">`;
                 acompanhamentos.forEach((acomp) => {
-                    htmlOpcoes += `
-                    <div class="col-12 col-md-6">
-                        <label class="checkbox-opcao w-100 m-0" style="padding: 10px;">
-                            <input type="checkbox" name="opcao_acompanhamento" value='${acomp}' onchange="limitarAcompanhamentos(this)">
-                            <span style="font-size: 13px;">${acomp}</span>
-                        </label>
-                    </div>`;
+                    htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0" style="padding: 10px;"><input type="checkbox" name="opcao_acompanhamento" value='${acomp}' onchange="limitarAcompanhamentos(this)"><span style="font-size: 13px;">${acomp}</span></label></div>`;
                 });
                 htmlOpcoes += `</div>`;
             }
 
-            htmlOpcoes += `
-                <div class="mt-4 pt-3 border-top">
-                    <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
-                    <textarea id="obs-pedido" class="form-control" rows="2" placeholder="Ex: Tirar a cebola, maionese à parte, sem gelo..."></textarea>
-                </div>
-            `;
+            htmlOpcoes += `<div class="mt-4 pt-3 border-top"><label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label><textarea id="obs-pedido" class="form-control" rows="2" placeholder="Ex: Tirar a cebola, maionese à parte, sem gelo..."></textarea></div>`;
 
             document.getElementById('lista-opcoes-conteudo').innerHTML = htmlOpcoes;
             const areaBotao = document.getElementById('area-botao-modal');
@@ -426,9 +414,6 @@
             return html;
         }
 
-        // ========================================================
-        // FUNÇÃO ATUALIZADA: ADICIONAR AO CARRINHO (COM CÓDIGOS PDV)
-        // ========================================================
         function adicionarAoCarrinho(idItem, tipoAcao) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
             let valSabor = ""; let valPao = ""; let valPonto = ""; let valObs = ""; let valAcomp = [];
@@ -460,7 +445,6 @@
                 idIdemUnico: Math.random().toString(36).substr(2, 9),
                 id_produto: produto.id_item,
                 nome: produto.nome,
-                // Capturando PDV e Setor para as impressoras
                 codigo_pdv: produto.codigo_pdv || "0000", 
                 setor_producao: produto.setor_producao || "Sem Setor",
                 textoDetalhes: detalhesItem.join(" | "), 
@@ -495,6 +479,7 @@
             document.getElementById('total-reais').innerText = `R$ ${totalReais.toFixed(2).replace('.', ',')}`; document.getElementById('total-pontos').innerText = `${totalPontos} pts`;
         }
 
+        // ATUALIZADO: Chama o backend e inicia o cronômetro
         async function iniciarCheckout() {
             if (!clienteLogado) { alert("Para acumular seus pontos e finalizar o pedido, por favor identifique-se!"); fecharCarrinho(); abrirModalLogin(); return; }
             if(carrinho.length === 0) return;
@@ -503,83 +488,75 @@
             let totalReais = carrinho.reduce((sum, item) => sum + item.preco, 0);
 
             if (totalReais > 0) {
-                document.getElementById('modal-pix').style.display = 'flex'; document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none';
+                document.getElementById('modal-pix').style.display = 'flex'; 
+                document.getElementById('loading-pix').style.display = 'block'; 
+                document.getElementById('area-codigo-pix').style.display = 'none';
+                
                 try {
                     const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: totalReais }) });
                     const data = await response.json();
-                    if (data.qr_code_copia_cola) {
-                        document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
-                    } else if (data.erro_detalhado) { alert("⚠️ O Mercado Pago recusou o pagamento. Motivo: " + data.erro_detalhado); fecharModalPix(); } else { alert("Erro ao gerar PIX. Tente novamente."); fecharModalPix(); }
-                } catch(error) { console.error(error); alert("Erro de conexão com o servidor. Tente novamente."); fecharModalPix(); }
+                    
+                    if (data.qr_code_copia_cola && data.id_transacao) {
+                        document.getElementById('loading-pix').style.display = 'none'; 
+                        document.getElementById('area-codigo-pix').style.display = 'block'; 
+                        document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
+                        
+                        // MÁGICA: Começa a perguntar se o PIX caiu a cada 3 segundos
+                        verificadorPix = setInterval(() => {
+                            verificarStatusPagamento(data.id_transacao);
+                        }, 3000);
+
+                    } else if (data.erro_detalhado) { 
+                        alert("⚠️ O Mercado Pago recusou o pagamento. Motivo: " + data.erro_detalhado); fecharModalPix(); 
+                    } else { 
+                        alert("Erro ao gerar PIX. Tente novamente."); fecharModalPix(); 
+                    }
+                } catch(error) { 
+                    console.error(error); alert("Erro de conexão com o servidor. Tente novamente."); fecharModalPix(); 
+                }
             } else { 
-                // Se for pedido só com pontos, vai direto pra conclusão
                 concluirPedidoGeral(); 
             }
         }
 
-        function copiarPix() { navigator.clipboard.writeText(document.getElementById('texto-copia-cola').innerText).then(() => { alert("Código PIX copiado! Pague no seu banco e depois clique em 'Já Paguei'."); }); }
+        function copiarPix() { navigator.clipboard.writeText(document.getElementById('texto-copia-cola').innerText).then(() => { alert("Código PIX copiado! Pague no seu banco e aguarde a confirmação automática."); }); }
 
-        // ========================================================
-        // NOVA FUNÇÃO: SALVAR VENDA NO FIREBASE
-        // ========================================================
-        async function salvarVendaFirebase() {
-            if (carrinho.length === 0) return;
-
-            let rua = document.getElementById('end-rua').value.trim();
-            let bairro = document.getElementById('end-bairro').value.trim();
-            let comp = document.getElementById('end-comp').value.trim();
-
-            let totalReais = carrinho.reduce((sum, item) => sum + item.preco, 0);
-            let totalPontos = carrinho.reduce((sum, item) => sum + item.pontos, 0);
-
-            const dadosPedido = {
-                data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
-                status_producao: "Pendente",
-                cliente: {
-                    nome: clienteLogado ? nomeDoClienteLogado : "Não identificado",
-                    telefone: document.getElementById('input-telemovel').value.trim() || "Sem número"
-                },
-                logistica: {
-                    modo_entrega: modoEntregaAtual,
-                    endereco: modoEntregaAtual === 'delivery' ? `${rua}, ${bairro} - ${comp}` : "Retirada na Loja"
-                },
-                financeiro: {
-                    total_pago_reais: totalReais,
-                    pontos_utilizados: totalPontos,
-                    metodo_pagamento: totalReais > 0 ? "PIX" : "Apenas Pontos"
-                },
-                itens: carrinho.map(item => ({
-                    nome: item.nome,
-                    codigo_pdv: item.codigo_pdv,
-                    setor_producao: item.setor_producao,
-                    preco: item.preco,
-                    pontos: item.pontos,
-                    tipo: item.tipo,
-                    detalhes: item.textoDetalhes
-                }))
-            };
-
+        // NOVIDADE: O "Ouvido" que escuta a aprovação do Mercado Pago
+        async function verificarStatusPagamento(idPagamento) {
             try {
-                await db.collection('vendas_concluidas').add(dadosPedido);
-                console.log("Venda registrada com sucesso no banco de dados!");
+                const response = await fetch(`/consultar-pix/${idPagamento}`);
+                const data = await response.json();
+
+                if (data.status === 'approved') {
+                    // O PIX CAIU! Para o cronômetro, avisa o cliente e dispara o pedido
+                    clearInterval(verificadorPix);
+                    alert("✅ Pagamento Aprovado! Recebemos o seu PIX e seu pedido foi enviado para a cozinha.");
+                    concluirPedidoGeral();
+                }
             } catch (error) {
-                console.error("Erro ao registrar a venda no Firebase: ", error);
+                console.error("Erro ao verificar o status do PIX silenciosamente.");
             }
         }
 
-        // ========================================================
-        // NOVA FUNÇÃO: CONCLUSÃO GERAL (Firebase + WhatsApp)
-        // ========================================================
+        async function salvarVendaFirebase() {
+            if (carrinho.length === 0) return;
+            let rua = document.getElementById('end-rua').value.trim(); let bairro = document.getElementById('end-bairro').value.trim(); let comp = document.getElementById('end-comp').value.trim();
+            let totalReais = carrinho.reduce((sum, item) => sum + item.preco, 0); let totalPontos = carrinho.reduce((sum, item) => sum + item.pontos, 0);
+            const dadosPedido = {
+                data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
+                status_producao: "Pendente",
+                cliente: { nome: clienteLogado ? nomeDoClienteLogado : "Não identificado", telefone: document.getElementById('input-telemovel').value.trim() || "Sem número" },
+                logistica: { modo_entrega: modoEntregaAtual, endereco: modoEntregaAtual === 'delivery' ? `${rua}, ${bairro} - ${comp}` : "Retirada na Loja" },
+                financeiro: { total_pago_reais: totalReais, pontos_utilizados: totalPontos, metodo_pagamento: totalReais > 0 ? "PIX" : "Apenas Pontos" },
+                itens: carrinho.map(item => ({ nome: item.nome, codigo_pdv: item.codigo_pdv, setor_producao: item.setor_producao, preco: item.preco, pontos: item.pontos, tipo: item.tipo, detalhes: item.textoDetalhes }))
+            };
+            try { await db.collection('vendas_concluidas').add(dadosPedido); console.log("Venda registrada!"); } catch (error) { console.error("Erro Firebase: ", error); }
+        }
+
         async function concluirPedidoGeral() {
-            // 1. Salva a venda detalhada no Firebase
             await salvarVendaFirebase();
-            
-            // 2. Chama o WhatsApp
             enviarPedidoWhatsApp();
-            
-            // 3. Esvazia o carrinho
-            carrinho = [];
-            atualizarInterfaceCarrinho();
+            carrinho = []; atualizarInterfaceCarrinho();
         }
 
         function enviarPedidoWhatsApp() {
@@ -660,42 +637,16 @@
                 }
                 
                 const col = document.createElement('div'); col.className = 'col-12 col-md-6 col-lg-4';
-                
-                const delayAnimacao = (index % 10) * 100; 
-                col.setAttribute('data-aos', 'fade-up');
-                col.setAttribute('data-aos-delay', delayAnimacao);
+                const delayAnimacao = (index % 10) * 100; col.setAttribute('data-aos', 'fade-up'); col.setAttribute('data-aos-delay', delayAnimacao);
 
-                col.innerHTML = `
-                    <div class="produto-card">
-                        <img src="${imagemUrl}" class="produto-img" alt="${produto.nome}">
-                        <div class="produto-body pb-0">
-                            <h4 class="fw-bold mb-2" style="color: #222; font-size: 18px;">${produto.nome}</h4>
-                            <p class="produto-desc">${produto.descricao || ''}</p>
-                        </div>
-                        <div class="p-3 pt-0 mt-auto">
-                            <div class="d-flex gap-2 mt-3 border-top pt-3">
-                                <button class="btn btn-outline-danger fw-bold w-100 d-flex flex-column align-items-center justify-content-center" style="border-width: 2px;" onclick="processarAcaoProduto('${produto.id_item}', 'comprar')">
-                                    <span style="font-size: 10px; color: #8b0000; text-transform: uppercase; letter-spacing: 0.5px;">Comprar</span>
-                                    <span style="font-size: 15px;">R$ ${precoReal}</span>
-                                </button>
-                                ${htmlBotaoResgate}
-                            </div>
-                        </div>
-                    </div>`;
+                col.innerHTML = `<div class="produto-card"><img src="${imagemUrl}" class="produto-img" alt="${produto.nome}"><div class="produto-body pb-0"><h4 class="fw-bold mb-2" style="color: #222; font-size: 18px;">${produto.nome}</h4><p class="produto-desc">${produto.descricao || ''}</p></div><div class="p-3 pt-0 mt-auto"><div class="d-flex gap-2 mt-3 border-top pt-3"><button class="btn btn-outline-danger fw-bold w-100 d-flex flex-column align-items-center justify-content-center" style="border-width: 2px;" onclick="processarAcaoProduto('${produto.id_item}', 'comprar')"><span style="font-size: 10px; color: #8b0000; text-transform: uppercase; letter-spacing: 0.5px;">Comprar</span><span style="font-size: 15px;">R$ ${precoReal}</span></button>${htmlBotaoResgate}</div></div></div>`;
                 vitrine.appendChild(col);
             });
         }
     </script>
-    
     <script>
-        function instalarApple() {
-            alert("🍎 Para instalar no iPhone ou iPad:\n\n1. Toque no ícone de Compartilhar (o quadrado com uma seta para cima) na barra inferior do Safari.\n2. Role o menu para baixo e escolha 'Adicionar à Tela de Início'.\n3. Pronto! O app do Nossa Carne estará na sua tela inicial.");
-        }
-
-        function instalarAndroid() {
-            alert("🤖 Para instalar no Android:\n\n1. Clique nos três pontinhos (⋮) no canto superior direito do seu navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.\n3. Pronto! O app do Nossa Carne estará no seu celular.");
-        }
+        function instalarApple() { alert("🍎 Para instalar no iPhone ou iPad:\n\n1. Toque no ícone de Compartilhar (o quadrado com uma seta para cima) na barra inferior do Safari.\n2. Role o menu para baixo e escolha 'Adicionar à Tela de Início'.\n3. Pronto! O app do Nossa Carne estará na sua tela inicial."); }
+        function instalarAndroid() { alert("🤖 Para instalar no Android:\n\n1. Clique nos três pontinhos (⋮) no canto superior direito do seu navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.\n3. Pronto! O app do Nossa Carne estará no seu celular."); }
     </script>
-    
 </body>
 </html>
