@@ -21,14 +21,11 @@
         .titulo-destaque { font-family: 'Berkshire Swash', cursive; color: #8b0000; }
         
         .navbar-custom { background-color: #ffffff; padding: 15px 0; box-shadow: 0 2px 10px rgba(0,0,0,0.08); z-index: 1040; }
-        /* Alterado a cor do texto para preto (#000000) */
         .navbar-brand { font-family: 'Berkshire Swash', cursive; font-size: 30px; color: #000000 !important; margin: 0; display: flex; align-items: center; gap: 10px; }
         .logo-img { height: 45px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         
         .area-usuario { display: flex; align-items: center; gap: 15px; }
         .saldo-badge { background-color: #ffc107; color: #000; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 14px; display: none; align-items: center; gap: 5px;}
-        
-        /* Botão Entrar alterado para Preto (#000000) */
         .btn-entrar { border: 2px solid #000000; color: #000000; background: transparent; padding: 8px 20px; border-radius: 25px; font-weight: bold; transition: 0.3s; }
         .btn-entrar:hover { background: #000000; color: white; }
 
@@ -173,7 +170,7 @@
                 <button class="btn btn-outline-success w-100 fw-bold mb-3" onclick="copiarPix()"><i class="fa-regular fa-copy"></i> Copiar Código PIX</button>
                 <hr>
                 <p class="small text-muted mb-2">Após realizar o pagamento, clique abaixo para enviar o pedido para a cozinha.</p>
-                <button class="btn-principal w-100" style="background-color: #25D366;" onclick="enviarPedidoWhatsApp()"><i class="fa-brands fa-whatsapp"></i> Já Paguei! Enviar Pedido</button>
+                <button class="btn-principal w-100" style="background-color: #25D366;" onclick="concluirPedidoGeral()"><i class="fa-brands fa-whatsapp"></i> Já Paguei! Enviar Pedido</button>
             </div>
         </div>
     </div>
@@ -249,12 +246,10 @@
         <div class="row g-4" id="vitrine-itens"></div>
     </div>
 
-    <!-- SEÇÃO: BAIXE O APP ADICIONADA AQUI -->
     <div style="text-align: center; margin: 50px 0; padding: 30px 20px; background-color: #fcfcfc; border-top: 1px solid #eee; border-bottom: 1px solid #eee;">
         <h2 style="color: #8B0000; margin-bottom: 10px; font-weight: bold;">Leve o Nossa Carne no seu bolso!</h2>
         <p style="color: #555; margin-bottom: 25px; font-size: 16px;">Instale nosso aplicativo para pedir mais rápido e acumular pontos.</p>
         
-        <!-- Botão da Apple -->
         <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" 
              onclick="instalarApple()" 
              style="cursor: pointer; width: 160px; margin: 10px; transition: transform 0.2s;" 
@@ -262,7 +257,6 @@
              onmouseout="this.style.transform='scale(1)'"
              alt="Baixar na App Store">
 
-        <!-- Botão do Google Play -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" 
              onclick="instalarAndroid()" 
              style="cursor: pointer; width: 160px; margin: 10px; transition: transform 0.2s;" 
@@ -270,7 +264,6 @@
              onmouseout="this.style.transform='scale(1)'"
              alt="Disponível no Google Play">
     </div>
-    <!-- FIM DA SEÇÃO: BAIXE O APP -->
 
     <section class="historia-section">
         <div class="container">
@@ -306,7 +299,6 @@
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 
     <script>
-        // Inicializa as animações na rolagem da página
         AOS.init({
             duration: 800,
             once: true,
@@ -381,7 +373,6 @@
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao");
             }
 
-            // Exige o Molho se o cliente pedir uma Salada
             if (produto.categoria === "Saladas") {
                 htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_sabor");
             }
@@ -435,6 +426,9 @@
             return html;
         }
 
+        // ========================================================
+        // FUNÇÃO ATUALIZADA: ADICIONAR AO CARRINHO (COM CÓDIGOS PDV)
+        // ========================================================
         function adicionarAoCarrinho(idItem, tipoAcao) {
             const produto = todosProdutos.find(p => p.id_item === idItem);
             let valSabor = ""; let valPao = ""; let valPonto = ""; let valObs = ""; let valAcomp = [];
@@ -464,7 +458,11 @@
 
             carrinho.push({
                 idIdemUnico: Math.random().toString(36).substr(2, 9),
+                id_produto: produto.id_item,
                 nome: produto.nome,
+                // Capturando PDV e Setor para as impressoras
+                codigo_pdv: produto.codigo_pdv || "0000", 
+                setor_producao: produto.setor_producao || "Sem Setor",
                 textoDetalhes: detalhesItem.join(" | "), 
                 tipo: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? 'compra' : 'resgate',
                 preco: (tipoAcao === 'compra' || tipoAcao === 'comprar') ? produto.preco_atual : 0,
@@ -513,10 +511,76 @@
                         document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
                     } else if (data.erro_detalhado) { alert("⚠️ O Mercado Pago recusou o pagamento. Motivo: " + data.erro_detalhado); fecharModalPix(); } else { alert("Erro ao gerar PIX. Tente novamente."); fecharModalPix(); }
                 } catch(error) { console.error(error); alert("Erro de conexão com o servidor. Tente novamente."); fecharModalPix(); }
-            } else { enviarPedidoWhatsApp(); }
+            } else { 
+                // Se for pedido só com pontos, vai direto pra conclusão
+                concluirPedidoGeral(); 
+            }
         }
 
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('texto-copia-cola').innerText).then(() => { alert("Código PIX copiado! Pague no seu banco e depois clique em 'Já Paguei'."); }); }
+
+        // ========================================================
+        // NOVA FUNÇÃO: SALVAR VENDA NO FIREBASE
+        // ========================================================
+        async function salvarVendaFirebase() {
+            if (carrinho.length === 0) return;
+
+            let rua = document.getElementById('end-rua').value.trim();
+            let bairro = document.getElementById('end-bairro').value.trim();
+            let comp = document.getElementById('end-comp').value.trim();
+
+            let totalReais = carrinho.reduce((sum, item) => sum + item.preco, 0);
+            let totalPontos = carrinho.reduce((sum, item) => sum + item.pontos, 0);
+
+            const dadosPedido = {
+                data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
+                status_producao: "Pendente",
+                cliente: {
+                    nome: clienteLogado ? nomeDoClienteLogado : "Não identificado",
+                    telefone: document.getElementById('input-telemovel').value.trim() || "Sem número"
+                },
+                logistica: {
+                    modo_entrega: modoEntregaAtual,
+                    endereco: modoEntregaAtual === 'delivery' ? `${rua}, ${bairro} - ${comp}` : "Retirada na Loja"
+                },
+                financeiro: {
+                    total_pago_reais: totalReais,
+                    pontos_utilizados: totalPontos,
+                    metodo_pagamento: totalReais > 0 ? "PIX" : "Apenas Pontos"
+                },
+                itens: carrinho.map(item => ({
+                    nome: item.nome,
+                    codigo_pdv: item.codigo_pdv,
+                    setor_producao: item.setor_producao,
+                    preco: item.preco,
+                    pontos: item.pontos,
+                    tipo: item.tipo,
+                    detalhes: item.textoDetalhes
+                }))
+            };
+
+            try {
+                await db.collection('vendas_concluidas').add(dadosPedido);
+                console.log("Venda registrada com sucesso no banco de dados!");
+            } catch (error) {
+                console.error("Erro ao registrar a venda no Firebase: ", error);
+            }
+        }
+
+        // ========================================================
+        // NOVA FUNÇÃO: CONCLUSÃO GERAL (Firebase + WhatsApp)
+        // ========================================================
+        async function concluirPedidoGeral() {
+            // 1. Salva a venda detalhada no Firebase
+            await salvarVendaFirebase();
+            
+            // 2. Chama o WhatsApp
+            enviarPedidoWhatsApp();
+            
+            // 3. Esvazia o carrinho
+            carrinho = [];
+            atualizarInterfaceCarrinho();
+        }
 
         function enviarPedidoWhatsApp() {
             let rua = document.getElementById('end-rua').value.trim(); let bairro = document.getElementById('end-bairro').value.trim(); let comp = document.getElementById('end-comp').value.trim();
@@ -597,7 +661,6 @@
                 
                 const col = document.createElement('div'); col.className = 'col-12 col-md-6 col-lg-4';
                 
-                // Configuração das animações AOS e do atraso (delay em cascata)
                 const delayAnimacao = (index % 10) * 100; 
                 col.setAttribute('data-aos', 'fade-up');
                 col.setAttribute('data-aos-delay', delayAnimacao);
@@ -624,7 +687,6 @@
         }
     </script>
     
-    <!-- SCRIPT DE INSTALAÇÃO DO APP -->
     <script>
         function instalarApple() {
             alert("🍎 Para instalar no iPhone ou iPad:\n\n1. Toque no ícone de Compartilhar (o quadrado com uma seta para cima) na barra inferior do Safari.\n2. Role o menu para baixo e escolha 'Adicionar à Tela de Início'.\n3. Pronto! O app do Nossa Carne estará na sua tela inicial.");
@@ -634,7 +696,6 @@
             alert("🤖 Para instalar no Android:\n\n1. Clique nos três pontinhos (⋮) no canto superior direito do seu navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.\n3. Pronto! O app do Nossa Carne estará no seu celular.");
         }
     </script>
-    <!-- FIM DO SCRIPT DE INSTALAÇÃO -->
     
 </body>
 </html>
