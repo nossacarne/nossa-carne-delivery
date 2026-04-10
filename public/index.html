@@ -155,7 +155,7 @@
 
     <div class="modal-overlay" id="modal-pix">
         <div class="login-box" style="padding: 30px; text-align: center;">
-            <button class="btn btn-outline-secondary w-100 mt-2" style="font-size: 12px;" onclick="concluirPedidoGeral()">Já paguei (Confirmar Manualmente)</button>
+            <button class="btn-fechar" onclick="fecharModalPix()"><i class="fa-solid fa-xmark"></i></button>
             <i class="fa-brands fa-pix" style="font-size: 40px; color: #32bcad; margin-bottom: 15px;"></i>
             <h4 class="fw-bold" style="color: #222;">Pagamento via PIX</h4>
             <p class="text-muted small">Abra o app do seu banco, escolha "PIX Copia e Cola" e confirme. O pedido será processado automaticamente!</p>
@@ -173,7 +173,6 @@
                     <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
                     <span class="small text-muted fw-bold">Aguardando seu pagamento...</span>
                 </div>
-                <button class="btn btn-outline-secondary w-100 mt-2" style="font-size: 12px;" onclick="concluirPedidoGeral()">Já paguei (Confirmar Manualmente)</button>
             </div>
         </div>
     </div>
@@ -322,7 +321,6 @@
         let todosProdutos = []; let categoriaAtual = 'Entradas'; 
         let carrinho = []; let modoEntregaAtual = 'delivery'; 
         
-        // NOVIDADE: Variável que controla o cronômetro do PIX
         let verificadorPix = null; 
 
         document.addEventListener('DOMContentLoaded', () => { carregarDadosDoBanco(); });
@@ -335,7 +333,6 @@
         function abrirCarrinho() { document.getElementById('cart-sidebar').classList.add('open'); }
         function fecharCarrinho() { document.getElementById('cart-sidebar').classList.remove('open'); }
         
-        // ATUALIZADO: Desliga o cronômetro se o cliente fechar o PIX antes de pagar
         function fecharModalPix() { 
             if (verificadorPix) clearInterval(verificadorPix);
             document.getElementById('modal-pix').style.display = 'none'; 
@@ -479,7 +476,6 @@
             document.getElementById('total-reais').innerText = `R$ ${totalReais.toFixed(2).replace('.', ',')}`; document.getElementById('total-pontos').innerText = `${totalPontos} pts`;
         }
 
-        // ATUALIZADO: Chama o backend e inicia o cronômetro
         async function iniciarCheckout() {
             if (!clienteLogado) { alert("Para acumular seus pontos e finalizar o pedido, por favor identifique-se!"); fecharCarrinho(); abrirModalLogin(); return; }
             if(carrinho.length === 0) return;
@@ -501,7 +497,6 @@
                         document.getElementById('area-codigo-pix').style.display = 'block'; 
                         document.getElementById('texto-copia-cola').innerText = data.qr_code_copia_cola;
                         
-                        // MÁGICA: Começa a perguntar se o PIX caiu a cada 3 segundos
                         verificadorPix = setInterval(() => {
                             verificarStatusPagamento(data.id_transacao);
                         }, 3000);
@@ -521,14 +516,12 @@
 
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('texto-copia-cola').innerText).then(() => { alert("Código PIX copiado! Pague no seu banco e aguarde a confirmação automática."); }); }
 
-        // NOVIDADE: O "Ouvido" que escuta a aprovação do Mercado Pago
         async function verificarStatusPagamento(idPagamento) {
             try {
                 const response = await fetch(`/consultar-pix/${idPagamento}`);
                 const data = await response.json();
 
                 if (data.status === 'approved') {
-                    // O PIX CAIU! Para o cronômetro, avisa o cliente e dispara o pedido
                     clearInterval(verificadorPix);
                     alert("✅ Pagamento Aprovado! Recebemos o seu PIX e seu pedido foi enviado para a cozinha.");
                     concluirPedidoGeral();
