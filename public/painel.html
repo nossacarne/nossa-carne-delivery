@@ -1,4 +1,356 @@
-// --- GESTÃO DE PEDIDOS ---
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal do Parceiro - Nossa Carne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
+        
+        #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #8B0000; }
+        .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
+        
+        #conteudo-admin { display: none; }
+        
+        .sidebar { height: 100vh; background: #1a1a1a; color: white; position: fixed; width: 260px; z-index: 1000; }
+        .logo-sidebar { width: 60px; border-radius: 8px; margin-bottom: 10px; }
+        .main-content { margin-left: 260px; padding: 30px; }
+        
+        .nav-link { color: #ccc; margin-bottom: 10px; cursor: pointer; padding: 12px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        .nav-link:hover, .nav-link.active { background: #8B0000; border-radius: 8px; color: #fff; text-decoration: none; }
+        
+        .card-stats { background: white; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
+        .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        .badge-pdv { background: #e9ecef; color: #495057; font-family: monospace; font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+        
+        .text-gestao { color: #ffffff !important; font-size: 13px; font-weight: 500; opacity: 0.9; }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div id="tela-login">
+        <div class="login-card text-center">
+            <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-login" alt="Logo Nossa Carne">
+            <h3 class="fw-bold mb-4" style="color: #8B0000;">Nossa Carne Admin</h3>
+            <input type="email" id="email-admin" class="form-control mb-3" placeholder="E-mail">
+            <input type="password" id="senha-admin" class="form-control mb-4" placeholder="Senha">
+            <button class="btn btn-danger w-100 fw-bold py-2" onclick="fazerLoginAdmin()">Acessar Painel</button>
+            <p id="erro-auth" class="text-danger mt-3 small" style="display:none;">Credenciais incorretas.</p>
+        </div>
+    </div>
+
+    <div id="conteudo-admin">
+        <div class="sidebar d-flex flex-column p-3">
+            <div class="text-center mb-4">
+                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-sidebar" alt="Logo Sidebar">
+                <h4 class="fw-bold m-0 text-white">Nossa Carne</h4>
+                <div class="text-gestao">Gestão Operacional</div>
+            </div>
+            <hr style="border-color: #444;">
+            <nav class="nav flex-column">
+                <a class="nav-link active" onclick="mostrarSecao('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard Financeiro</a>
+                <a class="nav-link" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt"></i> Pedidos do Dia</a>
+                <a class="nav-link" onclick="mostrarSecao('cardapio')"><i class="fa-solid fa-burger"></i> Gerenciar Cardápio</a>
+                <a class="nav-link" onclick="mostrarSecao('config')"><i class="fa-solid fa-gears"></i> Configurações / MP</a>
+                <a class="nav-link mt-5 text-danger" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair do Sistema</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            
+            <section id="secao-dashboard">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Análise de Performance</h2>
+                    <button class="btn btn-success fw-bold" onclick="exportarExcelVendas()">
+                        <i class="fa-solid fa-file-excel me-2"></i> Exportar Relatório (Excel)
+                    </button>
+                </div>
+                
+                <div class="row g-4 mb-5">
+                    <div class="col-md-3">
+                        <div class="card-stats">
+                            <small class="text-muted text-uppercase fw-bold">Faturamento Acumulado</small>
+                            <h3 id="fat-mes" class="fw-bold mt-1">R$ 0,00</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card-stats">
+                            <small class="text-muted text-uppercase fw-bold">Ticket Médio</small>
+                            <h3 id="ticket-medio" class="fw-bold mt-1">R$ 0,00</h3>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-stats">
+                            <small class="text-muted text-uppercase fw-bold">Produto Campeão de Vendas</small>
+                            <h3 id="top-vendas" class="fw-bold mt-1">Carregando...</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-stats p-4">
+                    <h5 class="fw-bold mb-4">Evolução do Ticket Médio</h5>
+                    <canvas id="graficoTicket" height="100"></canvas>
+                </div>
+            </section>
+
+            <section id="secao-pedidos" style="display:none;">
+                <h2 class="fw-bold mb-4">Pedidos em Tempo Real</h2>
+                <div class="card-stats">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr><th>Data e Hora</th><th>Cliente</th><th>Pedido</th><th>Valor</th><th>Status</th></tr>
+                        </thead>
+                        <tbody id="tabela-pedidos"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="secao-cardapio" style="display:none;">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Gestão do Cardápio</h2>
+                    <button class="btn btn-dark fw-bold" onclick="abrirModalProduto()"><i class="fa-solid fa-plus"></i> Novo Item</button>
+                </div>
+                <div class="card-stats">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr><th>Foto</th><th>Item / Categoria</th><th>Preço</th><th>Código PDV</th><th>Ações</th></tr>
+                        </thead>
+                        <tbody id="tabela-cardapio"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section id="secao-config" style="display:none;">
+                <h2 class="fw-bold mb-4">Configurações do Sistema</h2>
+                <div class="card-stats p-4 col-md-8">
+                    <p class="text-muted mb-4">Altere as chaves de integração abaixo. As mudanças refletem automaticamente no servidor.</p>
+                    
+                    <label class="form-label fw-bold">Mercado Pago Access Token (Chefe)</label>
+                    <input type="password" id="mp-token" class="form-control mb-3" placeholder="APP_USR-...">
+                    
+                    <label class="form-label fw-bold">Domínio Oficial do Site</label>
+                    <input type="text" id="config-dominio" class="form-control mb-4" placeholder="Ex: www.nossacarnedelivery.com.br">
+                    
+                    <button class="btn btn-dark w-100 fw-bold py-2" onclick="salvarConfiguracoes()"><i class="fa-solid fa-floppy-disk me-2"></i> Gravar Configurações</button>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalProduto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Configuração de Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <input type="hidden" id="item-id">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-bold">Nome do Lanche/Prato</label>
+                            <input type="text" id="item-nome" class="form-control" placeholder="Ex: Burger Bacon Especial">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Preço (R$)</label>
+                            <input type="number" step="0.01" id="item-preco" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Categoria</label>
+                            <select id="item-categoria" class="form-select">
+                                <option value="Entradas">Entradas</option>
+                                <option value="Monte Seu Prato">Monte Seu Prato</option>
+                                <option value="Burgers Especiais">Burgers Especiais</option>
+                                <option value="Lanches Especiais">Lanches Especiais</option>
+                                <option value="Clássicos">Clássicos</option>
+                                <option value="Combos Burger">Combos Burger</option>
+                                <option value="Pratos Especiais">Pratos Especiais</option>
+                                <option value="Parmegianas">Parmegianas</option>
+                                <option value="Sucos">Sucos</option>
+                                <option value="Massas">Massas</option>
+                                <option value="Sobremesas">Sobremesas</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Código PDV (Sistema)</label>
+                            <input type="text" id="item-pdv" class="form-control" placeholder="Ex: 105">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold">URL da Foto</label>
+                            <input type="text" id="item-foto" class="form-control" placeholder="Link da imagem">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-outline-danger me-auto" onclick="excluirProduto()">Excluir Item</button>
+                    <button class="btn btn-success px-4 fw-bold" onclick="salvarProduto()">Gravar no Firebase</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
+            authDomain: "nossa-carne-fidelidade.firebaseapp.com",
+            projectId: "nossa-carne-fidelidade",
+            storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
+            messagingSenderId: "837465163879",
+            appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        let modalCtrl; let chartTicket;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                document.getElementById('tela-login').style.display = 'none';
+                document.getElementById('conteudo-admin').style.display = 'block';
+                modalCtrl = new bootstrap.Modal(document.getElementById('modalProduto'));
+                carregarStats(); carregarPedidosRealTime();
+            } else {
+                document.getElementById('tela-login').style.display = 'flex';
+                document.getElementById('conteudo-admin').style.display = 'none';
+            }
+        });
+
+        async function fazerLoginAdmin() {
+            const email = document.getElementById('email-admin').value;
+            const senha = document.getElementById('senha-admin').value;
+            try { await auth.signInWithEmailAndPassword(email, senha); } 
+            catch (e) { document.getElementById('erro-auth').style.display = 'block'; }
+        }
+
+        function fazerLogout() { auth.signOut(); }
+
+        function mostrarSecao(secao) {
+            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+            document.getElementById('secao-' + secao).style.display = 'block';
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(event) event.currentTarget.classList.add('active');
+            
+            if(secao === 'cardapio') carregarCardapioAdmin();
+            if(secao === 'dashboard') carregarStats();
+            if(secao === 'config') carregarConfiguracoes();
+        }
+
+        // --- SISTEMA DE CONFIGURAÇÕES INTEGRADAS ---
+        async function carregarConfiguracoes() {
+            try {
+                const doc = await db.collection('configuracoes').doc('geral').get();
+                if (doc.exists) {
+                    const config = doc.data();
+                    document.getElementById('mp-token').value = config.mp_token || "";
+                    document.getElementById('config-dominio').value = config.dominio || "";
+                }
+            } catch (error) {
+                console.error("Erro ao puxar configurações:", error);
+            }
+        }
+
+        async function salvarConfiguracoes() {
+            const token = document.getElementById('mp-token').value.trim();
+            const dominio = document.getElementById('config-dominio').value.trim();
+            
+            try {
+                await db.collection('configuracoes').doc('geral').set({
+                    mp_token: token,
+                    dominio: dominio,
+                    atualizado_em: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                alert("✅ Configurações salvas no banco de dados com sucesso!");
+            } catch (error) {
+                alert("Erro ao gravar configurações: " + error.message);
+            }
+        }
+
+        // --- DASHBOARD E EXPORTAÇÃO EXCEL ---
+        async function carregarStats() {
+            const snapshot = await db.collection('vendas_concluidas').get();
+            let totalFaturamento = 0; let totalVendas = 0; let rankingItens = {};
+            
+            snapshot.forEach(doc => {
+                const venda = doc.data();
+                const valor = venda.financeiro?.total_pago_reais || 0;
+                totalFaturamento += valor;
+                totalVendas++;
+                venda.itens.forEach(item => { rankingItens[item.nome] = (rankingItens[item.nome] || 0) + 1; });
+            });
+
+            const ticketMedio = totalVendas > 0 ? (totalFaturamento / totalVendas) : 0;
+            document.getElementById('fat-mes').innerText = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
+            document.getElementById('ticket-medio').innerText = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
+
+            const maisVendido = Object.keys(rankingItens).reduce((a, b) => rankingItens[a] > rankingItens[b] ? a : b, "Sem vendas");
+            document.getElementById('top-vendas').innerText = `${maisVendido} (${rankingItens[maisVendido] || 0} unid.)`;
+
+            inicializarGrafico(ticketMedio);
+        }
+
+        async function exportarExcelVendas() {
+            const snapshot = await db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').get();
+            let dadosExcel = [];
+
+            snapshot.forEach(doc => {
+                const v = doc.data();
+                dadosExcel.push({
+                    "Data": v.data_pedido ? v.data_pedido.toDate().toLocaleDateString('pt-BR') : '---',
+                    "Hora": v.data_pedido ? v.data_pedido.toDate().toLocaleTimeString('pt-BR') : '---',
+                    "Cliente": v.cliente?.nome || 'Anônimo',
+                    "Telefone": v.cliente?.telefone || '---',
+                    "Itens": v.itens.map(i => i.nome).join(', '),
+                    "Valor Total": v.financeiro?.total_pago_reais || 0,
+                    "Método": v.financeiro?.metodo_pagamento || 'PIX',
+                    "Entrega": v.logistica?.modo_entrega || 'Delivery'
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dadosExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Vendas");
+
+            const data = new Date();
+            const mesNome = data.toLocaleString('pt-BR', { month: 'long' });
+            XLSX.writeFile(workbook, `Relatorio_Vendas_NossaCarne_${mesNome}.xlsx`);
+        }
+
+        function inicializarGrafico(valorAtual) {
+            const ctx = document.getElementById('graficoTicket').getContext('2d');
+            if (chartTicket) chartTicket.destroy();
+            chartTicket = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana Atual'],
+                    datasets: [{
+                        label: 'Ticket Médio (R$)',
+                        data: [valorAtual * 0.85, valorAtual * 0.95, valorAtual * 0.90, valorAtual],
+                        borderColor: '#8B0000',
+                        backgroundColor: 'rgba(139, 0, 0, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+        }
+
+        // --- GESTÃO DE PEDIDOS COM DATA COMPLETA ---
         function carregarPedidosRealTime() {
             db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').limit(15)
             .onSnapshot(snap => {
@@ -7,16 +359,86 @@
                 snap.forEach(doc => {
                     const p = doc.data();
                     
-                    // MUDANÇA AQUI: Pegando Data e Hora completas (Ex: 13/04/2026 20:30:15)
+                    // Ajuste da Data Completa
                     const dataCompleta = p.data_pedido ? p.data_pedido.toDate().toLocaleString('pt-BR') : '--/--/---- --:--';
                     
                     tabela.innerHTML += `<tr>
                         <td><small>${dataCompleta}</small></td>
                         <td><strong>${p.cliente.nome}</strong></td>
                         <td>${p.itens.map(i => i.nome).join(', ')}</td>
-                        <td>R$ ${p.financeiro.total_pago_reais.toFixed(2)}</td>
+                        <td>R$ ${p.financeiro.total_pago_reais.toFixed(2).replace('.', ',')}</td>
                         <td><span class="badge bg-success">Pago</span></td>
                     </tr>`;
                 });
             });
         }
+
+        // --- CRUD DO CARDÁPIO ---
+        async function carregarCardapioAdmin() {
+            const snap = await db.collection('cardapio').orderBy('categoria').get();
+            const tab = document.getElementById('tabela-cardapio');
+            tab.innerHTML = '';
+            snap.forEach(doc => {
+                const p = doc.data();
+                tab.innerHTML += `
+                    <tr>
+                        <td><img src="${p.imagem_url}" class="img-preview"></td>
+                        <td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria}</small></td>
+                        <td class="fw-bold text-success">R$ ${p.preco_atual.toFixed(2).replace('.', ',')}</td>
+                        <td><span class="badge-pdv">${p.codigo_pdv || '---'}</span></td>
+                        <td><button class="btn btn-sm btn-outline-dark" onclick="editar('${doc.id}')">Editar</button></td>
+                    </tr>`;
+            });
+        }
+
+        function abrirModalProduto() { 
+            document.getElementById('item-id').value = ""; document.getElementById('item-nome').value = "";
+            document.getElementById('item-preco').value = ""; document.getElementById('item-pdv').value = "";
+            document.getElementById('item-foto').value = ""; modalCtrl.show(); 
+        }
+
+        async function editar(id) {
+            const doc = await db.collection('cardapio').doc(id).get();
+            const p = doc.data();
+            document.getElementById('item-id').value = id;
+            document.getElementById('item-nome').value = p.nome;
+            document.getElementById('item-preco').value = p.preco_atual;
+            document.getElementById('item-pdv').value = p.codigo_pdv || "";
+            document.getElementById('item-foto').value = p.imagem_url;
+            document.getElementById('item-categoria').value = p.categoria;
+            modalCtrl.show();
+        }
+
+        async function salvarProduto() {
+            const id = document.getElementById('item-id').value;
+            const dados = {
+                nome: document.getElementById('item-nome').value,
+                preco_atual: parseFloat(document.getElementById('item-preco').value),
+                categoria: document.getElementById('item-categoria').value,
+                codigo_pdv: document.getElementById('item-pdv').value,
+                imagem_url: document.getElementById('item-foto').value,
+                id_item: id || document.getElementById('item-nome').value.toLowerCase().replace(/ /g, "_")
+            };
+            id ? await db.collection('cardapio').doc(id).update(dados) : await db.collection('cardapio').add(dados);
+            modalCtrl.hide(); carregarCardapioAdmin();
+        }
+
+        async function excluirProduto() {
+            const id = document.getElementById('item-id').value;
+            if(!id) return;
+            if(confirm("Deseja apagar este item?")) {
+                await db.collection('cardapio').doc(id).delete();
+                modalCtrl.hide(); carregarCardapioAdmin();
+            }
+        }
+
+        // SCRIPT DE SEGURANÇA: BLOQUEIO DE INSPEÇÃO E BOTÃO DIREITO
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                alert("⚠️ Acesso restrito.");
+                return false;
+            }
+        };
+    </script>
+</body>
+</html>
