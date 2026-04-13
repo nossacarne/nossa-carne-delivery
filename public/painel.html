@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Nossa Carne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; }
+        .sidebar { height: 100vh; background: #2c3e50; color: white; position: fixed; width: 250px; }
+        .main-content { margin-left: 250px; padding: 30px; }
+        .nav-link { color: #ecf0f1; margin-bottom: 10px; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { background: #34495e; border-radius: 5px; color: #fff; }
+        .card-estatistica { border-radius: 10px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .status-pendente { color: #f39c12; font-weight: bold; }
+        .status-concluido { color: #27ae60; font-weight: bold; }
+        .img-preview { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar d-flex flex-column p-3">
+        <h3 class="text-center mb-4 fw-bold">Nossa Carne <br><small style="font-size: 14px;">Admin</small></h3>
+        <hr>
+        <nav class="nav flex-column">
+            <a href="#" class="nav-link active" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt me-2"></i> Pedidos do Dia</a>
+            <a href="#" class="nav-link" onclick="mostrarSecao('cardapio')"><i class="fa-solid fa-utensils me-2"></i> Gerenciar Cardápio</a>
+            <a href="#" class="nav-link" onclick="mostrarSecao('config')"><i class="fa-solid fa-gears me-2"></i> Configurações / MP</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        
+        <section id="secao-pedidos">
+            <h2 class="fw-bold mb-4">Pedidos em Tempo Real</h2>
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card card-estatistica p-3 text-center">
+                        <h6 class="text-muted">Vendas Hoje</h6>
+                        <h3 id="resumo-vendas" class="fw-bold">R$ 0,00</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card card-estatistica p-4">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Data/Hora</th>
+                            <th>Cliente</th>
+                            <th>Pedido</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-pedidos">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="secao-cardapio" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold">Gestão de Cardápio</h2>
+                <button class="btn btn-primary" onclick="abrirModalProduto()"><i class="fa-solid fa-plus"></i> Novo Item</button>
+            </div>
+
+            <div class="card card-estatistica p-4">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Foto</th>
+                            <th>Nome</th>
+                            <th>Preço</th>
+                            <th>Código PDV</th>
+                            <th>Setor</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-cardapio">
+                        </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="secao-config" style="display: none;">
+            <h2 class="fw-bold mb-4">Configurações do Sistema</h2>
+            <div class="card card-estatistica p-4 col-md-6">
+                <label class="fw-bold">Mercado Pago Access Token (Chefe)</label>
+                <input type="password" class="form-control mb-3" id="mp-token" placeholder="APP_USR-...">
+                
+                <label class="fw-bold">Domínio Personalizado</label>
+                <input type="text" class="form-control mb-4" id="config-dominio" placeholder="www.nossacarnedelivery.com.br">
+                
+                <button class="btn btn-dark w-100" onclick="salvarConfiguracoes()">Salvar Configurações</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal fade" id="modalProduto" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Editar Produto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="item-id">
+                    <div class="mb-3">
+                        <label class="form-label">Nome do Produto</label>
+                        <input type="text" class="form-control" id="item-nome">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Preço (R$)</label>
+                        <input type="number" step="0.01" class="form-control" id="item-preco">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Código PDV (Colibri/iFood)</label>
+                        <input type="text" class="form-control" id="item-pdv">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">URL da Imagem</label>
+                        <input type="text" class="form-control" id="item-foto">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger me-auto" onclick="excluirProduto()">Excluir Produto</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" onclick="salvarProduto()">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Configurações do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
+            authDomain: "nossa-carne-fidelidade.firebaseapp.com",
+            projectId: "nossa-carne-fidelidade",
+            storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
+            messagingSenderId: "837465163879",
+            appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const db = firebase.firestore();
+        let modalProduto;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            modalProduto = new bootstrap.Modal(document.getElementById('modalProduto'));
+            carregarPedidosAdmin();
+        });
+
+        // NAVEGAÇÃO DO MENU LATERAL
+        function mostrarSecao(secao) {
+            document.querySelectorAll('section').forEach(s => s.style.display = 'none');
+            document.getElementById('secao-' + secao).style.display = 'block';
+            
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            if(secao === 'cardapio') carregarCardapioAdmin();
+            if(secao === 'pedidos') carregarPedidosAdmin();
+        }
+
+        // 1. MONITORAMENTO DE PEDIDOS EM TEMPO REAL
+        function carregarPedidosAdmin() {
+            console.log("Conectando ao fluxo de pedidos...");
+            
+            db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').limit(20)
+            .onSnapshot((snapshot) => {
+                const tabela = document.getElementById('tabela-pedidos');
+                let totalHoje = 0;
+                tabela.innerHTML = '';
+
+                snapshot.forEach(doc => {
+                    const pedido = doc.data();
+                    const totalPedido = pedido.financeiro?.total_pago_reais || 0;
+                    totalHoje += totalPedido;
+
+                    const dataFormatada = pedido.data_pedido ? pedido.data_pedido.toDate().toLocaleString('pt-BR') : 'Processando...';
+                    const nomeCliente = pedido.cliente?.nome || 'Não identificado';
+                    const telefoneCliente = pedido.cliente?.telefone || '';
+                    const itensPedido = pedido.itens ? pedido.itens.map(i => i.nome).join(', ') : '';
+
+                    tabela.innerHTML += `
+                        <tr>
+                            <td>${dataFormatada}</td>
+                            <td><strong>${nomeCliente}</strong><br><small>${telefoneCliente}</small></td>
+                            <td>${itensPedido}</td>
+                            <td>R$ ${totalPedido.toFixed(2).replace('.', ',')}</td>
+                            <td><span class="status-concluido"><i class="fa-solid fa-check-circle"></i> Pago</span></td>
+                            <td><button class="btn btn-sm btn-dark" onclick="verDetalhesPedido('${doc.id}')">Detalhes</button></td>
+                        </tr>`;
+                });
+                document.getElementById('resumo-vendas').innerText = `R$ ${totalHoje.toFixed(2).replace('.', ',')}`;
+            });
+        }
+
+        function verDetalhesPedido(id) {
+            alert("A funcionalidade de detalhes detalhados do pedido será implementada em breve! ID: " + id);
+        }
+
+        // 2. GESTÃO DO CARDÁPIO (CRUD)
+        async function carregarCardapioAdmin() {
+            const snapshot = await db.collection('cardapio').get();
+            const tabela = document.getElementById('tabela-cardapio');
+            tabela.innerHTML = '';
+
+            snapshot.forEach(doc => {
+                const p = doc.data();
+                tabela.innerHTML += `
+                    <tr>
+                        <td><img src="${p.imagem_url || ''}" class="img-preview" alt="Foto"></td>
+                        <td>${p.nome || ''}</td>
+                        <td>R$ ${p.preco_atual ? p.preco_atual.toFixed(2).replace('.', ',') : '0,00'}</td>
+                        <td>${p.codigo_pdv || '0000'}</td>
+                        <td>${p.setor_producao || ''}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary" onclick="editarProduto('${doc.id}')">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+            });
+        }
+
+        // Abrir modal para NOVO produto
+        function abrirModalProduto() {
+            document.getElementById('item-id').value = "";
+            document.getElementById('item-nome').value = "";
+            document.getElementById('item-preco').value = "";
+            document.getElementById('item-pdv').value = "";
+            document.getElementById('item-foto').value = "";
+            modalProduto.show();
+        }
+
+        // Abrir modal para EDITAR produto existente
+        async function editarProduto(id) {
+            try {
+                const doc = await db.collection('cardapio').doc(id).get();
+                if (doc.exists) {
+                    const p = doc.data();
+                    document.getElementById('item-id').value = id;
+                    document.getElementById('item-nome').value = p.nome || '';
+                    document.getElementById('item-preco').value = p.preco_atual || 0;
+                    document.getElementById('item-pdv').value = p.codigo_pdv || "";
+                    document.getElementById('item-foto').value = p.imagem_url || '';
+                    modalProduto.show();
+                }
+            } catch (error) {
+                console.error("Erro ao buscar produto:", error);
+            }
+        }
+
+        // SALVAR OU ATUALIZAR (Create & Update)
+        async function salvarProduto() {
+            const id = document.getElementById('item-id').value;
+            const nomeProduto = document.getElementById('item-nome').value;
+            
+            if (!nomeProduto) {
+                alert("O nome do produto é obrigatório!");
+                return;
+            }
+
+            const dados = {
+                nome: nomeProduto,
+                preco_atual: parseFloat(document.getElementById('item-preco').value) || 0,
+                codigo_pdv: document.getElementById('item-pdv').value || "0000",
+                imagem_url: document.getElementById('item-foto').value || "",
+                id_item: id || nomeProduto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '_')
+            };
+
+            try {
+                if (id) {
+                    await db.collection('cardapio').doc(id).update(dados);
+                    alert("Produto atualizado com sucesso!");
+                } else {
+                    await db.collection('cardapio').add(dados);
+                    alert("Novo produto adicionado!");
+                }
+                modalProduto.hide();
+                carregarCardapioAdmin();
+            } catch (e) {
+                alert("Erro ao salvar: " + e.message);
+            }
+        }
+
+        // EXCLUIR PRODUTO (Delete)
+        async function excluirProduto() {
+            const id = document.getElementById('item-id').value;
+            if (!id) return;
+
+            if (confirm("Tem certeza que deseja remover este item do cardápio permanentemente?")) {
+                try {
+                    await db.collection('cardapio').doc(id).delete();
+                    alert("Produto removido!");
+                    modalProduto.hide();
+                    carregarCardapioAdmin();
+                } catch (e) {
+                    alert("Erro ao excluir: " + e.message);
+                }
+            }
+        }
+
+        function salvarConfiguracoes() {
+            alert("Configurações salvas localmente para implementação futura no backend!");
+        }
+    </script>
+</body>
+</html>
