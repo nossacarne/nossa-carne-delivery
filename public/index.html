@@ -82,7 +82,7 @@
         .citacao-historia p { font-size: 18px; font-weight: bold; color: #8b0000; font-style: italic; margin: 0; text-align: center;}
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <nav class="navbar navbar-custom sticky-top">
         <div class="container d-flex justify-content-between align-items-center">
@@ -640,6 +640,19 @@
     <script>
         function instalarApple() { alert("🍎 Para instalar no iPhone ou iPad:\n\n1. Toque no ícone de Compartilhar (o quadrado com uma seta para cima) na barra inferior do Safari.\n2. Role o menu para baixo e escolha 'Adicionar à Tela de Início'.\n3. Pronto! O app do Nossa Carne estará na sua tela inicial."); }
         function instalarAndroid() { alert("🤖 Para instalar no Android:\n\n1. Clique nos três pontinhos (⋮) no canto superior direito do seu navegador.\n2. Escolha 'Adicionar à tela inicial' ou 'Instalar aplicativo'.\n3. Pronto! O app do Nossa Carne estará no seu celular."); }
+    </script>
+
+    <script>
+        document.onkeydown = function(e) {
+            // Bloqueia F12, Ctrl+Shift+I, Ctrl+Shift+J e Ctrl+U
+            if (e.keyCode == 123 || 
+               (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || 
+               (e.ctrlKey && e.keyCode == 85)) {
+                
+                alert("⚠️ Ação não permitida por motivos de segurança.");
+                return false;
+            }
+        };
     </script>
 </body>
 </html>
