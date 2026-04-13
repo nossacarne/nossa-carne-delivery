@@ -18,13 +18,11 @@
         :root { --cor-primaria: #8B0000; --cor-bg: #f8f9fa; --raio: 16px; }
         body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; }
         
-        /* Ajuste Desktop */
         .main-container { max-width: 1200px; margin: 0 auto; }
 
-        /* Layout App */
+        /* Navbar e Categorias */
         .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logo-app { height: 38px; border-radius: 8px; }
-        
         .cat-container { background: white; padding: 10px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 1px solid #eee; }
         .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; }
         .cat-scroll::-webkit-scrollbar { display: none; }
@@ -37,8 +35,13 @@
         .card-p:active { transform: scale(0.98); }
         .img-p { height: 180px; object-fit: cover; width: 100%; }
         .body-p { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
-        
         .categoria-titulo { font-weight: 800; font-size: 20px; margin: 30px 0 15px; padding-left: 10px; border-left: 5px solid var(--cor-primaria); }
+
+        /* Controles de Opções (Rádios e Checkboxes Estilizados) */
+        .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 600; color: #444; background: #fafafa; }
+        .radio-opcao:active, .checkbox-opcao:active { transform: scale(0.98); }
+        .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
+        .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: var(--cor-primaria); transform: scale(1.2); margin-top: -2px; }
 
         /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
@@ -46,10 +49,9 @@
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 4px; background: #ddd; border-radius: 10px; margin: 0 auto 15px; }
 
-        /* Floating Cart */
+        /* Carrinho Flutuante */
         .btn-cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 700; width: 90%; max-width: 450px; justify-content: space-between; cursor: pointer; }
         .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 13px; }
-
         .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; width: 100%; transition: 0.2s; cursor: pointer; }
         .btn-main:active { transform: scale(0.97); }
     </style>
@@ -81,6 +83,35 @@
             </div>
             <div id="listagem-produtos"></div>
         </div>
+
+        <div class="container text-center mt-5 pt-4">
+            <h5 style="color: var(--cor-primaria); font-weight: 800;">Leve o Nossa Carne no seu bolso!</h5>
+            <p class="text-muted small mb-3">Instale nosso aplicativo para pedir mais rápido e acumular pontos.</p>
+            <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;" alt="Baixar na App Store">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;" alt="Disponível no Google Play">
+        </div>
+
+        <section class="bg-white py-5 mt-5 border-top" style="border-radius: 25px 25px 0 0;">
+            <div class="container">
+                <div class="row align-items-center g-4">
+                    <div class="col-md-5 text-center">
+                        <img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" alt="Logo Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 280px;">
+                    </div>
+                    <div class="col-md-7">
+                        <h3 class="fw-bold mb-3" style="color: var(--cor-primaria);"><i class="fa-solid fa-book-open"></i> Nossa História</h3>
+                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial de muitos restaurantes, padarias e hotéis e no mesmo preço de atacado.</p>
+                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Com os anos viemos evoluindo e acabamos nos especializando em Hamburguers, virando até fornecedores para outras Hamburguerias da região. Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
+                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Agora com pratos que trazem para nós e para nossos clientes uma memória afetiva de um bom almoço em família, com pratos como nosso parmegiana, nossa feijoada, nossa costela e cupim no bafo que passa 16 horas assando em baixa temperatura.</p>
+                        <div class="p-3 mt-4 rounded" style="background-color: #fdf5f5; border-left: 4px solid var(--cor-primaria);">
+                            <p class="m-0 fw-bold fst-italic" style="color: var(--cor-primaria); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-center mt-5 text-muted small">
+                    <p class="mb-0">© 2026 Nossa Carne Burger Shop. Todos os direitos reservados.</p>
+                </div>
+            </div>
+        </section>
     </div>
 
     <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinho()">
@@ -118,19 +149,12 @@
             <div class="handle"></div>
             <i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i>
             <h4 class="fw-bold">Pagamento Instantâneo</h4>
-            <p class="text-muted small">Copie o código abaixo e pague no seu app do banco. O pedido será processado assim que o PIX for confirmado.</p>
-            
-            <div id="loading-pix" class="my-3">
-                <div class="spinner-border text-success spinner-border-sm" role="status"></div> Gerando código...
-            </div>
-            
+            <p class="text-muted small">Copie o código abaixo e pague no seu banco. O pedido será processado assim que o PIX for confirmado.</p>
+            <div id="loading-pix" class="my-3"><div class="spinner-border text-success spinner-border-sm" role="status"></div> Gerando código...</div>
             <div id="area-codigo-pix" style="display: none;">
                 <div id="pix-code" class="p-3 bg-light rounded border border-dashed my-3 small text-break fw-bold text-muted"></div>
                 <button class="btn btn-outline-dark w-100 mb-4 fw-bold" onclick="copiarPix()"><i class="fa-regular fa-copy"></i> Copiar Código PIX</button>
-                <div class="d-flex align-items-center justify-content-center gap-2">
-                    <div class="spinner-border spinner-border-sm text-primary"></div>
-                    <span class="small fw-bold">Aguardando confirmação do banco...</span>
-                </div>
+                <div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm text-primary"></div><span class="small fw-bold">Aguardando banco...</span></div>
             </div>
         </div>
     </div>
@@ -141,22 +165,17 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
-            authDomain: "nossa-carne-fidelidade.firebaseapp.com",
             projectId: "nossa-carne-fidelidade",
-            storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
-            messagingSenderId: "837465163879",
-            appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2"
+            // mantenha suas chaves aqui
         };
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        // Variáveis Globais
         let todosProdutos = [];
         let carrinho = [];
         let usuario = null;
         let verificadorPix = null;
 
-        // --- 1. ORDENAÇÃO E CARREGAMENTO ---
         const ordemCategorias = ["Entradas", "Monte Seu Prato", "Burgers Especiais", "Lanches Especiais", "Clássicos", "Fininhos", "Combos Burger", "Pratos Especiais", "Parmegianas", "Massas", "Sucos", "Refrigerantes"];
 
         window.onload = carregarDados;
@@ -164,60 +183,45 @@
         async function carregarDados() {
             try {
                 const snap = await db.collection('cardapio').get();
-                todosProdutos = []; 
-                snap.forEach(doc => todosProdutos.push(doc.data()));
-                
+                todosProdutos = []; snap.forEach(doc => todosProdutos.push(doc.data()));
                 document.getElementById('loading-cardapio').style.display = 'none';
                 renderizarCardapio();
                 configurarScrollspy();
             } catch (error) {
-                console.error("Erro ao carregar cardápio:", error);
-                document.getElementById('loading-cardapio').innerHTML = '<p class="text-danger">Erro ao carregar o cardápio. Verifique sua conexão.</p>';
+                console.error("Erro:", error);
             }
         }
 
         function renderizarCardapio() {
             const menu = document.getElementById('menu-categorias');
             const lista = document.getElementById('listagem-produtos');
-            
-            menu.innerHTML = '';
-            lista.innerHTML = '';
+            menu.innerHTML = ''; lista.innerHTML = '';
 
             ordemCategorias.forEach(cat => {
                 const itens = todosProdutos.filter(p => p.categoria === cat);
                 if(itens.length > 0) {
-                    // Botão Categoria no Topo
                     menu.innerHTML += `<button class="btn-cat" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
-                    
-                    // Seção de Produtos
                     let htmlItens = `<div class="row g-3">`;
                     itens.forEach(p => {
-                        const preco = p.preco_atual ? p.preco_atual.toFixed(2).replace('.', ',') : '0,00';
-                        const img = p.imagem_url || 'https://via.placeholder.com/300';
                         htmlItens += `
                         <div class="col-6 col-md-4">
                             <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
-                                <img src="${img}" class="img-p" alt="${p.nome}">
+                                <img src="${p.imagem_url || 'https://via.placeholder.com/300'}" class="img-p">
                                 <div class="body-p">
-                                    <h6 class="fw-bold mb-1" style="font-size: 14px; color:#111;">${p.nome}</h6>
+                                    <h6 class="fw-bold mb-1" style="font-size: 14px;">${p.nome}</h6>
                                     <small class="text-muted d-block mb-3" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || ''}</small>
-                                    <div class="mt-auto fw-bold" style="color: var(--cor-primaria); font-size: 16px;">R$ ${preco}</div>
+                                    <div class="mt-auto fw-bold" style="color: var(--cor-primaria); font-size: 16px;">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</div>
                                 </div>
                             </div>
                         </div>`;
                     });
                     htmlItens += `</div>`;
-
-                    lista.innerHTML += `
-                        <div id="cat-section-${cat.replace(/\s/g, '')}" class="categoria-ancora">
-                            <h2 class="categoria-titulo">${cat}</h2>
-                            ${htmlItens}
-                        </div>`;
+                    lista.innerHTML += `<div id="cat-section-${cat.replace(/\s/g, '')}" class="categoria-ancora"><h2 class="categoria-titulo">${cat}</h2>${htmlItens}</div>`;
                 }
             });
         }
 
-        // --- 2. SCROLL INTELIGENTE (SCROLLSPY) ---
+        // --- SCROLLSPY ---
         function configurarScrollspy() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -225,333 +229,220 @@
                         const id = entry.target.id.replace('cat-section-', '');
                         document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
                         const btn = document.getElementById('btn-nav-' + id);
-                        if(btn) {
-                            btn.classList.add('ativo');
-                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-                        }
+                        if(btn) { btn.classList.add('ativo'); btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
                     }
                 });
             }, { threshold: 0.1, rootMargin: "-120px 0px -70% 0px" });
-
             document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section));
         }
 
         function scrollParaCategoria(cat) {
             const el = document.getElementById('cat-section-' + cat.replace(/\s/g, ''));
-            const offset = 130;
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = el.getBoundingClientRect().top;
-            const offsetPosition = (elementRect - bodyRect) - offset;
-
+            const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130;
             window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
         }
 
-        // --- 3. MODAIS E BOTTOM SHEETS GENÉRICOS ---
-        function abrirSheet(id) {
-            const overlay = document.getElementById(id);
-            overlay.style.display = 'flex';
-            setTimeout(() => overlay.querySelector('.bottom-sheet').classList.add('show'), 10);
-        }
-
-        function fecharSheet(id) {
-            const overlay = document.getElementById(id);
-            overlay.querySelector('.bottom-sheet').classList.remove('show');
-            setTimeout(() => overlay.style.display = 'none', 300);
-            if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix);
-        }
-
-        // --- 4. OPÇÕES DO PRODUTO E CARRINHO ---
+        // --- REGRAS DE NEGÓCIO E OPÇÕES ---
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
-            
-            document.getElementById('conteudo-opcoes').innerHTML = `
+            let htmlOpcoes = `
                 <h4 class="fw-bold mb-1">${p.nome}</h4>
-                <p class="text-muted small mb-3">${p.descricao || 'Personalize do seu jeito'}</p>
-                <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-4">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
-
-                <div class="mb-4">
-                    <label class="fw-bold small d-block mb-2"><i class="fa-regular fa-comment"></i> Observações Adicionais</label>
-                    <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar cebola, maionese à parte..."></textarea>
-                </div>
-
-                <button class="btn-main" onclick="adicionarAoCarrinho('${p.id_item}')">
-                    <i class="fa-solid fa-cart-plus me-2"></i> Adicionar à Sacola
-                </button>
+                <p class="text-muted small mb-3">${p.descricao || ''}</p>
+                <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-3 border-bottom pb-3">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
             `;
+
+            // Lógica de Categorias (Sucos, Saladas, Burgers, Pratos)
+            if (p.categoria === "Sucos") {
+                htmlOpcoes += criarSessaoOpcoes("Sabor do Suco", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
+            } else if (p.categoria === "Milk Shakes") {
+                htmlOpcoes += criarSessaoOpcoes("Sabor do Milk Shake", ["Merengue de Morango", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango Tradicional"], "opcao_sabor");
+            } else if (p.categoria === "Saladas") {
+                htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_sabor");
+                htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_molho");
+            }
+
+            const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
+            const isLanche = categoriasLanches.includes(p.categoria) || p.nome.toLowerCase().includes('burger');
+            const isCarnivoro = p.nome.toLowerCase().includes('carnivoro') || p.nome.toLowerCase().includes('carnívoro');
+            const isFrangoOuPeixe = p.nome.toLowerCase().includes('frango') || p.nome.toLowerCase().includes('tilápia') || p.nome.toLowerCase().includes('salmão');
+
+            if (isLanche) { 
+                htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao"); 
+            }
+            if ((isLanche || p.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) { 
+                htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto"); 
+            }
+
+            if (p.categoria === "Monte Seu Prato") {
+                const acomp = ["Abóbora Grelhada", 'Aligot "Creme de Queijo"', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa (Azeitona+Ovo)", "Rodelas de Pão", "Banana à Milanesa"];
+                htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos</label><div class="row g-2 mb-3">`;
+                acomp.forEach((a) => { htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0"><input type="checkbox" name="opcao_acomp" value='${a}' onchange="limitarAcomp(this)"><span style="font-size: 12px;">${a}</span></label></div>`; });
+                htmlOpcoes += `</div>`;
+            }
+
+            htmlOpcoes += `
+                <div class="mt-4 pt-3 border-top">
+                    <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
+                    <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar a cebola, sem gelo..."></textarea>
+                </div>
+                <button class="btn-main mt-4" onclick="adicionarAoCarrinho('${p.id_item}')"><i class="fa-solid fa-cart-plus me-2"></i> Adicionar à Sacola</button>
+            `;
+
+            document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes;
             abrirSheet('sheet-opcoes');
+        }
+
+        function criarSessaoOpcoes(titulo, opcoes, nomeRadio) {
+            let h = `<label class="fw-bold small mb-2 mt-3">${titulo}</label>`;
+            opcoes.forEach((o, i) => { h += `<label class="radio-opcao"><input type="radio" name="${nomeRadio}" value="${o}" ${i===0?'checked':''}><span>${o}</span></label>`; });
+            return h;
+        }
+
+        function limitarAcomp(checkbox) {
+            if(document.querySelectorAll('input[name="opcao_acomp"]:checked').length > 3) { checkbox.checked = false; alert("Limite: 3 acompanhamentos!"); }
         }
 
         function adicionarAoCarrinho(id) {
             const p = todosProdutos.find(x => x.id_item === id);
-            const obs = document.getElementById('obs-item').value.trim();
+            let detalhes = [];
 
-            carrinho.push({
-                idUnico: Math.random().toString(36).substr(2, 9),
-                id_produto: p.id_item,
-                nome: p.nome,
-                preco: p.preco_atual || 0,
-                codigo_pdv: p.codigo_pdv || "0000",
-                obs: obs
-            });
+            const radSabor = document.querySelector('input[name="opcao_sabor"]:checked'); if(radSabor) detalhes.push(radSabor.value);
+            const radMolho = document.querySelector('input[name="opcao_molho"]:checked'); if(radMolho) detalhes.push(radMolho.value);
+            const radPao = document.querySelector('input[name="opcao_pao"]:checked'); if(radPao) detalhes.push(`Pão: ${radPao.value}`);
+            const radPonto = document.querySelector('input[name="opcao_ponto"]:checked'); if(radPonto) detalhes.push(`Ponto: ${radPonto.value}`);
+            
+            let acompSelecionados = [];
+            document.querySelectorAll('input[name="opcao_acomp"]:checked').forEach(cb => acompSelecionados.push(cb.value));
+            
+            if (p.categoria === "Monte Seu Prato" && acompSelecionados.length !== 3) { alert("Selecione exatamente 3 acompanhamentos!"); return; }
+            if (acompSelecionados.length > 0) detalhes.push(`Acompanhamentos: ${acompSelecionados.join(', ')}`);
 
+            const obsText = document.getElementById('obs-item').value.trim();
+            if(obsText) detalhes.push(`Obs: ${obsText}`);
+
+            carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: p.preco_atual || 0, obsDetalhes: detalhes.join(" | ") });
             fecharSheet('sheet-opcoes');
             atualizarCarrinhoFlutuante();
         }
 
+        // --- CARRINHO E CHECKOUT ---
         function atualizarCarrinhoFlutuante() {
-            const qtd = carrinho.length;
             const bar = document.getElementById('bar-carrinho');
-            if(qtd > 0) {
-                bar.style.display = 'flex';
-                document.getElementById('cart-qtd').innerText = qtd;
-                const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
-                document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
-            } else {
-                bar.style.display = 'none';
-            }
+            if(carrinho.length > 0) {
+                bar.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length;
+                document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((acc, i) => acc + i.preco, 0).toFixed(2).replace('.', ',')}`;
+            } else { bar.style.display = 'none'; }
         }
 
         function abrirCarrinho() {
             if(carrinho.length === 0) return;
-            
-            let html = '';
-            let total = 0;
+            let html = ''; let total = 0;
             carrinho.forEach(item => {
                 total += item.preco;
                 html += `
-                    <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded">
-                        <div style="width: 80%;">
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded border">
+                        <div style="width: 85%;">
                             <div class="fw-bold" style="font-size: 14px;">${item.nome}</div>
-                            ${item.obs ? `<small class="text-muted d-block mt-1" style="font-size: 12px; line-height: 1.2;">Obs: ${item.obs}</small>` : ''}
+                            ${item.obsDetalhes ? `<small class="text-muted d-block mt-1" style="font-size: 11px; line-height: 1.3;">${item.obsDetalhes}</small>` : ''}
                             <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">R$ ${item.preco.toFixed(2).replace('.',',')}</div>
                         </div>
                         <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc; border-radius: 8px;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>
-                `;
+                    </div>`;
             });
-            
-            html += `
-                <div class="d-flex justify-content-between border-top pt-3 mt-4">
-                    <span class="fw-bold text-muted">Total a Pagar</span>
-                    <h4 class="fw-bold text-success m-0">R$ ${total.toFixed(2).replace('.',',')}</h4>
-                </div>
-                <button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Pagar e Finalizar Pedido</button>
-            `;
-
+            html += `<div class="d-flex justify-content-between border-top pt-3 mt-4"><span class="fw-bold text-muted">Total a Pagar</span><h4 class="fw-bold text-success m-0">R$ ${total.toFixed(2).replace('.',',')}</h4></div><button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Pagar e Finalizar Pedido</button>`;
             document.getElementById('conteudo-carrinho').innerHTML = html;
             abrirSheet('sheet-carrinho');
         }
 
-        function removerItem(idUnico) {
-            carrinho = carrinho.filter(i => i.idUnico !== idUnico);
-            atualizarCarrinhoFlutuante();
-            if(carrinho.length === 0) {
-                fecharSheet('sheet-carrinho');
-            } else {
-                abrirCarrinho(); // Recarrega o modal do carrinho
-            }
-        }
+        function removerItem(idUnico) { carrinho = carrinho.filter(i => i.idUnico !== idUnico); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
 
-        // --- 5. GESTÃO DE USUÁRIO E PERFIL ---
+        // --- PERFIL E LOGIN ---
         function abrirPerfil() {
             const cont = document.getElementById('conteudo-perfil');
             if(!usuario) {
                 cont.innerHTML = `
                     <h4 class="fw-bold mb-3">Acessar Conta</h4>
-                    <p class="text-muted small">Digite seu WhatsApp para entrar ou se cadastrar.</p>
-                    <input type="text" id="login-celular" class="form-control form-control-lg mb-3" placeholder="(11) 99999-9999">
-                    <button class="btn-main mb-3" onclick="fazerLogin()">Continuar</button>
+                    <input type="text" id="login-celular" class="form-control mb-3" placeholder="Seu WhatsApp (apenas números)">
+                    <button class="btn-main" onclick="fazerLogin()">Entrar</button>
                     <div id="area-cadastro-novo" style="display: none; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
                         <h6 class="fw-bold">Cadastro Rápido</h6>
                         <input type="text" id="cad-nome" class="form-control mb-2" placeholder="Nome Completo">
                         <input type="text" id="cad-rua" class="form-control mb-2" placeholder="Rua e Bairro">
                         <input type="text" id="cad-num" class="form-control mb-3" placeholder="Número">
                         <button class="btn btn-dark w-100 fw-bold" onclick="salvarNovoCadastro()">Criar Perfil</button>
-                    </div>
-                `;
+                    </div>`;
             } else {
                 cont.innerHTML = `
-                    <div class="text-center">
-                        <h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4>
-                        <div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos</div>
-                    </div>
-                    <hr>
+                    <div class="text-center"><h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4><div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos</div></div><hr>
                     <label class="fw-bold small mb-2">Editar Meu Endereço de Entrega</label>
                     <input type="text" id="edit-nome" class="form-control mb-2" value="${usuario.nome || ''}" placeholder="Seu Nome">
                     <input type="text" id="edit-rua" class="form-control mb-2" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro">
                     <input type="text" id="edit-num" class="form-control mb-3" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento">
-                    <button class="btn btn-dark w-100 fw-bold py-3" onclick="atualizarPerfil()">Salvar Alterações</button>
-                `;
+                    <button class="btn btn-dark w-100 fw-bold py-3" onclick="atualizarPerfil()">Salvar Alterações</button>`;
             }
             abrirSheet('sheet-perfil');
         }
 
         async function fazerLogin() {
             const cel = document.getElementById('login-celular').value.trim();
-            if(!cel) return alert("Digite o número do celular.");
-            
-            try {
-                const doc = await db.collection('clientes').doc(cel).get();
-                if(doc.exists) {
-                    usuario = doc.data();
-                    document.getElementById('pontos-badge-nav').style.display = 'block';
-                    document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
-                    fecharSheet('sheet-perfil');
-                    alert(`Bem-vindo de volta, ${usuario.nome}!`);
-                } else {
-                    document.getElementById('area-cadastro-novo').style.display = 'block';
-                }
-            } catch (error) {
-                alert("Erro ao conectar.");
-            }
+            if(!cel) return;
+            const doc = await db.collection('clientes').doc(cel).get();
+            if(doc.exists) { usuario = doc.data(); document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; fecharSheet('sheet-perfil'); } 
+            else { document.getElementById('area-cadastro-novo').style.display = 'block'; }
         }
 
         async function salvarNovoCadastro() {
-            const cel = document.getElementById('login-celular').value.trim();
-            const nome = document.getElementById('cad-nome').value.trim();
-            const rua = document.getElementById('cad-rua').value.trim();
-            const num = document.getElementById('cad-num').value.trim();
-
+            const cel = document.getElementById('login-celular').value.trim(); const nome = document.getElementById('cad-nome').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim();
             if(!nome || !rua) return alert("Preencha nome e rua.");
-
-            const novoCliente = {
-                whatsapp: cel,
-                nome: nome,
-                pontos: 0,
-                endereco: { rua: rua, numero: num },
-                data_cadastro: new Date().toISOString()
-            };
-
-            await db.collection('clientes').doc(cel).set(novoCliente);
-            usuario = novoCliente;
-            document.getElementById('pontos-badge-nav').style.display = 'block';
-            document.getElementById('val-pontos-nav').innerText = 0;
-            fecharSheet('sheet-perfil');
-            alert("Cadastro realizado com sucesso!");
+            const novoCliente = { whatsapp: cel, nome: nome, pontos: 0, endereco: { rua: rua, numero: num }, data_cadastro: new Date().toISOString() };
+            await db.collection('clientes').doc(cel).set(novoCliente); usuario = novoCliente;
+            document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = 0; fecharSheet('sheet-perfil'); alert("Cadastro sucesso!");
         }
 
         async function atualizarPerfil() {
-            const novosDados = {
-                nome: document.getElementById('edit-nome').value.trim(),
-                endereco: { 
-                    rua: document.getElementById('edit-rua').value.trim(), 
-                    numero: document.getElementById('edit-num').value.trim() 
-                }
-            };
-            await db.collection('clientes').doc(usuario.whatsapp).update(novosDados);
-            usuario = { ...usuario, ...novosDados };
-            alert("Endereço atualizado com sucesso!");
-            fecharSheet('sheet-perfil');
+            const n = { nome: document.getElementById('edit-nome').value.trim(), endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } };
+            await db.collection('clientes').doc(usuario.whatsapp).update(n); usuario = { ...usuario, ...n }; alert("Atualizado!"); fecharSheet('sheet-perfil');
         }
 
-        // --- 6. CHECKOUT E INTEGRAÇÃO PIX / FIREBASE ---
+        // --- FINALIZAÇÃO E PIX ---
         async function iniciarCheckout() {
-            if(!usuario) {
-                fecharSheet('sheet-carrinho');
-                alert("Por favor, acesse ou crie sua conta para preencher o endereço de entrega.");
-                return abrirPerfil();
-            }
-            if(!usuario.endereco || !usuario.endereco.rua) {
-                fecharSheet('sheet-carrinho');
-                alert("Por favor, atualize seu endereço no perfil antes de pedir.");
-                return abrirPerfil();
-            }
-            
+            if(!usuario || !usuario.endereco?.rua) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta e preencha seu endereço!"); return abrirPerfil(); }
             const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
-            
-            fecharSheet('sheet-carrinho');
-            document.getElementById('loading-pix').style.display = 'block';
-            document.getElementById('area-codigo-pix').style.display = 'none';
-            abrirSheet('sheet-pix');
+            fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix');
             
             try {
-                // Chama a API do Render para gerar o PIX
-                const response = await fetch('/gerar-pix', { 
-                    method: 'POST', 
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ valorTotal: total }) 
-                });
-                
+                const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) });
                 const data = await response.json();
-                
                 if(data.qr_code_copia_cola && data.id_transacao) {
-                    document.getElementById('loading-pix').style.display = 'none';
-                    document.getElementById('area-codigo-pix').style.display = 'block';
-                    document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
-                    
-                    // Fica escutando o pagamento
-                    verificadorPix = setInterval(() => {
-                        verificarStatusPagamento(data.id_transacao);
-                    }, 3000);
-                } else {
-                    alert("Erro ao gerar o PIX. Avise o restaurante.");
-                    fecharSheet('sheet-pix');
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Erro de conexão com o servidor. O servidor pode estar dormindo.");
-                fecharSheet('sheet-pix');
-            }
+                    document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
+                    verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
+                } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); }
+            } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); }
         }
 
-        function copiarPix() { 
-            const codigo = document.getElementById('pix-code').innerText;
-            navigator.clipboard.writeText(codigo).then(() => { 
-                alert("Código PIX copiado! Abra o app do seu banco para pagar."); 
-            }); 
-        }
+        function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); }
 
-        async function verificarStatusPagamento(idTransacao) {
+        async function verificarStatusPagamento(idT) {
             try {
-                const response = await fetch(`/consultar-pix/${idTransacao}`);
-                const data = await response.json();
-                if(data.status === 'approved') {
-                    clearInterval(verificadorPix);
-                    alert("✅ Pagamento Aprovado! Seu pedido já está indo para a cozinha.");
-                    finalizarPedidoNoSistema();
-                }
-            } catch (e) { console.error("Verificando PIX..."); }
+                const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json();
+                if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); }
+            } catch(e) {}
         }
 
         async function finalizarPedidoNoSistema() {
             const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
-            
-            // 1. Salvar Venda no Firebase (O Painel do Chefe vai apitar)
-            const venda = {
-                data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
-                cliente: { nome: usuario.nome, telefone: usuario.whatsapp },
-                logistica: { endereco: `${usuario.endereco.rua}, ${usuario.endereco.numero}` },
-                itens: carrinho,
-                financeiro: { total_pago_reais: total, metodo_pagamento: "PIX" }
-            };
-            await db.collection('vendas_concluidas').add(venda);
-
-            // 2. Montar mensagem do WhatsApp (Opcional, como backup para a loja)
-            let msg = `*NOVO PEDIDO (PAGO VIA PIX)* ✅\n\n`;
-            msg += `👤 *Cliente:* ${usuario.nome}\n`;
-            msg += `📍 *Endereço:* ${usuario.endereco.rua}, ${usuario.endereco.numero}\n\n`;
-            msg += `🛒 *ITENS:*\n`;
-            carrinho.forEach(i => {
-                msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2)})\n`;
-                if(i.obs) msg += `  ↳ Obs: ${i.obs}\n`;
-            });
-            msg += `\n💰 *Total Pago:* R$ ${total.toFixed(2)}`;
-
-            fecharSheet('sheet-pix');
-            carrinho = [];
-            atualizarCarrinhoFlutuante();
-            
-            // Redireciona para o WhatsApp do restaurante
+            await db.collection('vendas_concluidas').add({ data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { endereco: `${usuario.endereco.rua}, ${usuario.endereco.numero}` }, itens: carrinho, financeiro: { total_pago_reais: total, metodo_pagamento: "PIX" } });
+            let msg = `*PEDIDO PAGO (PIX)* ✅\n👤 *Cliente:* ${usuario.nome}\n📍 *End:* ${usuario.endereco.rua}, ${usuario.endereco.numero}\n\n🛒 *ITENS:*\n`;
+            carrinho.forEach(i => { msg += `- ${i.nome}\n  ↳ ${i.obsDetalhes}\n`; });
+            fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante();
             window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
         }
 
-        // SEGURANÇA: Bloquear F12 e Botão Direito
-        document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
-                alert("⚠️ Acesso restrito.");
-                return false;
-            }
-        };
+        function abrirSheet(id) { const o = document.getElementById(id); o.style.display = 'flex'; setTimeout(() => o.querySelector('.bottom-sheet').classList.add('show'), 10); }
+        function fecharSheet(id) { const o = document.getElementById(id); o.querySelector('.bottom-sheet').classList.remove('show'); setTimeout(() => o.style.display = 'none', 300); if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); }
+        function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
+        function instalarAndroid() { alert("🤖 Chrome > Três pontinhos > Instalar aplicativo."); }
+        document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };
     </script>
 </body>
 </html>
