@@ -14,14 +14,12 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         
-        /* TELA DE LOGIN ATUALIZADA */
         #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #8B0000; }
         .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
         
         #conteudo-admin { display: none; }
         
-        /* SIDEBAR ATUALIZADA */
         .sidebar { height: 100vh; background: #1a1a1a; color: white; position: fixed; width: 260px; z-index: 1000; }
         .logo-sidebar { width: 60px; border-radius: 8px; margin-bottom: 10px; }
         .main-content { margin-left: 260px; padding: 30px; }
@@ -33,7 +31,6 @@
         .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
         .badge-pdv { background: #e9ecef; color: #495057; font-family: monospace; font-size: 12px; padding: 4px 8px; border-radius: 4px; }
         
-        /* Ajuste na cor da descrição */
         .text-gestao { color: #ffffff !important; font-size: 13px; font-weight: 500; opacity: 0.9; }
     </style>
 </head>
@@ -62,6 +59,7 @@
                 <a class="nav-link active" onclick="mostrarSecao('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard Financeiro</a>
                 <a class="nav-link" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt"></i> Pedidos do Dia</a>
                 <a class="nav-link" onclick="mostrarSecao('cardapio')"><i class="fa-solid fa-burger"></i> Gerenciar Cardápio</a>
+                <a class="nav-link" onclick="mostrarSecao('config')"><i class="fa-solid fa-gears"></i> Configurações / MP</a>
                 <a class="nav-link mt-5 text-danger" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair do Sistema</a>
             </nav>
         </div>
@@ -129,6 +127,22 @@
                     </table>
                 </div>
             </section>
+
+            <section id="secao-config" style="display:none;">
+                <h2 class="fw-bold mb-4">Configurações do Sistema</h2>
+                <div class="card-stats p-4 col-md-8">
+                    <p class="text-muted mb-4">Altere as chaves de integração abaixo. As mudanças refletem automaticamente no servidor.</p>
+                    
+                    <label class="form-label fw-bold">Mercado Pago Access Token (Chefe)</label>
+                    <input type="password" id="mp-token" class="form-control mb-3" placeholder="APP_USR-...">
+                    
+                    <label class="form-label fw-bold">Domínio Oficial do Site</label>
+                    <input type="text" id="config-dominio" class="form-control mb-4" placeholder="Ex: www.nossacarnedelivery.com.br">
+                    
+                    <button class="btn btn-dark w-100 fw-bold py-2" onclick="salvarConfiguracoes()"><i class="fa-solid fa-floppy-disk me-2"></i> Gravar Configurações</button>
+                </div>
+            </section>
+
         </div>
     </div>
 
@@ -229,11 +243,44 @@
             document.getElementById('secao-' + secao).style.display = 'block';
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             if(event) event.currentTarget.classList.add('active');
+            
             if(secao === 'cardapio') carregarCardapioAdmin();
             if(secao === 'dashboard') carregarStats();
+            if(secao === 'config') carregarConfiguracoes();
         }
 
-        // 1. DASHBOARD E EXPORTAÇÃO EXCEL
+        // --- SISTEMA DE CONFIGURAÇÕES INTEGRADAS ---
+        async function carregarConfiguracoes() {
+            try {
+                const doc = await db.collection('configuracoes').doc('geral').get();
+                if (doc.exists) {
+                    const config = doc.data();
+                    document.getElementById('mp-token').value = config.mp_token || "";
+                    document.getElementById('config-dominio').value = config.dominio || "";
+                }
+            } catch (error) {
+                console.error("Erro ao puxar configurações:", error);
+            }
+        }
+
+        async function salvarConfiguracoes() {
+            const token = document.getElementById('mp-token').value.trim();
+            const dominio = document.getElementById('config-dominio').value.trim();
+            
+            try {
+                await db.collection('configuracoes').doc('geral').set({
+                    mp_token: token,
+                    dominio: dominio,
+                    atualizado_em: firebase.firestore.FieldValue.serverTimestamp()
+                }, { merge: true });
+                
+                alert("✅ Configurações salvas no banco de dados com sucesso!");
+            } catch (error) {
+                alert("Erro ao gravar configurações: " + error.message);
+            }
+        }
+
+        // --- DASHBOARD E EXPORTAÇÃO EXCEL ---
         async function carregarStats() {
             const snapshot = await db.collection('vendas_concluidas').get();
             let totalFaturamento = 0; let totalVendas = 0; let rankingItens = {};
@@ -278,7 +325,6 @@
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, worksheet, "Vendas");
 
-            // Salva o arquivo com o nome do mês atual
             const data = new Date();
             const mesNome = data.toLocaleString('pt-BR', { month: 'long' });
             XLSX.writeFile(workbook, `Relatorio_Vendas_NossaCarne_${mesNome}.xlsx`);
@@ -304,7 +350,7 @@
             });
         }
 
-        // 2. GESTÃO DE PEDIDOS
+        // --- GESTÃO DE PEDIDOS ---
         function carregarPedidosRealTime() {
             db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').limit(15)
             .onSnapshot(snap => {
@@ -323,7 +369,7 @@
             });
         }
 
-        // 3. CRUD DO CARDÁPIO
+        // --- CRUD DO CARDÁPIO ---
         async function carregarCardapioAdmin() {
             const snap = await db.collection('cardapio').orderBy('categoria').get();
             const tab = document.getElementById('tabela-cardapio');
