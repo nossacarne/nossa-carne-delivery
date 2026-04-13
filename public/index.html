@@ -30,14 +30,16 @@
         .btn-cat.ativo { background: var(--cor-primaria); color: white; }
 
         /* Cards de Produto */
-        .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; }
+        .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; border: 1px solid #f0f0f0; }
         .card-p:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
         .card-p:active { transform: scale(0.98); }
         .img-p { height: 180px; object-fit: cover; width: 100%; }
         .body-p { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
         .categoria-titulo { font-weight: 800; font-size: 20px; margin: 30px 0 15px; padding-left: 10px; border-left: 5px solid var(--cor-primaria); }
 
-        /* Controles de Opções (Rádios e Checkboxes Estilizados) */
+        .badge-pts { background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 5px; margin-bottom: 8px; display: inline-block; width: fit-content; border: 1px solid #ffe0b2; }
+
+        /* Controles de Opções */
         .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 600; color: #444; background: #fafafa; }
         .radio-opcao:active, .checkbox-opcao:active { transform: scale(0.98); }
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
@@ -54,6 +56,10 @@
         .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 13px; }
         .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; width: 100%; transition: 0.2s; cursor: pointer; }
         .btn-main:active { transform: scale(0.97); }
+
+        .btn-toggle { flex-grow: 1; text-align: center; padding: 10px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; }
+        .btn-toggle.ativo { background: var(--cor-primaria); color: white; }
+        .btn-toggle.inativo { background: transparent; color: #666; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -140,6 +146,17 @@
         <div class="bottom-sheet" onclick="event.stopPropagation()">
             <div class="handle"></div>
             <h4 class="fw-bold mb-3"><i class="fa-solid fa-cart-shopping"></i> Sua Sacola</h4>
+            
+            <div class="d-flex mb-3 p-1 bg-light rounded" style="border: 1px solid #ddd;">
+                <div id="btn-modo-delivery" class="btn-toggle ativo" onclick="setModoEntrega('delivery')">Delivery</div>
+                <div id="btn-modo-retirada" class="btn-toggle inativo" onclick="setModoEntrega('retirada')">Retirar na Loja</div>
+            </div>
+
+            <div id="aviso-retirada" style="display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px; border-radius: 8px;">
+                <span class="fw-bold" style="font-size: 13px;">Retirar em:</span><br>
+                <span style="font-size: 13px;">Rua Francisco Polito, 995 - Vila Prudente - São Paulo/SP</span>
+            </div>
+
             <div id="conteudo-carrinho"></div>
         </div>
     </div>
@@ -166,7 +183,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
             projectId: "nossa-carne-fidelidade",
-            // mantenha suas chaves aqui
+            // Mantenha suas outras chaves aqui
         };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
@@ -175,6 +192,7 @@
         let carrinho = [];
         let usuario = null;
         let verificadorPix = null;
+        let modoEntregaAtual = 'delivery';
 
         const ordemCategorias = ["Entradas", "Monte Seu Prato", "Burgers Especiais", "Lanches Especiais", "Clássicos", "Fininhos", "Combos Burger", "Pratos Especiais", "Parmegianas", "Massas", "Sucos", "Refrigerantes"];
 
@@ -187,9 +205,7 @@
                 document.getElementById('loading-cardapio').style.display = 'none';
                 renderizarCardapio();
                 configurarScrollspy();
-            } catch (error) {
-                console.error("Erro:", error);
-            }
+            } catch (error) { console.error("Erro:", error); }
         }
 
         function renderizarCardapio() {
@@ -203,11 +219,15 @@
                     menu.innerHTML += `<button class="btn-cat" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
                     let htmlItens = `<div class="row g-3">`;
                     itens.forEach(p => {
+                        const permiteResgate = p.fidelidade ? p.fidelidade.permite_resgate : false;
+                        const badgeFidelidade = permiteResgate ? `<div class="badge-pts"><i class="fa-solid fa-star"></i> Clube</div>` : '';
+                        
                         htmlItens += `
                         <div class="col-6 col-md-4">
                             <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
                                 <img src="${p.imagem_url || 'https://via.placeholder.com/300'}" class="img-p">
                                 <div class="body-p">
+                                    ${badgeFidelidade}
                                     <h6 class="fw-bold mb-1" style="font-size: 14px;">${p.nome}</h6>
                                     <small class="text-muted d-block mb-3" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || ''}</small>
                                     <div class="mt-auto fw-bold" style="color: var(--cor-primaria); font-size: 16px;">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</div>
@@ -251,29 +271,49 @@
                 <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-3 border-bottom pb-3">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
             `;
 
-            // Lógica de Categorias (Sucos, Saladas, Burgers, Pratos)
-            if (p.categoria === "Sucos") {
+            const n = p.nome.toLowerCase();
+            const cat = p.categoria || "";
+
+            // 1. Sucos, Shakes e Saladas
+            if (cat === "Sucos") {
                 htmlOpcoes += criarSessaoOpcoes("Sabor do Suco", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
-            } else if (p.categoria === "Milk Shakes") {
+            } else if (cat === "Milk Shakes") {
                 htmlOpcoes += criarSessaoOpcoes("Sabor do Milk Shake", ["Merengue de Morango", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango Tradicional"], "opcao_sabor");
-            } else if (p.categoria === "Saladas") {
-                htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_sabor");
+            } else if (cat === "Saladas") {
+                htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_proteina");
                 htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_molho");
             }
 
-            const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
-            const isLanche = categoriasLanches.includes(p.categoria) || p.nome.toLowerCase().includes('burger');
-            const isCarnivoro = p.nome.toLowerCase().includes('carnivoro') || p.nome.toLowerCase().includes('carnívoro');
-            const isFrangoOuPeixe = p.nome.toLowerCase().includes('frango') || p.nome.toLowerCase().includes('tilápia') || p.nome.toLowerCase().includes('salmão');
+            // 2. Parmegianas
+            if (cat === "Parmegianas") {
+                htmlOpcoes += criarSessaoOpcoes("Escolha o Molho (Obrigatório)", ["Molho Vermelho", "Molho Branco"], "opcao_molho_parm");
+                htmlOpcoes += criarSessaoOpcoes("Acompanhamento (Obrigatório)", ["Fritas", "Salada"], "opcao_acomp_parm");
+            }
 
-            if (isLanche) { 
+            // 3. Regras de Lanches e Ponto da Carne
+            const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
+            const isLanche = categoriasLanches.includes(cat) || n.includes('burger') || n.includes('lanche');
+            const isPaoFixo = n.includes('beirute') || n.includes('baguete');
+            const isSemPonto = n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro') || n.includes('carnívoro');
+            const isFraldinhaMignon = n.includes('fraldinha') || n.includes('mignon');
+
+            // Exigir Pão
+            if (isLanche && !isPaoFixo) { 
                 htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao"); 
             }
-            if ((isLanche || p.categoria === "Monte Seu Prato") && !isCarnivoro && !isFrangoOuPeixe) { 
+
+            // Exigir Ponto
+            if ((isLanche || cat === "Monte Seu Prato" || isFraldinhaMignon) && !isSemPonto) { 
                 htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto"); 
             }
 
-            if (p.categoria === "Monte Seu Prato") {
+            // X-Mignon
+            if (n.includes('x-mignon')) {
+                htmlOpcoes += criarSessaoOpcoes("Escolha a Maionese", ["Maionese da Casa", "Maionese de Bacon", "Maionese de Alho", "Sem Maionese"], "opcao_maionese");
+            }
+
+            // 4. Monte seu prato (Trava de 3)
+            if (cat === "Monte Seu Prato") {
                 const acomp = ["Abóbora Grelhada", 'Aligot "Creme de Queijo"', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa (Azeitona+Ovo)", "Rodelas de Pão", "Banana à Milanesa"];
                 htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos</label><div class="row g-2 mb-3">`;
                 acomp.forEach((a) => { htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0"><input type="checkbox" name="opcao_acomp" value='${a}' onchange="limitarAcomp(this)"><span style="font-size: 12px;">${a}</span></label></div>`; });
@@ -285,8 +325,26 @@
                     <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
                     <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar a cebola, sem gelo..."></textarea>
                 </div>
-                <button class="btn-main mt-4" onclick="adicionarAoCarrinho('${p.id_item}')"><i class="fa-solid fa-cart-plus me-2"></i> Adicionar à Sacola</button>
             `;
+
+            // Botões de Compra e Resgate (Fidelidade)
+            const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
+            const permiteResgate = p.fidelidade ? p.fidelidade.permite_resgate : false;
+            
+            let areaBotao = `<div class="d-flex gap-2 mt-4 pt-2">`;
+            areaBotao += `<button class="btn btn-outline-danger fw-bold flex-grow-1 py-3" style="border-width: 2px;" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Comprar (R$ ${p.preco_atual.toFixed(2).replace('.',',')})</button>`;
+            
+            if (permiteResgate) {
+                if (!usuario) {
+                    areaBotao += `<button class="btn btn-secondary fw-bold flex-grow-1 py-3" onclick="fecharSheet('sheet-opcoes'); abrirPerfil();"><i class="fa-solid fa-lock"></i> Entrar para Resgatar</button>`;
+                } else if (usuario.pontos >= custoPts) {
+                    areaBotao += `<button class="btn btn-success fw-bold flex-grow-1 py-3" onclick="adicionarAoCarrinho('${p.id_item}', 'resgate')"><i class="fa-solid fa-star"></i> Resgatar (${custoPts} pts)</button>`;
+                } else {
+                    areaBotao += `<button class="btn btn-light text-muted fw-bold flex-grow-1 py-3" disabled><i class="fa-solid fa-ban"></i> Faltam Pontos (${custoPts} pts)</button>`;
+                }
+            }
+            areaBotao += `</div>`;
+            htmlOpcoes += areaBotao;
 
             document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes;
             abrirSheet('sheet-opcoes');
@@ -302,14 +360,15 @@
             if(document.querySelectorAll('input[name="opcao_acomp"]:checked').length > 3) { checkbox.checked = false; alert("Limite: 3 acompanhamentos!"); }
         }
 
-        function adicionarAoCarrinho(id) {
+        function adicionarAoCarrinho(id, tipoAcao) {
             const p = todosProdutos.find(x => x.id_item === id);
             let detalhes = [];
 
-            const radSabor = document.querySelector('input[name="opcao_sabor"]:checked'); if(radSabor) detalhes.push(radSabor.value);
-            const radMolho = document.querySelector('input[name="opcao_molho"]:checked'); if(radMolho) detalhes.push(radMolho.value);
-            const radPao = document.querySelector('input[name="opcao_pao"]:checked'); if(radPao) detalhes.push(`Pão: ${radPao.value}`);
-            const radPonto = document.querySelector('input[name="opcao_ponto"]:checked'); if(radPonto) detalhes.push(`Ponto: ${radPonto.value}`);
+            const nomesRadios = ["opcao_sabor", "opcao_proteina", "opcao_molho", "opcao_molho_parm", "opcao_acomp_parm", "opcao_pao", "opcao_ponto", "opcao_maionese"];
+            nomesRadios.forEach(nome => {
+                const rad = document.querySelector(`input[name="${nome}"]:checked`);
+                if(rad) detalhes.push(rad.value);
+            });
             
             let acompSelecionados = [];
             document.querySelectorAll('input[name="opcao_acomp"]:checked').forEach(cb => acompSelecionados.push(cb.value));
@@ -320,12 +379,46 @@
             const obsText = document.getElementById('obs-item').value.trim();
             if(obsText) detalhes.push(`Obs: ${obsText}`);
 
-            carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: p.preco_atual || 0, obsDetalhes: detalhes.join(" | ") });
+            // Regra de Pontos
+            const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
+            let totalPontosGastos = carrinho.filter(i => i.tipo === 'resgate').reduce((sum, item) => sum + item.pontos, 0);
+            
+            if (tipoAcao === 'resgate') {
+                if ((totalPontosGastos + custoPts) > (usuario.pontos || 0)) {
+                    alert("Atenção: Saldo insuficiente para resgatar mais este item nesta compra."); return;
+                }
+            }
+
+            carrinho.push({ 
+                idUnico: Math.random().toString(36).substr(2, 9), 
+                id_produto: p.id_item, 
+                nome: p.nome, 
+                preco: tipoAcao === 'compra' ? (p.preco_atual || 0) : 0, 
+                pontos: tipoAcao === 'resgate' ? custoPts : 0,
+                tipo: tipoAcao,
+                codigo_pdv: p.codigo_pdv || "0000",
+                obsDetalhes: detalhes.join(" | ") 
+            });
             fecharSheet('sheet-opcoes');
             atualizarCarrinhoFlutuante();
         }
 
         // --- CARRINHO E CHECKOUT ---
+        function setModoEntrega(modo) {
+            modoEntregaAtual = modo;
+            const btnD = document.getElementById('btn-modo-delivery');
+            const btnR = document.getElementById('btn-modo-retirada');
+            const aviso = document.getElementById('aviso-retirada');
+
+            if(modo === 'delivery') {
+                btnD.classList.replace('inativo', 'ativo'); btnR.classList.replace('ativo', 'inativo');
+                aviso.style.display = 'none';
+            } else {
+                btnR.classList.replace('inativo', 'ativo'); btnD.classList.replace('ativo', 'inativo');
+                aviso.style.display = 'block';
+            }
+        }
+
         function atualizarCarrinhoFlutuante() {
             const bar = document.getElementById('bar-carrinho');
             if(carrinho.length > 0) {
@@ -336,20 +429,25 @@
 
         function abrirCarrinho() {
             if(carrinho.length === 0) return;
-            let html = ''; let total = 0;
+            let html = ''; let totalReais = 0; let totalPontos = 0;
             carrinho.forEach(item => {
-                total += item.preco;
+                totalReais += item.preco; totalPontos += item.pontos;
+                let valorLabel = item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span class="text-success"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`;
                 html += `
                     <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded border">
                         <div style="width: 85%;">
                             <div class="fw-bold" style="font-size: 14px;">${item.nome}</div>
                             ${item.obsDetalhes ? `<small class="text-muted d-block mt-1" style="font-size: 11px; line-height: 1.3;">${item.obsDetalhes}</small>` : ''}
-                            <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">R$ ${item.preco.toFixed(2).replace('.',',')}</div>
+                            <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">${valorLabel}</div>
                         </div>
                         <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc; border-radius: 8px;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
                     </div>`;
             });
-            html += `<div class="d-flex justify-content-between border-top pt-3 mt-4"><span class="fw-bold text-muted">Total a Pagar</span><h4 class="fw-bold text-success m-0">R$ ${total.toFixed(2).replace('.',',')}</h4></div><button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Pagar e Finalizar Pedido</button>`;
+            
+            html += `<div class="d-flex justify-content-between border-top pt-3 mt-4"><span class="fw-bold text-muted">Total a Pagar</span><h4 class="fw-bold text-success m-0">R$ ${totalReais.toFixed(2).replace('.',',')}</h4></div>`;
+            if(totalPontos > 0) { html += `<div class="d-flex justify-content-between mt-1"><span class="small fw-bold text-muted">Pontos Utilizados</span><span class="small fw-bold" style="color: #e65100;">${totalPontos} pts</span></div>`; }
+            html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`;
+            
             document.getElementById('conteudo-carrinho').innerHTML = html;
             abrirSheet('sheet-carrinho');
         }
@@ -373,7 +471,7 @@
                     </div>`;
             } else {
                 cont.innerHTML = `
-                    <div class="text-center"><h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4><div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos</div></div><hr>
+                    <div class="text-center"><h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4><div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos disponíveis</div></div><hr>
                     <label class="fw-bold small mb-2">Editar Meu Endereço de Entrega</label>
                     <input type="text" id="edit-nome" class="form-control mb-2" value="${usuario.nome || ''}" placeholder="Seu Nome">
                     <input type="text" id="edit-rua" class="form-control mb-2" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro">
@@ -406,18 +504,25 @@
 
         // --- FINALIZAÇÃO E PIX ---
         async function iniciarCheckout() {
-            if(!usuario || !usuario.endereco?.rua) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta e preencha seu endereço!"); return abrirPerfil(); }
-            const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
-            fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix');
+            if(!usuario) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta para concluir."); return abrirPerfil(); }
+            if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { fecharSheet('sheet-carrinho'); alert("Atualize seu endereço de entrega."); return abrirPerfil(); }
             
-            try {
-                const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) });
-                const data = await response.json();
-                if(data.qr_code_copia_cola && data.id_transacao) {
-                    document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
-                    verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
-                } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); }
-            } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); }
+            const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
+            
+            if (total === 0) {
+                // Pedido apenas com pontos
+                finalizarPedidoNoSistema();
+            } else {
+                fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix');
+                try {
+                    const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) });
+                    const data = await response.json();
+                    if(data.qr_code_copia_cola && data.id_transacao) {
+                        document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
+                        verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
+                    } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); }
+                } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); }
+            }
         }
 
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); }
@@ -430,10 +535,26 @@
         }
 
         async function finalizarPedidoNoSistema() {
-            const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
-            await db.collection('vendas_concluidas').add({ data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { endereco: `${usuario.endereco.rua}, ${usuario.endereco.numero}` }, itens: carrinho, financeiro: { total_pago_reais: total, metodo_pagamento: "PIX" } });
-            let msg = `*PEDIDO PAGO (PIX)* ✅\n👤 *Cliente:* ${usuario.nome}\n📍 *End:* ${usuario.endereco.rua}, ${usuario.endereco.numero}\n\n🛒 *ITENS:*\n`;
-            carrinho.forEach(i => { msg += `- ${i.nome}\n  ↳ ${i.obsDetalhes}\n`; });
+            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0);
+            const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0);
+            const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja";
+
+            await db.collection('vendas_concluidas').add({ 
+                data_pedido: firebase.firestore.FieldValue.serverTimestamp(), 
+                cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, 
+                logistica: { modo_entrega: modoEntregaAtual, endereco: end }, 
+                itens: carrinho, 
+                financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } 
+            });
+            
+            let msg = `*NOVO PEDIDO* ✅\n👤 *Cliente:* ${usuario.nome}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${end}\n\n🛒 *ITENS:*\n`;
+            carrinho.forEach(i => { 
+                let t = i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`;
+                msg += `- ${i.nome} ${t}\n  ↳ ${i.obsDetalhes}\n`; 
+            });
+            msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`;
+            if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`;
+
             fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante();
             window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
         }
