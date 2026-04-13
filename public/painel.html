@@ -7,25 +7,41 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
+        
+        /* TELA DE LOGIN ATUALIZADA */
         #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #8B0000; }
         .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
+        
         #conteudo-admin { display: none; }
+        
+        /* SIDEBAR ATUALIZADA */
         .sidebar { height: 100vh; background: #1a1a1a; color: white; position: fixed; width: 260px; z-index: 1000; }
+        .logo-sidebar { width: 60px; border-radius: 8px; margin-bottom: 10px; }
         .main-content { margin-left: 260px; padding: 30px; }
+        
         .nav-link { color: #ccc; margin-bottom: 10px; cursor: pointer; padding: 12px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .nav-link:hover, .nav-link.active { background: #8B0000; border-radius: 8px; color: #fff; text-decoration: none; }
+        
         .card-stats { background: white; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
         .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
         .badge-pdv { background: #e9ecef; color: #495057; font-family: monospace; font-size: 12px; padding: 4px 8px; border-radius: 4px; }
+        
+        /* Ajuste na cor da descrição */
+        .text-gestao { color: #ffffff !important; font-size: 13px; font-weight: 500; opacity: 0.9; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="tela-login">
         <div class="login-card text-center">
+            <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-login" alt="Logo Nossa Carne">
             <h3 class="fw-bold mb-4" style="color: #8B0000;">Nossa Carne Admin</h3>
             <input type="email" id="email-admin" class="form-control mb-3" placeholder="E-mail">
             <input type="password" id="senha-admin" class="form-control mb-4" placeholder="Senha">
@@ -37,10 +53,11 @@
     <div id="conteudo-admin">
         <div class="sidebar d-flex flex-column p-3">
             <div class="text-center mb-4">
-                <h4 class="fw-bold m-0">Nossa Carne</h4>
-                <small class="text-muted">Gestão Operacional</small>
+                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-sidebar" alt="Logo Sidebar">
+                <h4 class="fw-bold m-0 text-white">Nossa Carne</h4>
+                <div class="text-gestao">Gestão Operacional</div>
             </div>
-            <hr>
+            <hr style="border-color: #444;">
             <nav class="nav flex-column">
                 <a class="nav-link active" onclick="mostrarSecao('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard Financeiro</a>
                 <a class="nav-link" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt"></i> Pedidos do Dia</a>
@@ -52,11 +69,17 @@
         <div class="main-content">
             
             <section id="secao-dashboard">
-                <h2 class="fw-bold mb-4">Análise de Performance</h2>
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">Análise de Performance</h2>
+                    <button class="btn btn-success fw-bold" onclick="exportarExcelVendas()">
+                        <i class="fa-solid fa-file-excel me-2"></i> Exportar Relatório (Excel)
+                    </button>
+                </div>
+                
                 <div class="row g-4 mb-5">
                     <div class="col-md-3">
                         <div class="card-stats">
-                            <small class="text-muted text-uppercase fw-bold">Faturamento Mês</small>
+                            <small class="text-muted text-uppercase fw-bold">Faturamento Acumulado</small>
                             <h3 id="fat-mes" class="fw-bold mt-1">R$ 0,00</h3>
                         </div>
                     </div>
@@ -139,6 +162,8 @@
                                 <option value="Pratos Especiais">Pratos Especiais</option>
                                 <option value="Parmegianas">Parmegianas</option>
                                 <option value="Sucos">Sucos</option>
+                                <option value="Massas">Massas</option>
+                                <option value="Sobremesas">Sobremesas</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -147,7 +172,7 @@
                         </div>
                         <div class="col-12">
                             <label class="form-label fw-bold">URL da Foto</label>
-                            <input type="text" id="item-foto" class="form-control" placeholder="Link da imagem no Google/Dropbox">
+                            <input type="text" id="item-foto" class="form-control" placeholder="Link da imagem">
                         </div>
                     </div>
                 </div>
@@ -203,12 +228,12 @@
             document.querySelectorAll('section').forEach(s => s.style.display = 'none');
             document.getElementById('secao-' + secao).style.display = 'block';
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
             if(secao === 'cardapio') carregarCardapioAdmin();
             if(secao === 'dashboard') carregarStats();
         }
 
-        // 1. DASHBOARD E INTELIGÊNCIA DE VENDAS
+        // 1. DASHBOARD E EXPORTAÇÃO EXCEL
         async function carregarStats() {
             const snapshot = await db.collection('vendas_concluidas').get();
             let totalFaturamento = 0; let totalVendas = 0; let rankingItens = {};
@@ -218,21 +243,45 @@
                 const valor = venda.financeiro?.total_pago_reais || 0;
                 totalFaturamento += valor;
                 totalVendas++;
-                
-                venda.itens.forEach(item => {
-                    rankingItens[item.nome] = (rankingItens[item.nome] || 0) + 1;
-                });
+                venda.itens.forEach(item => { rankingItens[item.nome] = (rankingItens[item.nome] || 0) + 1; });
             });
 
             const ticketMedio = totalVendas > 0 ? (totalFaturamento / totalVendas) : 0;
             document.getElementById('fat-mes').innerText = `R$ ${totalFaturamento.toFixed(2).replace('.', ',')}`;
             document.getElementById('ticket-medio').innerText = `R$ ${ticketMedio.toFixed(2).replace('.', ',')}`;
 
-            // Achar o mais vendido
-            const maisVendido = Object.keys(rankingItens).reduce((a, b) => rankingItens[a] > rankingItens[b] ? a : b, "Nenhuma venda");
+            const maisVendido = Object.keys(rankingItens).reduce((a, b) => rankingItens[a] > rankingItens[b] ? a : b, "Sem vendas");
             document.getElementById('top-vendas').innerText = `${maisVendido} (${rankingItens[maisVendido] || 0} unid.)`;
 
             inicializarGrafico(ticketMedio);
+        }
+
+        async function exportarExcelVendas() {
+            const snapshot = await db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').get();
+            let dadosExcel = [];
+
+            snapshot.forEach(doc => {
+                const v = doc.data();
+                dadosExcel.push({
+                    "Data": v.data_pedido ? v.data_pedido.toDate().toLocaleDateString('pt-BR') : '---',
+                    "Hora": v.data_pedido ? v.data_pedido.toDate().toLocaleTimeString('pt-BR') : '---',
+                    "Cliente": v.cliente?.nome || 'Anônimo',
+                    "Telefone": v.cliente?.telefone || '---',
+                    "Itens": v.itens.map(i => i.nome).join(', '),
+                    "Valor Total": v.financeiro?.total_pago_reais || 0,
+                    "Método": v.financeiro?.metodo_pagamento || 'PIX',
+                    "Entrega": v.logistica?.modo_entrega || 'Delivery'
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(dadosExcel);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "Vendas");
+
+            // Salva o arquivo com o nome do mês atual
+            const data = new Date();
+            const mesNome = data.toLocaleString('pt-BR', { month: 'long' });
+            XLSX.writeFile(workbook, `Relatorio_Vendas_NossaCarne_${mesNome}.xlsx`);
         }
 
         function inicializarGrafico(valorAtual) {
@@ -244,7 +293,7 @@
                     labels: ['Semana 1', 'Semana 2', 'Semana 3', 'Semana Atual'],
                     datasets: [{
                         label: 'Ticket Médio (R$)',
-                        data: [valorAtual * 0.8, valorAtual * 0.9, valorAtual * 0.85, valorAtual],
+                        data: [valorAtual * 0.85, valorAtual * 0.95, valorAtual * 0.90, valorAtual],
                         borderColor: '#8B0000',
                         backgroundColor: 'rgba(139, 0, 0, 0.1)',
                         fill: true,
@@ -257,7 +306,7 @@
 
         // 2. GESTÃO DE PEDIDOS
         function carregarPedidosRealTime() {
-            db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').limit(10)
+            db.collection('vendas_concluidas').orderBy('data_pedido', 'desc').limit(15)
             .onSnapshot(snap => {
                 const tabela = document.getElementById('tabela-pedidos');
                 tabela.innerHTML = '';
@@ -287,20 +336,15 @@
                         <td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria}</small></td>
                         <td class="fw-bold text-success">R$ ${p.preco_atual.toFixed(2).replace('.', ',')}</td>
                         <td><span class="badge-pdv">${p.codigo_pdv || '---'}</span></td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-dark" onclick="editar('${doc.id}')">Editar</button>
-                        </td>
+                        <td><button class="btn btn-sm btn-outline-dark" onclick="editar('${doc.id}')">Editar</button></td>
                     </tr>`;
             });
         }
 
         function abrirModalProduto() { 
-            document.getElementById('item-id').value = ""; 
-            document.getElementById('item-nome').value = "";
-            document.getElementById('item-preco').value = "";
-            document.getElementById('item-pdv').value = "";
-            document.getElementById('item-foto').value = "";
-            modalCtrl.show(); 
+            document.getElementById('item-id').value = ""; document.getElementById('item-nome').value = "";
+            document.getElementById('item-preco').value = ""; document.getElementById('item-pdv').value = "";
+            document.getElementById('item-foto').value = ""; modalCtrl.show(); 
         }
 
         async function editar(id) {
@@ -325,25 +369,21 @@
                 imagem_url: document.getElementById('item-foto').value,
                 id_item: id || document.getElementById('item-nome').value.toLowerCase().replace(/ /g, "_")
             };
-            if(id) { await db.collection('cardapio').doc(id).update(dados); }
-            else { await db.collection('cardapio').add(dados); }
+            id ? await db.collection('cardapio').doc(id).update(dados) : await db.collection('cardapio').add(dados);
             modalCtrl.hide(); carregarCardapioAdmin();
         }
 
         async function excluirProduto() {
             const id = document.getElementById('item-id').value;
             if(!id) return;
-            if(confirm("Tem certeza que deseja apagar este item permanentemente?")) {
+            if(confirm("Deseja apagar este item?")) {
                 await db.collection('cardapio').doc(id).delete();
                 modalCtrl.hide(); carregarCardapioAdmin();
             }
         }
 
-        // BLOQUEIO F12 / INSPEÇÃO
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
-                return false;
-            }
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
     </script>
 </body>
