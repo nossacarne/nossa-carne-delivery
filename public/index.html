@@ -16,7 +16,7 @@
 
     <style>
         :root { --cor-primaria: #8B0000; --cor-bg: #f8f9fa; --raio: 16px; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
         
         /* Layout App */
         .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -25,14 +25,15 @@
         .cat-container { background: white; padding: 10px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 1px solid #eee; }
         .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; }
         .cat-scroll::-webkit-scrollbar { display: none; }
-        .btn-cat { background: #f1f1f1; border: none; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px; white-space: nowrap; color: #666; transition: 0.3s; }
+        .btn-cat { background: #f1f1f1; border: none; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px; white-space: nowrap; color: #666; transition: 0.3s; cursor: pointer; }
         .btn-cat.ativo { background: var(--cor-primaria); color: white; }
 
-        /* Cards Estilo iFood */
-        .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; }
+        /* Cards de Produto */
+        .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; }
+        .card-p:active { transform: scale(0.98); }
         .img-p { height: 160px; object-fit: cover; width: 100%; }
-        .body-p { padding: 12px; }
-        .badge-pts { background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; margin-bottom: 5px; display: inline-block; }
+        .body-p { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .badge-pts { background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; margin-bottom: 5px; display: inline-block; width: fit-content; }
 
         /* Modais Deslizantes (Bottom Sheets) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
@@ -40,7 +41,12 @@
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 4px; background: #ddd; border-radius: 10px; margin: 0 auto 15px; }
 
-        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; width: 100%; }
+        /* Carrinho Flutuante */
+        .btn-cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 12px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 700; width: 90%; max-width: 350px; justify-content: space-between; cursor: pointer; }
+        .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 12px; }
+
+        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.98); }
         .form-label { font-weight: 700; font-size: 13px; color: #444; }
     </style>
 </head>
@@ -52,18 +58,47 @@
                 <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
                 <span class="fw-bold">Nossa Carne</span>
             </div>
-            <div id="btn-perfil" onclick="abrirModalAuth()">
+            <div id="btn-perfil" onclick="abrirModalAuth()" style="cursor: pointer;">
                 <i class="fa-solid fa-circle-user fa-xl text-dark"></i>
             </div>
         </div>
     </nav>
 
     <div class="cat-container">
-        <div class="cat-scroll" id="menu-categorias"></div>
+        <div class="cat-scroll" id="menu-categorias">
+            </div>
     </div>
 
     <div class="container py-3">
-        <div class="row g-2" id="vitrine-itens"></div>
+        <div class="row g-2" id="vitrine-itens">
+            <div class="col-12 text-center mt-5">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p class="mt-2 text-muted small">Carregando cardápio...</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinhoCompleto()">
+        <span><i class="fa-solid fa-bag-shopping"></i> Ver Sacola</span>
+        <div class="d-flex align-items-center gap-2">
+            <span id="cart-total-resumo">R$ 0,00</span>
+            <span class="cart-count" id="cart-qtd">0</span>
+        </div>
+    </button>
+
+    <div class="sheet-overlay" id="sheet-opcoes" onclick="fecharSheet('sheet-opcoes')">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="handle"></div>
+            <div id="opcoes-conteudo"></div>
+        </div>
+    </div>
+
+    <div class="sheet-overlay" id="sheet-carrinho" onclick="fecharSheet('sheet-carrinho')">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="handle"></div>
+            <h4 class="fw-bold mb-3"><i class="fa-solid fa-cart-shopping"></i> Sua Sacola</h4>
+            <div id="carrinho-conteudo"></div>
+        </div>
     </div>
 
     <div class="sheet-overlay" id="sheet-auth" onclick="fecharSheet('sheet-auth')">
@@ -76,7 +111,7 @@
                     <label class="form-label">Seu celular (WhatsApp)</label>
                     <input type="text" id="login-celular" class="form-control form-control-lg" placeholder="(11) 99999-9999">
                 </div>
-                <button class="btn-main mb-3" onclick="fazerLogin()">Entrar</button>
+                <button class="btn-main mb-3" onclick="fazerLogin()">Entrar na Conta</button>
                 <div class="text-center">
                     <button class="btn btn-link text-dark fw-bold small" onclick="mostrarCadastro()">Novo por aqui? Criar conta completa</button>
                 </div>
@@ -88,40 +123,43 @@
                 
                 <div class="row g-2">
                     <div class="col-12">
-                        <label class="form-label">Nome Completo</label>
-                        <input type="text" id="cad-nome" class="form-control mb-2">
+                        <label class="form-label mb-0">Nome Completo</label>
+                        <input type="text" id="cad-nome" class="form-control">
                     </div>
                     <div class="col-12">
-                        <label class="form-label">E-mail</label>
-                        <input type="email" id="cad-email" class="form-control mb-2">
+                        <label class="form-label mb-0">E-mail</label>
+                        <input type="email" id="cad-email" class="form-control">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">WhatsApp</label>
-                        <input type="text" id="cad-celular" class="form-control mb-2">
+                        <label class="form-label mb-0">WhatsApp</label>
+                        <input type="text" id="cad-celular" class="form-control">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Data Nasc.</label>
-                        <input type="date" id="cad-nasc" class="form-control mb-2">
+                        <label class="form-label mb-0">Data Nasc.</label>
+                        <input type="date" id="cad-nasc" class="form-control">
                     </div>
-                    <div class="col-12"><hr></div>
+                    <div class="col-12"><hr class="my-2"></div>
                     <div class="col-9">
-                        <label class="form-label">Rua / Logradouro</label>
-                        <input type="text" id="cad-rua" class="form-control mb-2">
+                        <label class="form-label mb-0">Rua / Logradouro</label>
+                        <input type="text" id="cad-rua" class="form-control">
                     </div>
                     <div class="col-3">
-                        <label class="form-label">Nº</label>
-                        <input type="text" id="cad-num" class="form-control mb-2">
+                        <label class="form-label mb-0">Nº</label>
+                        <input type="text" id="cad-num" class="form-control">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Bairro</label>
+                        <label class="form-label mb-0">Bairro</label>
                         <input type="text" id="cad-bairro" class="form-control mb-3">
                     </div>
                     <div class="col-6">
-                        <label class="form-label">Complemento</label>
+                        <label class="form-label mb-0">Complemento</label>
                         <input type="text" id="cad-comp" class="form-control mb-3">
                     </div>
                 </div>
-                <button class="btn-main" onclick="finalizarCadastro()">Salvar e Começar a Pedir</button>
+                <button class="btn-main" onclick="finalizarCadastro()">Salvar Perfil</button>
+                <div class="text-center mt-2">
+                    <button class="btn btn-link text-muted small" onclick="mostrarLogin()">Voltar para Login</button>
+                </div>
             </div>
         </div>
     </div>
@@ -132,23 +170,185 @@
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
+            authDomain: "nossa-carne-fidelidade.firebaseapp.com",
             projectId: "nossa-carne-fidelidade",
-            // ... suas chaves
+            storageBucket: "nossa-carne-fidelidade.firebasestorage.app",
+            messagingSenderId: "837465163879",
+            appId: "1:837465163879:web:b3eeeeeca3a9816a5a2cc2"
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // Lógica de UI
-        function abrirModalAuth() {
-            const overlay = document.getElementById('sheet-auth');
+        // ESTADO GLOBAL
+        let todosProdutos = [];
+        let carrinho = [];
+        let clienteLogado = false;
+        let dadosCliente = null;
+
+        // --- INICIALIZAÇÃO E CARDÁPIO ---
+        window.onload = () => { carregarMenu(); };
+
+        async function carregarMenu() {
+            try {
+                const snap = await db.collection('cardapio').get();
+                todosProdutos = [];
+                snap.forEach(doc => todosProdutos.push(doc.data()));
+
+                if (todosProdutos.length === 0) {
+                    document.getElementById('vitrine-itens').innerHTML = '<p class="text-center mt-5">Cardápio em atualização.</p>';
+                    return;
+                }
+
+                // Extrair categorias para o menu superior
+                const categorias = [...new Set(todosProdutos.map(p => p.categoria || "Outros"))];
+                const menuCat = document.getElementById('menu-categorias');
+                menuCat.innerHTML = categorias.map((cat, i) => `
+                    <button class="btn-cat ${i === 0 ? 'ativo' : ''}" onclick="filtrar('${cat}', this)">${cat}</button>
+                `).join('');
+
+                // Renderiza a primeira categoria
+                filtrar(categorias[0], menuCat.firstChild);
+            } catch (error) {
+                console.error("Erro ao carregar cardápio:", error);
+            }
+        }
+
+        function filtrar(cat, btn) {
+            document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+            if(btn) btn.classList.add('ativo');
+            if(btn) btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
+
+            const filtrados = todosProdutos.filter(p => (p.categoria || "Outros") === cat);
+            const vitrine = document.getElementById('vitrine-itens');
+            
+            vitrine.innerHTML = filtrados.map(p => {
+                const precoReal = p.preco_atual ? p.preco_atual.toFixed(2).replace('.', ',') : '0,00';
+                const img = p.imagem_url || 'https://via.placeholder.com/150';
+                return `
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
+                        <img src="${img}" class="img-p">
+                        <div class="body-p">
+                            <div class="badge-pts"><i class="fa-solid fa-star"></i> Clube</div>
+                            <h6 class="fw-bold m-0" style="font-size: 14px; color: #111;">${p.nome}</h6>
+                            <small class="text-muted d-block mt-1 mb-2" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || 'Produto selecionado'}</small>
+                            <div style="font-size: 16px; font-weight: 800; color: var(--cor-primaria);">R$ ${precoReal}</div>
+                        </div>
+                    </div>
+                </div>
+            `}).join('');
+        }
+
+        // --- BOTTOM SHEETS DE GESTÃO ---
+        function abrirSheet(id) {
+            const overlay = document.getElementById(id);
             overlay.style.display = 'flex';
             setTimeout(() => overlay.querySelector('.bottom-sheet').classList.add('show'), 10);
         }
 
         function fecharSheet(id) {
-            const sheet = document.getElementById(id).querySelector('.bottom-sheet');
-            sheet.classList.remove('show');
-            setTimeout(() => document.getElementById(id).style.display = 'none', 300);
+            const overlay = document.getElementById(id);
+            overlay.querySelector('.bottom-sheet').classList.remove('show');
+            setTimeout(() => overlay.style.display = 'none', 300);
+        }
+
+        // --- LÓGICA DE COMPRA ---
+        function abrirOpcoes(idItem) {
+            const p = todosProdutos.find(x => x.id_item === idItem);
+            
+            document.getElementById('opcoes-conteudo').innerHTML = `
+                <h4 class="fw-bold mb-1">${p.nome}</h4>
+                <p class="text-muted small mb-3">${p.descricao || 'Personalize do seu jeito'}</p>
+                <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-4">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
+
+                <div class="mb-4">
+                    <label class="form-label d-block mb-2"><i class="fa-regular fa-comment"></i> Observações (Opcional)</label>
+                    <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar cebola, maionese à parte..."></textarea>
+                </div>
+
+                <button class="btn-main mt-2" onclick="adicionarAoCarrinho('${p.id_item}')">
+                    <i class="fa-solid fa-cart-plus me-2"></i> Adicionar à Sacola
+                </button>
+            `;
+            abrirSheet('sheet-opcoes');
+        }
+
+        function adicionarAoCarrinho(id) {
+            const p = todosProdutos.find(x => x.id_item === id);
+            const obs = document.getElementById('obs-item').value.trim();
+
+            carrinho.push({
+                idUnico: Math.random().toString(36).substr(2, 9),
+                nome: p.nome,
+                preco: p.preco_atual || 0,
+                obs: obs
+            });
+
+            fecharSheet('sheet-opcoes');
+            atualizarCarrinhoFlutuante();
+        }
+
+        function atualizarCarrinhoFlutuante() {
+            const qtd = carrinho.length;
+            const bar = document.getElementById('bar-carrinho');
+            if(qtd > 0) {
+                bar.style.display = 'flex';
+                document.getElementById('cart-qtd').innerText = qtd;
+                const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+                document.getElementById('cart-total-resumo').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            } else {
+                bar.style.display = 'none';
+            }
+        }
+
+        function abrirCarrinhoCompleto() {
+            if(carrinho.length === 0) return;
+            
+            let html = '';
+            let total = 0;
+            carrinho.forEach(item => {
+                total += item.preco;
+                html += `
+                    <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded">
+                        <div style="width: 80%;">
+                            <div class="fw-bold" style="font-size: 14px;">${item.nome}</div>
+                            ${item.obs ? `<small class="text-muted d-block" style="font-size: 12px; line-height: 1.2;">Obs: ${item.obs}</small>` : ''}
+                            <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">R$ ${item.preco.toFixed(2).replace('.',',')}</div>
+                        </div>
+                        <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                `;
+            });
+            
+            html += `
+                <div class="d-flex justify-content-between border-top pt-3 mt-4">
+                    <span class="fw-bold text-muted">Total a Pagar</span>
+                    <h4 class="fw-bold text-success m-0">R$ ${total.toFixed(2).replace('.',',')}</h4>
+                </div>
+                <button class="btn-main mt-4" onclick="finalizarPedido()"><i class="fa-brands fa-whatsapp me-2"></i> Enviar Pedido</button>
+            `;
+
+            document.getElementById('carrinho-conteudo').innerHTML = html;
+            abrirSheet('sheet-carrinho');
+        }
+
+        function removerItem(idUnico) {
+            carrinho = carrinho.filter(i => i.idUnico !== idUnico);
+            atualizarCarrinhoFlutuante();
+            if(carrinho.length === 0) {
+                fecharSheet('sheet-carrinho');
+            } else {
+                abrirCarrinhoCompleto();
+            }
+        }
+
+        // --- AUTENTICAÇÃO E CADASTRO IFOOD ---
+        function abrirModalAuth() {
+            if(clienteLogado) {
+                alert(`Você está logado como: ${dadosCliente.nome}\nEm breve: Área do Cliente para ver histórico!`);
+                return;
+            }
+            abrirSheet('sheet-auth');
         }
 
         function mostrarCadastro() {
@@ -156,18 +356,42 @@
             document.getElementById('area-cadastro').style.display = 'block';
         }
 
-        // CADASTRO COMPLETO ESTILO IFOOD
+        function mostrarLogin() {
+            document.getElementById('area-cadastro').style.display = 'none';
+            document.getElementById('area-login').style.display = 'block';
+        }
+
+        async function fazerLogin() {
+            const cel = document.getElementById('login-celular').value.trim();
+            if(!cel) return alert("Digite seu WhatsApp para entrar.");
+            try {
+                const doc = await db.collection('clientes').doc(cel).get();
+                if(doc.exists) {
+                    clienteLogado = true;
+                    dadosCliente = doc.data();
+                    fecharSheet('sheet-auth');
+                    alert(`Bem-vindo de volta, ${dadosCliente.nome}!`);
+                } else {
+                    alert("Número não encontrado. Vamos criar seu cadastro rápido!");
+                    document.getElementById('cad-celular').value = cel;
+                    mostrarCadastro();
+                }
+            } catch(e) {
+                alert("Erro ao conectar. Tente novamente.");
+            }
+        }
+
         async function finalizarCadastro() {
             const cliente = {
-                nome: document.getElementById('cad-nome').value,
-                email: document.getElementById('cad-email').value,
-                whatsapp: document.getElementById('cad-celular').value,
+                nome: document.getElementById('cad-nome').value.trim(),
+                email: document.getElementById('cad-email').value.trim(),
+                whatsapp: document.getElementById('cad-celular').value.trim(),
                 nascimento: document.getElementById('cad-nasc').value,
                 endereco: {
-                    rua: document.getElementById('cad-rua').value,
-                    numero: document.getElementById('cad-num').value,
-                    bairro: document.getElementById('cad-bairro').value,
-                    complemento: document.getElementById('cad-comp').value
+                    rua: document.getElementById('cad-rua').value.trim(),
+                    numero: document.getElementById('cad-num').value.trim(),
+                    bairro: document.getElementById('cad-bairro').value.trim(),
+                    complemento: document.getElementById('cad-comp').value.trim()
                 },
                 pontos: 0,
                 data_cadastro: new Date().toISOString()
@@ -177,12 +401,53 @@
 
             try {
                 await db.collection('clientes').doc(cliente.whatsapp).set(cliente);
-                alert("Perfil criado com sucesso, " + Max + "!"); // Natural use of Max context
-                location.reload();
-            } catch (e) { alert("Erro ao cadastrar."); }
+                clienteLogado = true;
+                dadosCliente = cliente;
+                fecharSheet('sheet-auth');
+                alert(`Perfil criado com sucesso! Aproveite o cardápio, Max!`);
+            } catch (e) { alert("Erro ao salvar perfil."); }
         }
 
-        // SEGURANÇA F12
+        // --- FINALIZAÇÃO ---
+        async function finalizarPedido() {
+            if(!clienteLogado) {
+                fecharSheet('sheet-carrinho');
+                abrirSheet('sheet-auth');
+                alert("Por favor, faça login ou cadastre-se para enviar o pedido.");
+                return;
+            }
+
+            const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+            
+            // Salvar no Firebase
+            const venda = {
+                data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
+                cliente: { nome: dadosCliente.nome, telefone: dadosCliente.whatsapp },
+                itens: carrinho,
+                financeiro: { total_pago_reais: total, metodo_pagamento: "A Combinar" }
+            };
+            await db.collection('vendas_concluidas').add(venda);
+
+            // Gerar WhatsApp
+            let msg = `Olá! Meu pedido:\n\n`;
+            msg += `👤 *Cliente:* ${dadosCliente.nome}\n`;
+            if(dadosCliente.endereco && dadosCliente.endereco.rua) {
+                msg += `📍 *Endereço:* ${dadosCliente.endereco.rua}, ${dadosCliente.endereco.numero} - ${dadosCliente.endereco.bairro}\n`;
+            }
+            msg += `\n🛒 *ITENS:*\n`;
+            carrinho.forEach(i => {
+                msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2).replace('.',',')})\n`;
+                if(i.obs) msg += `  ↳ Obs: ${i.obs}\n`;
+            });
+            msg += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.',',')}`;
+
+            window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
+            carrinho = [];
+            atualizarCarrinhoFlutuante();
+            fecharSheet('sheet-carrinho');
+        }
+
+        // SEGURANÇA F12 / BOTÃO DIREITO
         document.onkeydown = function(e) {
             if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
         };
