@@ -16,8 +16,11 @@
 
     <style>
         :root { --cor-primaria: #8B0000; --cor-bg: #f8f9fa; --raio: 16px; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; padding-bottom: 80px; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; }
         
+        /* Ajuste Desktop */
+        .main-container { max-width: 1200px; margin: 0 auto; }
+
         /* Layout App */
         .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
         .logo-app { height: 38px; border-radius: 8px; }
@@ -30,66 +33,75 @@
 
         /* Cards de Produto */
         .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; }
+        .card-p:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
         .card-p:active { transform: scale(0.98); }
-        .img-p { height: 160px; object-fit: cover; width: 100%; }
-        .body-p { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .badge-pts { background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 5px; margin-bottom: 5px; display: inline-block; width: fit-content; }
+        .img-p { height: 180px; object-fit: cover; width: 100%; }
+        .body-p { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
+        
+        .categoria-titulo { font-weight: 800; font-size: 20px; margin: 30px 0 15px; padding-left: 10px; border-left: 5px solid var(--cor-primaria); }
 
-        /* Modais Deslizantes (Bottom Sheets) */
+        /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
-        .bottom-sheet { background: white; width: 100%; border-radius: 20px 20px 0 0; padding: 20px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; }
+        .bottom-sheet { background: white; width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; }
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 4px; background: #ddd; border-radius: 10px; margin: 0 auto 15px; }
 
-        /* Carrinho Flutuante */
-        .btn-cart-float { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 12px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 700; width: 90%; max-width: 350px; justify-content: space-between; cursor: pointer; }
-        .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 12px; }
+        /* Floating Cart */
+        .btn-cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 700; width: 90%; max-width: 450px; justify-content: space-between; cursor: pointer; }
+        .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 13px; }
 
-        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.98); }
-        .form-label { font-weight: 700; font-size: 13px; color: #444; }
+        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; width: 100%; transition: 0.2s; cursor: pointer; }
+        .btn-main:active { transform: scale(0.97); }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <nav class="navbar-app">
-        <div class="container d-flex justify-content-between align-items-center px-3">
-            <div class="d-flex align-items-center gap-2">
-                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
-                <span class="fw-bold">Nossa Carne</span>
+    <div class="main-container">
+        <nav class="navbar-app">
+            <div class="container d-flex justify-content-between align-items-center px-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
+                    <span class="fw-bold" style="font-size: 1.1rem;">Nossa Carne</span>
+                </div>
+                <div id="perfil-btn" onclick="abrirPerfil()" style="cursor: pointer;" class="d-flex align-items-center gap-2">
+                    <div id="pontos-badge-nav" class="small fw-bold text-success" style="display:none;"><i class="fa-solid fa-star"></i> <span id="val-pontos-nav">0</span></div>
+                    <i class="fa-solid fa-circle-user fa-xl"></i>
+                </div>
             </div>
-            <div id="btn-perfil" onclick="abrirModalAuth()" style="cursor: pointer;">
-                <i class="fa-solid fa-circle-user fa-xl text-dark"></i>
-            </div>
+        </nav>
+
+        <div class="cat-container">
+            <div class="cat-scroll" id="menu-categorias"></div>
         </div>
-    </nav>
 
-    <div class="cat-container">
-        <div class="cat-scroll" id="menu-categorias">
-            </div>
-    </div>
-
-    <div class="container py-3">
-        <div class="row g-2" id="vitrine-itens">
-            <div class="col-12 text-center mt-5">
+        <div class="container py-2" id="vitrine-principal">
+            <div class="text-center mt-5" id="loading-cardapio">
                 <div class="spinner-border text-danger" role="status"></div>
-                <p class="mt-2 text-muted small">Carregando cardápio...</p>
+                <p class="mt-2 text-muted small">Carregando o melhor cardápio da região...</p>
             </div>
+            <div id="listagem-produtos"></div>
         </div>
     </div>
 
-    <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinhoCompleto()">
-        <span><i class="fa-solid fa-bag-shopping"></i> Ver Sacola</span>
+    <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinho()">
+        <span><i class="fa-solid fa-bag-shopping"></i> Sacola de Pedidos</span>
         <div class="d-flex align-items-center gap-2">
-            <span id="cart-total-resumo">R$ 0,00</span>
+            <span id="cart-total">R$ 0,00</span>
             <span class="cart-count" id="cart-qtd">0</span>
         </div>
     </button>
 
+    <div class="sheet-overlay" id="sheet-perfil" onclick="fecharSheet('sheet-perfil')">
+        <div class="bottom-sheet" onclick="event.stopPropagation()">
+            <div class="handle"></div>
+            <div id="conteudo-perfil"></div>
+        </div>
+    </div>
+
     <div class="sheet-overlay" id="sheet-opcoes" onclick="fecharSheet('sheet-opcoes')">
         <div class="bottom-sheet" onclick="event.stopPropagation()">
             <div class="handle"></div>
-            <div id="opcoes-conteudo"></div>
+            <div id="conteudo-opcoes"></div>
         </div>
     </div>
 
@@ -97,68 +109,27 @@
         <div class="bottom-sheet" onclick="event.stopPropagation()">
             <div class="handle"></div>
             <h4 class="fw-bold mb-3"><i class="fa-solid fa-cart-shopping"></i> Sua Sacola</h4>
-            <div id="carrinho-conteudo"></div>
+            <div id="conteudo-carrinho"></div>
         </div>
     </div>
 
-    <div class="sheet-overlay" id="sheet-auth" onclick="fecharSheet('sheet-auth')">
-        <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')">
+        <div class="bottom-sheet text-center" onclick="event.stopPropagation()">
             <div class="handle"></div>
+            <i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i>
+            <h4 class="fw-bold">Pagamento Instantâneo</h4>
+            <p class="text-muted small">Copie o código abaixo e pague no seu app do banco. O pedido será processado assim que o PIX for confirmado.</p>
             
-            <div id="area-login">
-                <h4 class="fw-bold mb-3">Bem-vindo de volta!</h4>
-                <div class="mb-3">
-                    <label class="form-label">Seu celular (WhatsApp)</label>
-                    <input type="text" id="login-celular" class="form-control form-control-lg" placeholder="(11) 99999-9999">
-                </div>
-                <button class="btn-main mb-3" onclick="fazerLogin()">Entrar na Conta</button>
-                <div class="text-center">
-                    <button class="btn btn-link text-dark fw-bold small" onclick="mostrarCadastro()">Novo por aqui? Criar conta completa</button>
-                </div>
+            <div id="loading-pix" class="my-3">
+                <div class="spinner-border text-success spinner-border-sm" role="status"></div> Gerando código...
             </div>
-
-            <div id="area-cadastro" style="display: none;">
-                <h4 class="fw-bold mb-1">Criar Perfil Completo</h4>
-                <p class="text-muted small mb-4">Ganhe pontos e agilize seus pedidos.</p>
-                
-                <div class="row g-2">
-                    <div class="col-12">
-                        <label class="form-label mb-0">Nome Completo</label>
-                        <input type="text" id="cad-nome" class="form-control">
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label mb-0">E-mail</label>
-                        <input type="email" id="cad-email" class="form-control">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0">WhatsApp</label>
-                        <input type="text" id="cad-celular" class="form-control">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0">Data Nasc.</label>
-                        <input type="date" id="cad-nasc" class="form-control">
-                    </div>
-                    <div class="col-12"><hr class="my-2"></div>
-                    <div class="col-9">
-                        <label class="form-label mb-0">Rua / Logradouro</label>
-                        <input type="text" id="cad-rua" class="form-control">
-                    </div>
-                    <div class="col-3">
-                        <label class="form-label mb-0">Nº</label>
-                        <input type="text" id="cad-num" class="form-control">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0">Bairro</label>
-                        <input type="text" id="cad-bairro" class="form-control mb-3">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label mb-0">Complemento</label>
-                        <input type="text" id="cad-comp" class="form-control mb-3">
-                    </div>
-                </div>
-                <button class="btn-main" onclick="finalizarCadastro()">Salvar Perfil</button>
-                <div class="text-center mt-2">
-                    <button class="btn btn-link text-muted small" onclick="mostrarLogin()">Voltar para Login</button>
+            
+            <div id="area-codigo-pix" style="display: none;">
+                <div id="pix-code" class="p-3 bg-light rounded border border-dashed my-3 small text-break fw-bold text-muted"></div>
+                <button class="btn btn-outline-dark w-100 mb-4 fw-bold" onclick="copiarPix()"><i class="fa-regular fa-copy"></i> Copiar Código PIX</button>
+                <div class="d-flex align-items-center justify-content-center gap-2">
+                    <div class="spinner-border spinner-border-sm text-primary"></div>
+                    <span class="small fw-bold">Aguardando confirmação do banco...</span>
                 </div>
             </div>
         </div>
@@ -179,67 +150,103 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
-        // ESTADO GLOBAL
+        // Variáveis Globais
         let todosProdutos = [];
         let carrinho = [];
-        let clienteLogado = false;
-        let dadosCliente = null;
+        let usuario = null;
+        let verificadorPix = null;
 
-        // --- INICIALIZAÇÃO E CARDÁPIO ---
-        window.onload = () => { carregarMenu(); };
+        // --- 1. ORDENAÇÃO E CARREGAMENTO ---
+        const ordemCategorias = ["Entradas", "Monte Seu Prato", "Burgers Especiais", "Lanches Especiais", "Clássicos", "Fininhos", "Combos Burger", "Pratos Especiais", "Parmegianas", "Massas", "Sucos", "Refrigerantes"];
 
-        async function carregarMenu() {
+        window.onload = carregarDados;
+
+        async function carregarDados() {
             try {
                 const snap = await db.collection('cardapio').get();
-                todosProdutos = [];
+                todosProdutos = []; 
                 snap.forEach(doc => todosProdutos.push(doc.data()));
-
-                if (todosProdutos.length === 0) {
-                    document.getElementById('vitrine-itens').innerHTML = '<p class="text-center mt-5">Cardápio em atualização.</p>';
-                    return;
-                }
-
-                // Extrair categorias para o menu superior
-                const categorias = [...new Set(todosProdutos.map(p => p.categoria || "Outros"))];
-                const menuCat = document.getElementById('menu-categorias');
-                menuCat.innerHTML = categorias.map((cat, i) => `
-                    <button class="btn-cat ${i === 0 ? 'ativo' : ''}" onclick="filtrar('${cat}', this)">${cat}</button>
-                `).join('');
-
-                // Renderiza a primeira categoria
-                filtrar(categorias[0], menuCat.firstChild);
+                
+                document.getElementById('loading-cardapio').style.display = 'none';
+                renderizarCardapio();
+                configurarScrollspy();
             } catch (error) {
                 console.error("Erro ao carregar cardápio:", error);
+                document.getElementById('loading-cardapio').innerHTML = '<p class="text-danger">Erro ao carregar o cardápio. Verifique sua conexão.</p>';
             }
         }
 
-        function filtrar(cat, btn) {
-            document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
-            if(btn) btn.classList.add('ativo');
-            if(btn) btn.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-
-            const filtrados = todosProdutos.filter(p => (p.categoria || "Outros") === cat);
-            const vitrine = document.getElementById('vitrine-itens');
+        function renderizarCardapio() {
+            const menu = document.getElementById('menu-categorias');
+            const lista = document.getElementById('listagem-produtos');
             
-            vitrine.innerHTML = filtrados.map(p => {
-                const precoReal = p.preco_atual ? p.preco_atual.toFixed(2).replace('.', ',') : '0,00';
-                const img = p.imagem_url || 'https://via.placeholder.com/150';
-                return `
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
-                        <img src="${img}" class="img-p">
-                        <div class="body-p">
-                            <div class="badge-pts"><i class="fa-solid fa-star"></i> Clube</div>
-                            <h6 class="fw-bold m-0" style="font-size: 14px; color: #111;">${p.nome}</h6>
-                            <small class="text-muted d-block mt-1 mb-2" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || 'Produto selecionado'}</small>
-                            <div style="font-size: 16px; font-weight: 800; color: var(--cor-primaria);">R$ ${precoReal}</div>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
+            menu.innerHTML = '';
+            lista.innerHTML = '';
+
+            ordemCategorias.forEach(cat => {
+                const itens = todosProdutos.filter(p => p.categoria === cat);
+                if(itens.length > 0) {
+                    // Botão Categoria no Topo
+                    menu.innerHTML += `<button class="btn-cat" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
+                    
+                    // Seção de Produtos
+                    let htmlItens = `<div class="row g-3">`;
+                    itens.forEach(p => {
+                        const preco = p.preco_atual ? p.preco_atual.toFixed(2).replace('.', ',') : '0,00';
+                        const img = p.imagem_url || 'https://via.placeholder.com/300';
+                        htmlItens += `
+                        <div class="col-6 col-md-4">
+                            <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
+                                <img src="${img}" class="img-p" alt="${p.nome}">
+                                <div class="body-p">
+                                    <h6 class="fw-bold mb-1" style="font-size: 14px; color:#111;">${p.nome}</h6>
+                                    <small class="text-muted d-block mb-3" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || ''}</small>
+                                    <div class="mt-auto fw-bold" style="color: var(--cor-primaria); font-size: 16px;">R$ ${preco}</div>
+                                </div>
+                            </div>
+                        </div>`;
+                    });
+                    htmlItens += `</div>`;
+
+                    lista.innerHTML += `
+                        <div id="cat-section-${cat.replace(/\s/g, '')}" class="categoria-ancora">
+                            <h2 class="categoria-titulo">${cat}</h2>
+                            ${htmlItens}
+                        </div>`;
+                }
+            });
         }
 
-        // --- BOTTOM SHEETS DE GESTÃO ---
+        // --- 2. SCROLL INTELIGENTE (SCROLLSPY) ---
+        function configurarScrollspy() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id.replace('cat-section-', '');
+                        document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+                        const btn = document.getElementById('btn-nav-' + id);
+                        if(btn) {
+                            btn.classList.add('ativo');
+                            btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                        }
+                    }
+                });
+            }, { threshold: 0.1, rootMargin: "-120px 0px -70% 0px" });
+
+            document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section));
+        }
+
+        function scrollParaCategoria(cat) {
+            const el = document.getElementById('cat-section-' + cat.replace(/\s/g, ''));
+            const offset = 130;
+            const bodyRect = document.body.getBoundingClientRect().top;
+            const elementRect = el.getBoundingClientRect().top;
+            const offsetPosition = (elementRect - bodyRect) - offset;
+
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+
+        // --- 3. MODAIS E BOTTOM SHEETS GENÉRICOS ---
         function abrirSheet(id) {
             const overlay = document.getElementById(id);
             overlay.style.display = 'flex';
@@ -250,23 +257,24 @@
             const overlay = document.getElementById(id);
             overlay.querySelector('.bottom-sheet').classList.remove('show');
             setTimeout(() => overlay.style.display = 'none', 300);
+            if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix);
         }
 
-        // --- LÓGICA DE COMPRA ---
+        // --- 4. OPÇÕES DO PRODUTO E CARRINHO ---
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
             
-            document.getElementById('opcoes-conteudo').innerHTML = `
+            document.getElementById('conteudo-opcoes').innerHTML = `
                 <h4 class="fw-bold mb-1">${p.nome}</h4>
                 <p class="text-muted small mb-3">${p.descricao || 'Personalize do seu jeito'}</p>
                 <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-4">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
 
                 <div class="mb-4">
-                    <label class="form-label d-block mb-2"><i class="fa-regular fa-comment"></i> Observações (Opcional)</label>
+                    <label class="fw-bold small d-block mb-2"><i class="fa-regular fa-comment"></i> Observações Adicionais</label>
                     <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar cebola, maionese à parte..."></textarea>
                 </div>
 
-                <button class="btn-main mt-2" onclick="adicionarAoCarrinho('${p.id_item}')">
+                <button class="btn-main" onclick="adicionarAoCarrinho('${p.id_item}')">
                     <i class="fa-solid fa-cart-plus me-2"></i> Adicionar à Sacola
                 </button>
             `;
@@ -279,8 +287,10 @@
 
             carrinho.push({
                 idUnico: Math.random().toString(36).substr(2, 9),
+                id_produto: p.id_item,
                 nome: p.nome,
                 preco: p.preco_atual || 0,
+                codigo_pdv: p.codigo_pdv || "0000",
                 obs: obs
             });
 
@@ -295,13 +305,13 @@
                 bar.style.display = 'flex';
                 document.getElementById('cart-qtd').innerText = qtd;
                 const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
-                document.getElementById('cart-total-resumo').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+                document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
             } else {
                 bar.style.display = 'none';
             }
         }
 
-        function abrirCarrinhoCompleto() {
+        function abrirCarrinho() {
             if(carrinho.length === 0) return;
             
             let html = '';
@@ -312,10 +322,10 @@
                     <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded">
                         <div style="width: 80%;">
                             <div class="fw-bold" style="font-size: 14px;">${item.nome}</div>
-                            ${item.obs ? `<small class="text-muted d-block" style="font-size: 12px; line-height: 1.2;">Obs: ${item.obs}</small>` : ''}
+                            ${item.obs ? `<small class="text-muted d-block mt-1" style="font-size: 12px; line-height: 1.2;">Obs: ${item.obs}</small>` : ''}
                             <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">R$ ${item.preco.toFixed(2).replace('.',',')}</div>
                         </div>
-                        <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
+                        <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc; border-radius: 8px;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
                     </div>
                 `;
             });
@@ -325,10 +335,10 @@
                     <span class="fw-bold text-muted">Total a Pagar</span>
                     <h4 class="fw-bold text-success m-0">R$ ${total.toFixed(2).replace('.',',')}</h4>
                 </div>
-                <button class="btn-main mt-4" onclick="finalizarPedido()"><i class="fa-brands fa-whatsapp me-2"></i> Enviar Pedido</button>
+                <button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Pagar e Finalizar Pedido</button>
             `;
 
-            document.getElementById('carrinho-conteudo').innerHTML = html;
+            document.getElementById('conteudo-carrinho').innerHTML = html;
             abrirSheet('sheet-carrinho');
         }
 
@@ -338,118 +348,209 @@
             if(carrinho.length === 0) {
                 fecharSheet('sheet-carrinho');
             } else {
-                abrirCarrinhoCompleto();
+                abrirCarrinho(); // Recarrega o modal do carrinho
             }
         }
 
-        // --- AUTENTICAÇÃO E CADASTRO IFOOD ---
-        function abrirModalAuth() {
-            if(clienteLogado) {
-                alert(`Você está logado como: ${dadosCliente.nome}\nEm breve: Área do Cliente para ver histórico!`);
-                return;
+        // --- 5. GESTÃO DE USUÁRIO E PERFIL ---
+        function abrirPerfil() {
+            const cont = document.getElementById('conteudo-perfil');
+            if(!usuario) {
+                cont.innerHTML = `
+                    <h4 class="fw-bold mb-3">Acessar Conta</h4>
+                    <p class="text-muted small">Digite seu WhatsApp para entrar ou se cadastrar.</p>
+                    <input type="text" id="login-celular" class="form-control form-control-lg mb-3" placeholder="(11) 99999-9999">
+                    <button class="btn-main mb-3" onclick="fazerLogin()">Continuar</button>
+                    <div id="area-cadastro-novo" style="display: none; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+                        <h6 class="fw-bold">Cadastro Rápido</h6>
+                        <input type="text" id="cad-nome" class="form-control mb-2" placeholder="Nome Completo">
+                        <input type="text" id="cad-rua" class="form-control mb-2" placeholder="Rua e Bairro">
+                        <input type="text" id="cad-num" class="form-control mb-3" placeholder="Número">
+                        <button class="btn btn-dark w-100 fw-bold" onclick="salvarNovoCadastro()">Criar Perfil</button>
+                    </div>
+                `;
+            } else {
+                cont.innerHTML = `
+                    <div class="text-center">
+                        <h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4>
+                        <div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos</div>
+                    </div>
+                    <hr>
+                    <label class="fw-bold small mb-2">Editar Meu Endereço de Entrega</label>
+                    <input type="text" id="edit-nome" class="form-control mb-2" value="${usuario.nome || ''}" placeholder="Seu Nome">
+                    <input type="text" id="edit-rua" class="form-control mb-2" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro">
+                    <input type="text" id="edit-num" class="form-control mb-3" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento">
+                    <button class="btn btn-dark w-100 fw-bold py-3" onclick="atualizarPerfil()">Salvar Alterações</button>
+                `;
             }
-            abrirSheet('sheet-auth');
-        }
-
-        function mostrarCadastro() {
-            document.getElementById('area-login').style.display = 'none';
-            document.getElementById('area-cadastro').style.display = 'block';
-        }
-
-        function mostrarLogin() {
-            document.getElementById('area-cadastro').style.display = 'none';
-            document.getElementById('area-login').style.display = 'block';
+            abrirSheet('sheet-perfil');
         }
 
         async function fazerLogin() {
             const cel = document.getElementById('login-celular').value.trim();
-            if(!cel) return alert("Digite seu WhatsApp para entrar.");
+            if(!cel) return alert("Digite o número do celular.");
+            
             try {
                 const doc = await db.collection('clientes').doc(cel).get();
                 if(doc.exists) {
-                    clienteLogado = true;
-                    dadosCliente = doc.data();
-                    fecharSheet('sheet-auth');
-                    alert(`Bem-vindo de volta, ${dadosCliente.nome}!`);
+                    usuario = doc.data();
+                    document.getElementById('pontos-badge-nav').style.display = 'block';
+                    document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
+                    fecharSheet('sheet-perfil');
+                    alert(`Bem-vindo de volta, ${usuario.nome}!`);
                 } else {
-                    alert("Número não encontrado. Vamos criar seu cadastro rápido!");
-                    document.getElementById('cad-celular').value = cel;
-                    mostrarCadastro();
+                    document.getElementById('area-cadastro-novo').style.display = 'block';
                 }
-            } catch(e) {
-                alert("Erro ao conectar. Tente novamente.");
+            } catch (error) {
+                alert("Erro ao conectar.");
             }
         }
 
-        async function finalizarCadastro() {
-            const cliente = {
-                nome: document.getElementById('cad-nome').value.trim(),
-                email: document.getElementById('cad-email').value.trim(),
-                whatsapp: document.getElementById('cad-celular').value.trim(),
-                nascimento: document.getElementById('cad-nasc').value,
-                endereco: {
-                    rua: document.getElementById('cad-rua').value.trim(),
-                    numero: document.getElementById('cad-num').value.trim(),
-                    bairro: document.getElementById('cad-bairro').value.trim(),
-                    complemento: document.getElementById('cad-comp').value.trim()
-                },
+        async function salvarNovoCadastro() {
+            const cel = document.getElementById('login-celular').value.trim();
+            const nome = document.getElementById('cad-nome').value.trim();
+            const rua = document.getElementById('cad-rua').value.trim();
+            const num = document.getElementById('cad-num').value.trim();
+
+            if(!nome || !rua) return alert("Preencha nome e rua.");
+
+            const novoCliente = {
+                whatsapp: cel,
+                nome: nome,
                 pontos: 0,
+                endereco: { rua: rua, numero: num },
                 data_cadastro: new Date().toISOString()
             };
 
-            if(!cliente.nome || !cliente.whatsapp) return alert("Nome e WhatsApp são obrigatórios!");
-
-            try {
-                await db.collection('clientes').doc(cliente.whatsapp).set(cliente);
-                clienteLogado = true;
-                dadosCliente = cliente;
-                fecharSheet('sheet-auth');
-                alert(`Perfil criado com sucesso! Aproveite o cardápio, Max!`);
-            } catch (e) { alert("Erro ao salvar perfil."); }
+            await db.collection('clientes').doc(cel).set(novoCliente);
+            usuario = novoCliente;
+            document.getElementById('pontos-badge-nav').style.display = 'block';
+            document.getElementById('val-pontos-nav').innerText = 0;
+            fecharSheet('sheet-perfil');
+            alert("Cadastro realizado com sucesso!");
         }
 
-        // --- FINALIZAÇÃO ---
-        async function finalizarPedido() {
-            if(!clienteLogado) {
-                fecharSheet('sheet-carrinho');
-                abrirSheet('sheet-auth');
-                alert("Por favor, faça login ou cadastre-se para enviar o pedido.");
-                return;
-            }
+        async function atualizarPerfil() {
+            const novosDados = {
+                nome: document.getElementById('edit-nome').value.trim(),
+                endereco: { 
+                    rua: document.getElementById('edit-rua').value.trim(), 
+                    numero: document.getElementById('edit-num').value.trim() 
+                }
+            };
+            await db.collection('clientes').doc(usuario.whatsapp).update(novosDados);
+            usuario = { ...usuario, ...novosDados };
+            alert("Endereço atualizado com sucesso!");
+            fecharSheet('sheet-perfil');
+        }
 
-            const total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+        // --- 6. CHECKOUT E INTEGRAÇÃO PIX / FIREBASE ---
+        async function iniciarCheckout() {
+            if(!usuario) {
+                fecharSheet('sheet-carrinho');
+                alert("Por favor, acesse ou crie sua conta para preencher o endereço de entrega.");
+                return abrirPerfil();
+            }
+            if(!usuario.endereco || !usuario.endereco.rua) {
+                fecharSheet('sheet-carrinho');
+                alert("Por favor, atualize seu endereço no perfil antes de pedir.");
+                return abrirPerfil();
+            }
             
-            // Salvar no Firebase
+            const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
+            
+            fecharSheet('sheet-carrinho');
+            document.getElementById('loading-pix').style.display = 'block';
+            document.getElementById('area-codigo-pix').style.display = 'none';
+            abrirSheet('sheet-pix');
+            
+            try {
+                // Chama a API do Render para gerar o PIX
+                const response = await fetch('/gerar-pix', { 
+                    method: 'POST', 
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valorTotal: total }) 
+                });
+                
+                const data = await response.json();
+                
+                if(data.qr_code_copia_cola && data.id_transacao) {
+                    document.getElementById('loading-pix').style.display = 'none';
+                    document.getElementById('area-codigo-pix').style.display = 'block';
+                    document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
+                    
+                    // Fica escutando o pagamento
+                    verificadorPix = setInterval(() => {
+                        verificarStatusPagamento(data.id_transacao);
+                    }, 3000);
+                } else {
+                    alert("Erro ao gerar o PIX. Avise o restaurante.");
+                    fecharSheet('sheet-pix');
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro de conexão com o servidor. O servidor pode estar dormindo.");
+                fecharSheet('sheet-pix');
+            }
+        }
+
+        function copiarPix() { 
+            const codigo = document.getElementById('pix-code').innerText;
+            navigator.clipboard.writeText(codigo).then(() => { 
+                alert("Código PIX copiado! Abra o app do seu banco para pagar."); 
+            }); 
+        }
+
+        async function verificarStatusPagamento(idTransacao) {
+            try {
+                const response = await fetch(`/consultar-pix/${idTransacao}`);
+                const data = await response.json();
+                if(data.status === 'approved') {
+                    clearInterval(verificadorPix);
+                    alert("✅ Pagamento Aprovado! Seu pedido já está indo para a cozinha.");
+                    finalizarPedidoNoSistema();
+                }
+            } catch (e) { console.error("Verificando PIX..."); }
+        }
+
+        async function finalizarPedidoNoSistema() {
+            const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
+            
+            // 1. Salvar Venda no Firebase (O Painel do Chefe vai apitar)
             const venda = {
                 data_pedido: firebase.firestore.FieldValue.serverTimestamp(),
-                cliente: { nome: dadosCliente.nome, telefone: dadosCliente.whatsapp },
+                cliente: { nome: usuario.nome, telefone: usuario.whatsapp },
+                logistica: { endereco: `${usuario.endereco.rua}, ${usuario.endereco.numero}` },
                 itens: carrinho,
-                financeiro: { total_pago_reais: total, metodo_pagamento: "A Combinar" }
+                financeiro: { total_pago_reais: total, metodo_pagamento: "PIX" }
             };
             await db.collection('vendas_concluidas').add(venda);
 
-            // Gerar WhatsApp
-            let msg = `Olá! Meu pedido:\n\n`;
-            msg += `👤 *Cliente:* ${dadosCliente.nome}\n`;
-            if(dadosCliente.endereco && dadosCliente.endereco.rua) {
-                msg += `📍 *Endereço:* ${dadosCliente.endereco.rua}, ${dadosCliente.endereco.numero} - ${dadosCliente.endereco.bairro}\n`;
-            }
-            msg += `\n🛒 *ITENS:*\n`;
+            // 2. Montar mensagem do WhatsApp (Opcional, como backup para a loja)
+            let msg = `*NOVO PEDIDO (PAGO VIA PIX)* ✅\n\n`;
+            msg += `👤 *Cliente:* ${usuario.nome}\n`;
+            msg += `📍 *Endereço:* ${usuario.endereco.rua}, ${usuario.endereco.numero}\n\n`;
+            msg += `🛒 *ITENS:*\n`;
             carrinho.forEach(i => {
-                msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2).replace('.',',')})\n`;
+                msg += `- 1x ${i.nome} (R$ ${i.preco.toFixed(2)})\n`;
                 if(i.obs) msg += `  ↳ Obs: ${i.obs}\n`;
             });
-            msg += `\n💰 *Total:* R$ ${total.toFixed(2).replace('.',',')}`;
+            msg += `\n💰 *Total Pago:* R$ ${total.toFixed(2)}`;
 
-            window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
+            fecharSheet('sheet-pix');
             carrinho = [];
             atualizarCarrinhoFlutuante();
-            fecharSheet('sheet-carrinho');
+            
+            // Redireciona para o WhatsApp do restaurante
+            window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
         }
 
-        // SEGURANÇA F12 / BOTÃO DIREITO
+        // SEGURANÇA: Bloquear F12 e Botão Direito
         document.onkeydown = function(e) {
-            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false;
+            if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) {
+                alert("⚠️ Acesso restrito.");
+                return false;
+            }
         };
     </script>
 </body>
