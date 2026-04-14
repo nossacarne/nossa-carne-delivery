@@ -14,21 +14,43 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; overflow-x: hidden; }
         
-        #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #8B0000; }
+        #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #8B0000; padding: 20px; }
         .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
         .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
         
         #conteudo-admin { display: none; }
         
-        .sidebar { height: 100vh; background: #1a1a1a; color: white; position: fixed; width: 260px; z-index: 1000; }
-        .logo-sidebar { width: 60px; border-radius: 8px; margin-bottom: 10px; }
-        .main-content { margin-left: 260px; padding: 30px; }
+        /* ATUALIZAÇÃO 1: Estrutura Base Responsiva */
+        .wrapper { display: flex; flex-direction: column; min-height: 100vh; }
+        .sidebar { background: #1a1a1a; color: white; transition: 0.3s; z-index: 1000; }
         
-        .nav-link { color: #ccc; margin-bottom: 10px; cursor: pointer; padding: 12px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
+        /* Layout para Computador */
+        @media (min-width: 992px) {
+            .wrapper { flex-direction: row; }
+            .sidebar { width: 260px; height: 100vh; position: fixed; }
+            .main-content { margin-left: 260px; flex-grow: 1; padding: 30px; }
+        }
+
+        /* Layout para Celular (Menu Inteligente) */
+        @media (max-width: 991px) {
+            .sidebar { width: 100%; height: auto; position: sticky; top: 0; padding: 15px !important; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+            .main-content { padding: 15px; margin-left: 0; }
+            .logo-sidebar-container { display: none; /* Oculta a logo no mobile para dar espaço aos botões */ }
+            .nav { flex-direction: row !important; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+            .nav::-webkit-scrollbar { display: none; }
+            .nav-link { white-space: nowrap; margin-bottom: 0; margin-right: 10px; font-size: 14px; padding: 10px 15px; }
+        }
+        
+        .logo-sidebar { width: 60px; border-radius: 8px; margin-bottom: 10px; }
+        
+        .nav-link { color: #ccc; cursor: pointer; padding: 12px; transition: 0.3s; display: flex; align-items: center; gap: 10px; }
         .nav-link:hover, .nav-link.active { background: #8B0000; border-radius: 8px; color: #fff; text-decoration: none; }
         
         .card-stats { background: white; border: none; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); padding: 20px; }
         .img-preview { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+
+        /* ATUALIZAÇÃO 2: Proteção de quebra de tela para as tabelas */
+        .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -45,84 +67,92 @@
     </div>
 
     <div id="conteudo-admin">
-        <div class="sidebar d-flex flex-column p-3">
-            <div class="text-center mb-4">
-                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-sidebar">
-                <h4 class="fw-bold m-0 text-white">Nossa Carne</h4>
-                <div class="text-white small opacity-75">Gestão Operacional</div>
+        <div class="wrapper">
+            <div class="sidebar d-flex flex-column p-3">
+                <div class="text-center mb-4 logo-sidebar-container">
+                    <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-sidebar">
+                    <h4 class="fw-bold m-0 text-white">Nossa Carne</h4>
+                    <div class="text-white small opacity-75">Gestão Operacional</div>
+                </div>
+                <hr style="border-color: #444;" class="logo-sidebar-container">
+                <nav class="nav flex-column">
+                    <a class="nav-link active" onclick="mostrarSecao('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                    <a class="nav-link" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt"></i> Pedidos</a>
+                    <a class="nav-link" onclick="mostrarSecao('cardapio')"><i class="fa-solid fa-burger"></i> Cardápio</a>
+                    <a class="nav-link" onclick="mostrarSecao('categorias')"><i class="fa-solid fa-tags"></i> Categorias</a>
+                    <a class="nav-link" onclick="mostrarSecao('config')"><i class="fa-solid fa-gears"></i> Configurações</a>
+                    <a class="nav-link mt-lg-5 text-danger" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair</a>
+                </nav>
             </div>
-            <hr style="border-color: #444;">
-            <nav class="nav flex-column">
-                <a class="nav-link active" onclick="mostrarSecao('dashboard')"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a class="nav-link" onclick="mostrarSecao('pedidos')"><i class="fa-solid fa-receipt"></i> Pedidos</a>
-                <a class="nav-link" onclick="mostrarSecao('cardapio')"><i class="fa-solid fa-burger"></i> Cardápio</a>
-                <a class="nav-link" onclick="mostrarSecao('categorias')"><i class="fa-solid fa-tags"></i> Categorias</a>
-                <a class="nav-link" onclick="mostrarSecao('config')"><i class="fa-solid fa-gears"></i> Configurações</a>
-                <a class="nav-link mt-5 text-danger" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair</a>
-            </nav>
-        </div>
 
-        <div class="main-content">
-            
-            <section id="secao-dashboard">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold">Performance</h2>
-                    <button class="btn btn-success fw-bold" onclick="exportarExcelVendas()"><i class="fa-solid fa-file-excel me-2"></i> Exportar (Excel)</button>
-                </div>
-                <div class="row g-4 mb-5">
-                    <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Faturamento</small><h3 id="fat-mes" class="fw-bold">R$ 0,00</h3></div></div>
-                    <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Ticket Médio</small><h3 id="ticket-medio" class="fw-bold">R$ 0,00</h3></div></div>
-                    <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Mais Vendido</small><h5 id="top-vendas" class="fw-bold mt-2">...</h5></div></div>
-                </div>
-                <div class="card-stats p-4"><canvas id="graficoTicket" height="80"></canvas></div>
-            </section>
+            <div class="main-content">
+                
+                <section id="secao-dashboard">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Performance</h2>
+                        <button class="btn btn-success fw-bold" onclick="exportarExcelVendas()"><i class="fa-solid fa-file-excel me-2"></i> Exportar (Excel)</button>
+                    </div>
+                    <div class="row g-4 mb-5">
+                        <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Faturamento</small><h3 id="fat-mes" class="fw-bold">R$ 0,00</h3></div></div>
+                        <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Ticket Médio</small><h3 id="ticket-medio" class="fw-bold">R$ 0,00</h3></div></div>
+                        <div class="col-md-4"><div class="card-stats"><small class="text-muted fw-bold">Mais Vendido</small><h5 id="top-vendas" class="fw-bold mt-2">...</h5></div></div>
+                    </div>
+                    <div class="card-stats p-4"><canvas id="graficoTicket" height="80"></canvas></div>
+                </section>
 
-            <section id="secao-pedidos" style="display:none;">
-                <h2 class="fw-bold mb-4">Pedidos Concluídos</h2>
-                <div class="card-stats">
-                    <table class="table align-middle">
-                        <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th>Valor</th><th>Pagamento</th></tr></thead>
-                        <tbody id="tabela-pedidos"></tbody>
-                    </table>
-                </div>
-            </section>
+                <section id="secao-pedidos" style="display:none;">
+                    <h2 class="fw-bold mb-4">Pedidos Concluídos</h2>
+                    <div class="card-stats">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th>Data</th><th>Cliente</th><th>Itens</th><th>Valor</th><th>Pagamento</th></tr></thead>
+                                <tbody id="tabela-pedidos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-            <section id="secao-cardapio" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold">Gestão do Cardápio</h2>
-                    <button class="btn btn-dark fw-bold" onclick="abrirModalProduto()"><i class="fa-solid fa-plus"></i> Novo Item</button>
-                </div>
-                <div class="card-stats">
-                    <table class="table align-middle">
-                        <thead><tr><th>Foto</th><th>Produto</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead>
-                        <tbody id="tabela-cardapio"></tbody>
-                    </table>
-                </div>
-            </section>
+                <section id="secao-cardapio" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Gestão do Cardápio</h2>
+                        <button class="btn btn-dark fw-bold" onclick="abrirModalProduto()"><i class="fa-solid fa-plus"></i> Novo Item</button>
+                    </div>
+                    <div class="card-stats">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th>Foto</th><th>Produto</th><th>Preço</th><th>Status</th><th>Ações</th></tr></thead>
+                                <tbody id="tabela-cardapio"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-            <section id="secao-categorias" style="display:none;">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h2 class="fw-bold">Gerenciar Categorias</h2>
-                    <button class="btn btn-dark fw-bold" onclick="abrirModalCategoria()"><i class="fa-solid fa-plus"></i> Nova Categoria</button>
-                </div>
-                <div class="card-stats">
-                    <table class="table align-middle">
-                        <thead><tr><th>Nome</th><th>Ordem</th><th>Ações</th></tr></thead>
-                        <tbody id="tabela-categorias"></tbody>
-                    </table>
-                </div>
-            </section>
+                <section id="secao-categorias" style="display:none;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h2 class="fw-bold">Gerenciar Categorias</h2>
+                        <button class="btn btn-dark fw-bold" onclick="abrirModalCategoria()"><i class="fa-solid fa-plus"></i> Nova Categoria</button>
+                    </div>
+                    <div class="card-stats">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead><tr><th>Nome</th><th>Ordem</th><th>Ações</th></tr></thead>
+                                <tbody id="tabela-categorias"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
 
-            <section id="secao-config" style="display:none;">
-                <h2 class="fw-bold mb-4">Integrações</h2>
-                <div class="card-stats p-4 col-md-6">
-                    <label class="form-label fw-bold">Mercado Pago Token</label>
-                    <input type="password" id="mp-token" class="form-control mb-3">
-                    <label class="form-label fw-bold">Domínio Site</label>
-                    <input type="text" id="config-dominio" class="form-control mb-4">
-                    <button class="btn btn-dark w-100 fw-bold" onclick="salvarConfiguracoes()">Gravar</button>
-                </div>
-            </section>
+                <section id="secao-config" style="display:none;">
+                    <h2 class="fw-bold mb-4">Integrações</h2>
+                    <div class="card-stats p-4 col-md-6">
+                        <label class="form-label fw-bold">Mercado Pago Token</label>
+                        <input type="password" id="mp-token" class="form-control mb-3">
+                        <label class="form-label fw-bold">Domínio Site</label>
+                        <input type="text" id="config-dominio" class="form-control mb-4">
+                        <button class="btn btn-dark w-100 fw-bold" onclick="salvarConfiguracoes()">Gravar</button>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
 
@@ -176,7 +206,7 @@
         const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", projectId: "nossa-carne-fidelidade" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); const auth = firebase.auth();
-        let modProd; let modCat;
+        let modProd; let modCat; let chartTicket;
 
         auth.onAuthStateChanged(u => {
             if (u) {
