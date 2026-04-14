@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#8B0000">
+    <meta name="theme-color" content="#D11221">
     <link rel="apple-touch-icon" href="icone.png">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -10,153 +10,161 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        :root { --cor-primaria: #8B0000; --cor-bg: #f8f9fa; --raio: 16px; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: #1a1a1a; -webkit-tap-highlight-color: transparent; padding-bottom: 100px; }
+        :root { 
+            --cor-primaria: #D11221; 
+            --cor-bg: #F4F1EA; 
+            --cor-texto: #1a1a1a;
+            --raio: 16px; 
+        }
         
-        .main-container { max-width: 1200px; margin: 0 auto; }
+        body { 
+            font-family: 'Montserrat', sans-serif; 
+            background: var(--cor-bg); 
+            color: var(--cor-texto); 
+            -webkit-tap-highlight-color: transparent; 
+            padding-bottom: 100px; 
+        }
+        
+        /* ATUALIZAÇÃO 1: Largura ultra-wide para desktop (96% da tela até 1800px) */
+        .main-container { max-width: 1800px; width: 96%; margin: 0 auto; }
 
-        /* Navbar e Categorias */
-        .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .logo-app { height: 38px; border-radius: 8px; }
-        .cat-container { background: white; padding: 10px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 1px solid #eee; }
+        
+        .cat-container { background: var(--cor-bg); padding: 15px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 2px solid #EBE6DF; }
+        
+        /* ATUALIZAÇÃO 2: Menu de categorias Flexível para Desktop vs Celular */
         .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; }
         .cat-scroll::-webkit-scrollbar { display: none; }
-        .btn-cat { background: #f1f1f1; border: none; padding: 8px 16px; border-radius: 50px; font-weight: 600; font-size: 13px; white-space: nowrap; color: #666; transition: 0.3s; cursor: pointer; }
-        .btn-cat.ativo { background: var(--cor-primaria); color: white; }
+        
+        @media (min-width: 992px) {
+            .cat-scroll { justify-content: center; flex-wrap: wrap; overflow-x: visible; gap: 12px; }
+            .card-p { margin-bottom: 25px !important; }
+        }
+        
+        .btn-cat { 
+            background: white; border: 2px solid #EBE6DF; padding: 8px 18px; border-radius: 50px; 
+            font-weight: 700; font-size: 13px; white-space: nowrap; color: #555; 
+            transition: 0.3s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+        }
+        .btn-cat.ativo { background: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
 
-        /* Cards de Produto */
-        .card-p { background: white; border-radius: var(--raio); border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.03); overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; border: 1px solid #f0f0f0; }
-        .card-p:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+        .categoria-titulo { 
+            background-color: var(--cor-primaria); color: white; display: inline-block; padding: 8px 24px;
+            border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase;
+            letter-spacing: 1px; margin: 40px 0 20px 0; box-shadow: 3px 4px 0px rgba(0,0,0,0.15);
+        }
+
+        .card-p { 
+            background: white; border-radius: var(--raio); border: 2px solid #EBE6DF; 
+            overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; 
+            display: flex; flex-direction: column; transition: 0.2s; 
+            box-shadow: 0 6px 15px rgba(0,0,0,0.03);
+        }
+        .card-p:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-color: #dfd8cd; }
         .card-p:active { transform: scale(0.98); }
-        .img-p { height: 180px; object-fit: cover; width: 100%; }
+        .img-p { height: 180px; object-fit: cover; width: 100%; border-bottom: 1px solid #f0f0f0; }
         .body-p { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
-        .categoria-titulo { font-weight: 800; font-size: 20px; margin: 30px 0 15px; padding-left: 10px; border-left: 5px solid var(--cor-primaria); }
+        
+        .badge-pts { background: #1a1a1a; color: #ffd700; font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 6px; margin-bottom: 10px; display: inline-block; width: fit-content; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .badge-pts { background: #fff3e0; color: #e65100; font-size: 10px; font-weight: 800; padding: 4px 8px; border-radius: 5px; margin-bottom: 8px; display: inline-block; width: fit-content; border: 1px solid #ffe0b2; }
-
-        /* Controles de Opções */
-        .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 1px solid #eee; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 600; color: #444; background: #fafafa; }
-        .radio-opcao:active, .checkbox-opcao:active { transform: scale(0.98); }
+        .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #EBE6DF; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 700; color: #444; background: white; }
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
         .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: var(--cor-primaria); transform: scale(1.2); margin-top: -2px; }
 
-        /* Bottom Sheets */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
-        .bottom-sheet { background: white; width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; }
+        .bottom-sheet { background: var(--cor-bg); width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
         .bottom-sheet.show { transform: translateY(0); }
-        .handle { width: 40px; height: 4px; background: #ddd; border-radius: 10px; margin: 0 auto 15px; }
+        .handle { width: 40px; height: 5px; background: #ccc; border-radius: 10px; margin: 0 auto 20px; }
 
-        /* Carrinho Flutuante */
-        .btn-cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #222; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 700; width: 90%; max-width: 450px; justify-content: space-between; cursor: pointer; }
-        .cart-count { background: var(--cor-primaria); padding: 2px 10px; border-radius: 8px; font-size: 13px; }
-        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 700; width: 100%; transition: 0.2s; cursor: pointer; }
+        .btn-cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 800; width: 90%; max-width: 450px; justify-content: space-between; cursor: pointer; }
+        .cart-count { background: var(--cor-primaria); padding: 3px 12px; border-radius: 10px; font-size: 14px; }
+        .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; transition: 0.2s; cursor: pointer; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
         .btn-main:active { transform: scale(0.97); }
 
-        .btn-toggle { flex-grow: 1; text-align: center; padding: 10px; font-weight: bold; border-radius: 10px; cursor: pointer; transition: 0.3s; }
-        .btn-toggle.ativo { background: var(--cor-primaria); color: white; }
+        .btn-toggle { flex-grow: 1; text-align: center; padding: 12px; font-weight: 800; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 13px; text-transform: uppercase; }
+        .btn-toggle.ativo { background: var(--cor-primaria); color: white; box-shadow: 0 4px 10px rgba(209, 18, 33, 0.3); }
         .btn-toggle.inativo { background: transparent; color: #666; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
-    <div class="main-container">
-        <nav class="navbar-app">
-            <div class="container d-flex justify-content-between align-items-center px-3">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
-                    <span class="fw-bold" style="font-size: 1.1rem;">Nossa Carne</span>
-                </div>
-                <div id="perfil-btn" onclick="abrirPerfil()" style="cursor: pointer;" class="d-flex align-items-center gap-2">
-                    <div id="pontos-badge-nav" class="small fw-bold text-success" style="display:none;"><i class="fa-solid fa-star"></i> <span id="val-pontos-nav">0</span></div>
-                    <i class="fa-solid fa-circle-user fa-xl"></i>
-                </div>
+    <nav class="navbar-app">
+        <div class="main-container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
+                <span class="fw-bold" style="font-size: 1.1rem; letter-spacing: -0.5px;">Nossa Carne</span>
             </div>
-        </nav>
+            <div id="perfil-btn" onclick="abrirPerfil()" style="cursor: pointer;" class="d-flex align-items-center gap-2">
+                <div id="pontos-badge-nav" class="small fw-bold text-success" style="display:none;"><i class="fa-solid fa-star"></i> <span id="val-pontos-nav">0</span></div>
+                <i class="fa-solid fa-circle-user fa-xl" style="color: #1a1a1a;"></i>
+            </div>
+        </div>
+    </nav>
 
-        <div class="cat-container">
+    <div class="cat-container">
+        <div class="main-container">
             <div class="cat-scroll" id="menu-categorias"></div>
         </div>
-
-        <div class="container py-2" id="vitrine-principal">
-            <div class="text-center mt-5" id="loading-cardapio">
-                <div class="spinner-border text-danger" role="status"></div>
-                <p class="mt-2 text-muted small">Carregando o melhor cardápio da região...</p>
-            </div>
-            <div id="listagem-produtos"></div>
-        </div>
-
-        <div class="container text-center mt-5 pt-4">
-            <h5 style="color: var(--cor-primaria); font-weight: 800;">Leve o Nossa Carne no seu bolso!</h5>
-            <p class="text-muted small mb-3">Instale nosso aplicativo para pedir mais rápido e acumular pontos.</p>
-            <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;" alt="Baixar na App Store">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;" alt="Disponível no Google Play">
-        </div>
-
-        <section class="bg-white py-5 mt-5 border-top" style="border-radius: 25px 25px 0 0;">
-            <div class="container">
-                <div class="row align-items-center g-4">
-                    <div class="col-md-5 text-center">
-                        <img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" alt="Logo Nossa Carne" class="img-fluid rounded shadow-sm" style="max-height: 280px;">
-                    </div>
-                    <div class="col-md-7">
-                        <h3 class="fw-bold mb-3" style="color: var(--cor-primaria);"><i class="fa-solid fa-book-open"></i> Nossa História</h3>
-                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial de muitos restaurantes, padarias e hotéis e no mesmo preço de atacado.</p>
-                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Com os anos viemos evoluindo e acabamos nos especializando em Hamburguers, virando até fornecedores para outras Hamburguerias da região. Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
-                        <p class="small text-muted" style="line-height: 1.6; text-align: justify;">Agora com pratos que trazem para nós e para nossos clientes uma memória afetiva de um bom almoço em família, com pratos como nosso parmegiana, nossa feijoada, nossa costela e cupim no bafo que passa 16 horas assando em baixa temperatura.</p>
-                        <div class="p-3 mt-4 rounded" style="background-color: #fdf5f5; border-left: 4px solid var(--cor-primaria);">
-                            <p class="m-0 fw-bold fst-italic" style="color: var(--cor-primaria); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-center mt-5 text-muted small">
-                    <p class="mb-0">© 2026 Nossa Carne Burger Shop. Todos os direitos reservados.</p>
-                </div>
-            </div>
-        </section>
     </div>
+
+    <div class="main-container py-2" id="vitrine-principal">
+        <div class="text-center mt-5" id="loading-cardapio">
+            <div class="spinner-border" style="color: var(--cor-primaria);" role="status"></div>
+            <p class="mt-3 fw-bold text-muted small">Preparando a grelha...</p>
+        </div>
+        <div id="listagem-produtos"></div>
+    </div>
+
+    <div class="main-container text-center mt-5 pt-4">
+        <h5 style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">Leve no seu bolso!</h5>
+        <p class="text-muted small mb-3 fw-bold">Instale nosso aplicativo para pedir mais rápido.</p>
+        <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px; transition: transform 0.2s;">
+    </div>
+
+    <section class="py-5 mt-5 border-top" style="background: white; border-radius: 30px 30px 0 0; border-top: 3px solid #EBE6DF !important;">
+        <div class="main-container">
+            <div class="row align-items-center g-4 justify-content-center">
+                <div class="col-md-5 text-center">
+                    <img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="img-fluid rounded" style="max-height: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
+                </div>
+                <div class="col-md-7 col-lg-6">
+                    <h3 class="fw-bold mb-3" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Nossa História</h3>
+                    <p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial.</p>
+                    <p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
+                    <div class="p-3 mt-4 rounded" style="background-color: var(--cor-bg); border-left: 5px solid var(--cor-primaria);">
+                        <p class="m-0 fw-bold fst-italic" style="color: var(--cor-texto); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinho()">
-        <span><i class="fa-solid fa-bag-shopping"></i> Sacola de Pedidos</span>
-        <div class="d-flex align-items-center gap-2">
-            <span id="cart-total">R$ 0,00</span>
-            <span class="cart-count" id="cart-qtd">0</span>
-        </div>
+        <span><i class="fa-solid fa-bag-shopping"></i> Sacola</span>
+        <div class="d-flex align-items-center gap-3"><span id="cart-total" style="color: #ffd700;">R$ 0,00</span><span class="cart-count" id="cart-qtd">0</span></div>
     </button>
 
-    <div class="sheet-overlay" id="sheet-perfil" onclick="fecharSheet('sheet-perfil')">
-        <div class="bottom-sheet" onclick="event.stopPropagation()">
-            <div class="handle"></div>
-            <div id="conteudo-perfil"></div>
-        </div>
-    </div>
-
-    <div class="sheet-overlay" id="sheet-opcoes" onclick="fecharSheet('sheet-opcoes')">
-        <div class="bottom-sheet" onclick="event.stopPropagation()">
-            <div class="handle"></div>
-            <div id="conteudo-opcoes"></div>
-        </div>
-    </div>
-
+    <div class="sheet-overlay" id="sheet-perfil" onclick="fecharSheet('sheet-perfil')"><div class="bottom-sheet" onclick="event.stopPropagation()"><div class="handle"></div><div id="conteudo-perfil"></div></div></div>
+    <div class="sheet-overlay" id="sheet-opcoes" onclick="fecharSheet('sheet-opcoes')"><div class="bottom-sheet" onclick="event.stopPropagation()"><div class="handle"></div><div id="conteudo-opcoes"></div></div></div>
+    
     <div class="sheet-overlay" id="sheet-carrinho" onclick="fecharSheet('sheet-carrinho')">
         <div class="bottom-sheet" onclick="event.stopPropagation()">
             <div class="handle"></div>
-            <h4 class="fw-bold mb-3"><i class="fa-solid fa-cart-shopping"></i> Sua Sacola</h4>
-            
-            <div class="d-flex mb-3 p-1 bg-light rounded" style="border: 1px solid #ddd;">
+            <h4 class="fw-bold mb-4" style="font-weight: 900; text-transform: uppercase;"><i class="fa-solid fa-cart-shopping me-2" style="color: var(--cor-primaria);"></i> Sua Sacola</h4>
+            <div class="d-flex mb-4 p-1 bg-white rounded" style="border: 2px solid #EBE6DF;">
                 <div id="btn-modo-delivery" class="btn-toggle ativo" onclick="setModoEntrega('delivery')">Delivery</div>
                 <div id="btn-modo-retirada" class="btn-toggle inativo" onclick="setModoEntrega('retirada')">Retirar na Loja</div>
             </div>
-
-            <div id="aviso-retirada" style="display: none; background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin-bottom: 15px; border-radius: 8px;">
-                <span class="fw-bold" style="font-size: 13px;">Retirar em:</span><br>
-                <span style="font-size: 13px;">Rua Francisco Polito, 995 - Vila Prudente - São Paulo/SP</span>
+            <div id="aviso-retirada" style="display: none; background: #1a1a1a; color: white; padding: 15px; margin-bottom: 20px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                <span class="fw-bold" style="font-size: 12px; color: #ffd700; text-transform: uppercase; letter-spacing: 1px;"><i class="fa-solid fa-location-dot"></i> Retirar em:</span><br><span style="font-size: 14px; font-weight: 600;">Rua Francisco Polito, 995 - Vila Prudente - SP</span>
             </div>
-
             <div id="conteudo-carrinho"></div>
         </div>
     </div>
@@ -165,13 +173,12 @@
         <div class="bottom-sheet text-center" onclick="event.stopPropagation()">
             <div class="handle"></div>
             <i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i>
-            <h4 class="fw-bold">Pagamento Instantâneo</h4>
-            <p class="text-muted small">Copie o código abaixo e pague no seu banco. O pedido será processado assim que o PIX for confirmado.</p>
-            <div id="loading-pix" class="my-3"><div class="spinner-border text-success spinner-border-sm" role="status"></div> Gerando código...</div>
+            <h4 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pagamento Instantâneo</h4>
+            <div id="loading-pix" class="my-4"><div class="spinner-border text-success spinner-border-sm"></div> <span class="fw-bold ms-2">Gerando código...</span></div>
             <div id="area-codigo-pix" style="display: none;">
-                <div id="pix-code" class="p-3 bg-light rounded border border-dashed my-3 small text-break fw-bold text-muted"></div>
-                <button class="btn btn-outline-dark w-100 mb-4 fw-bold" onclick="copiarPix()"><i class="fa-regular fa-copy"></i> Copiar Código PIX</button>
-                <div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm text-primary"></div><span class="small fw-bold">Aguardando banco...</span></div>
+                <div id="pix-code" class="p-3 bg-white rounded border border-2 border-dark my-4 small text-break fw-bold text-muted" style="border-style: dashed !important;"></div>
+                <button class="btn-main mb-4" onclick="copiarPix()"><i class="fa-regular fa-copy me-2"></i> Copiar Código PIX</button>
+                <div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm" style="color: var(--cor-primaria);"></div><span class="small fw-bold">Aguardando banco...</span></div>
             </div>
         </div>
     </div>
@@ -180,68 +187,75 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8",
-            projectId: "nossa-carne-fidelidade",
-            // Mantenha suas outras chaves aqui
-        };
+        const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", projectId: "nossa-carne-fidelidade" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
 
-        let todosProdutos = [];
-        let carrinho = [];
-        let usuario = null;
-        let verificadorPix = null;
-        let modoEntregaAtual = 'delivery';
-
-        const ordemCategorias = ["Entradas", "Monte Seu Prato", "Burgers Especiais", "Lanches Especiais", "Clássicos", "Fininhos", "Combos Burger", "Pratos Especiais", "Parmegianas", "Massas", "Sucos", "Refrigerantes"];
+        let todosProdutos = []; let carrinho = []; let usuario = null; let verificadorPix = null; let modoEntregaAtual = 'delivery';
 
         window.onload = carregarDados;
 
         async function carregarDados() {
             try {
+                const catSnap = await db.collection('categorias').orderBy('ordem').get();
+                let categoriasDinamicas = [];
+                catSnap.forEach(doc => categoriasDinamicas.push(doc.data().nome));
+
                 const snap = await db.collection('cardapio').get();
-                todosProdutos = []; snap.forEach(doc => todosProdutos.push(doc.data()));
+                todosProdutos = []; 
+                snap.forEach(doc => { const p = doc.data(); if(p.ativo !== false) todosProdutos.push(p); });
+                
                 document.getElementById('loading-cardapio').style.display = 'none';
-                renderizarCardapio();
+
+                if(categoriasDinamicas.length === 0) {
+                    document.getElementById('listagem-produtos').innerHTML = '<p class="text-center mt-5 text-muted fw-bold">Nenhuma categoria cadastrada.</p>';
+                    return;
+                }
+
+                renderizarCardapio(categoriasDinamicas);
                 configurarScrollspy();
-            } catch (error) { console.error("Erro:", error); }
+            } catch (error) { 
+                console.error("Erro:", error); 
+                document.getElementById('loading-cardapio').innerHTML = '<p class="text-danger fw-bold">Erro de conexão. Atualize a página.</p>';
+            }
         }
 
-        function renderizarCardapio() {
+        function renderizarCardapio(categoriasDinamicas) {
             const menu = document.getElementById('menu-categorias');
             const lista = document.getElementById('listagem-produtos');
             menu.innerHTML = ''; lista.innerHTML = '';
 
-            ordemCategorias.forEach(cat => {
+            categoriasDinamicas.forEach((cat, index) => {
                 const itens = todosProdutos.filter(p => p.categoria === cat);
                 if(itens.length > 0) {
-                    menu.innerHTML += `<button class="btn-cat" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
+                    // ATUALIZAÇÃO 3: Define a primeira categoria como ativa (vermelha) logo de início
+                    const isFirst = index === 0 ? 'ativo' : '';
+                    menu.innerHTML += `<button class="btn-cat ${isFirst}" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
+                    
                     let htmlItens = `<div class="row g-3">`;
                     itens.forEach(p => {
                         const permiteResgate = p.fidelidade ? p.fidelidade.permite_resgate : false;
                         const badgeFidelidade = permiteResgate ? `<div class="badge-pts"><i class="fa-solid fa-star"></i> Clube</div>` : '';
                         
                         htmlItens += `
-                        <div class="col-6 col-md-4">
+                        <div class="col-6 col-md-4 col-lg-3">
                             <div class="card-p" onclick="abrirOpcoes('${p.id_item}')">
                                 <img src="${p.imagem_url || 'https://via.placeholder.com/300'}" class="img-p">
                                 <div class="body-p">
                                     ${badgeFidelidade}
-                                    <h6 class="fw-bold mb-1" style="font-size: 14px;">${p.nome}</h6>
-                                    <small class="text-muted d-block mb-3" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || ''}</small>
+                                    <h6 class="fw-bold mb-1" style="font-size: 15px; color: var(--cor-texto);">${p.nome}</h6>
+                                    <small class="text-muted d-block mb-3 fw-semibold" style="font-size: 11px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${p.descricao || ''}</small>
                                     <div class="mt-auto fw-bold" style="color: var(--cor-primaria); font-size: 16px;">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</div>
                                 </div>
                             </div>
                         </div>`;
                     });
                     htmlItens += `</div>`;
-                    lista.innerHTML += `<div id="cat-section-${cat.replace(/\s/g, '')}" class="categoria-ancora"><h2 class="categoria-titulo">${cat}</h2>${htmlItens}</div>`;
+                    lista.innerHTML += `<div id="cat-section-${cat.replace(/\s/g, '')}" class="categoria-ancora"><div class="categoria-titulo">${cat}</div>${htmlItens}</div>`;
                 }
             });
         }
 
-        // --- SCROLLSPY ---
         function configurarScrollspy() {
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -249,314 +263,142 @@
                         const id = entry.target.id.replace('cat-section-', '');
                         document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
                         const btn = document.getElementById('btn-nav-' + id);
-                        if(btn) { btn.classList.add('ativo'); btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); }
+                        if(btn) { 
+                            btn.classList.add('ativo'); 
+                            // ATUALIZAÇÃO 4: Só faz a rolagem lateral do menu no celular
+                            if (window.innerWidth < 992) {
+                                btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); 
+                            }
+                        }
                     }
                 });
-            }, { threshold: 0.1, rootMargin: "-120px 0px -70% 0px" });
+            }, { threshold: 0.1, rootMargin: "-150px 0px -50% 0px" }); // Radar re-calibrado
             document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section));
         }
 
-        function scrollParaCategoria(cat) {
-            const el = document.getElementById('cat-section-' + cat.replace(/\s/g, ''));
-            const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130;
-            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
-        }
+        function scrollParaCategoria(cat) { const el = document.getElementById('cat-section-' + cat.replace(/\s/g, '')); const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }
 
-        // --- REGRAS DE NEGÓCIO E OPÇÕES ---
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
             let htmlOpcoes = `
-                <h4 class="fw-bold mb-1">${p.nome}</h4>
-                <p class="text-muted small mb-3">${p.descricao || ''}</p>
-                <h4 style="color: var(--cor-primaria); font-weight: 800;" class="mb-3 border-bottom pb-3">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
-            `;
-
-            const n = p.nome.toLowerCase();
-            const cat = p.categoria || "";
-
-            // 1. Sucos, Shakes e Saladas
-            if (cat === "Sucos") {
-                htmlOpcoes += criarSessaoOpcoes("Sabor do Suco", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
-            } else if (cat === "Milk Shakes") {
-                htmlOpcoes += criarSessaoOpcoes("Sabor do Milk Shake", ["Merengue de Morango", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango Tradicional"], "opcao_sabor");
-            } else if (cat === "Saladas") {
-                htmlOpcoes += criarSessaoOpcoes("Escolha a Proteína", ["Filé de Frango Grelhado", "Filé de Frango Empanado", "Filé Mignon", "Salmão Grelhado", "Filé de Tilápia"], "opcao_proteina");
-                htmlOpcoes += criarSessaoOpcoes("Molho da Salada (Obrigatório)", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_molho");
-            }
-
-            // 2. Parmegianas
-            if (cat === "Parmegianas") {
-                htmlOpcoes += criarSessaoOpcoes("Escolha o Molho (Obrigatório)", ["Molho Vermelho", "Molho Branco"], "opcao_molho_parm");
-                htmlOpcoes += criarSessaoOpcoes("Acompanhamento (Obrigatório)", ["Fritas", "Salada"], "opcao_acomp_parm");
-            }
-
-            // 3. Regras de Lanches e Ponto da Carne
-            const categoriasLanches = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'];
-            const isLanche = categoriasLanches.includes(cat) || n.includes('burger') || n.includes('lanche');
-            const isPaoFixo = n.includes('beirute') || n.includes('baguete');
-            const isSemPonto = n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro') || n.includes('carnívoro');
-            const isFraldinhaMignon = n.includes('fraldinha') || n.includes('mignon');
-
-            // Exigir Pão
-            if (isLanche && !isPaoFixo) { 
-                htmlOpcoes += criarSessaoOpcoes("Escolha o Pão (Obrigatório)", ["Pão de Hamburger", "Pão Crocante"], "opcao_pao"); 
-            }
-
-            // Exigir Ponto
-            if ((isLanche || cat === "Monte Seu Prato" || isFraldinhaMignon) && !isSemPonto) { 
-                htmlOpcoes += criarSessaoOpcoes("Ponto da Carne (Obrigatório)", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto"); 
-            }
-
-            // X-Mignon
-            if (n.includes('x-mignon')) {
-                htmlOpcoes += criarSessaoOpcoes("Escolha a Maionese", ["Maionese da Casa", "Maionese de Bacon", "Maionese de Alho", "Sem Maionese"], "opcao_maionese");
-            }
-
-            // 4. Monte seu prato (Trava de 3)
-            if (cat === "Monte Seu Prato") {
-                const acomp = ["Abóbora Grelhada", 'Aligot "Creme de Queijo"', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa (Azeitona+Ovo)", "Rodelas de Pão", "Banana à Milanesa"];
-                htmlOpcoes += `<label class="fw-bold small mb-2 mt-3 text-danger"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos</label><div class="row g-2 mb-3">`;
-                acomp.forEach((a) => { htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0"><input type="checkbox" name="opcao_acomp" value='${a}' onchange="limitarAcomp(this)"><span style="font-size: 12px;">${a}</span></label></div>`; });
-                htmlOpcoes += `</div>`;
-            }
-
-            htmlOpcoes += `
-                <div class="mt-4 pt-3 border-top">
-                    <label class="fw-bold small mb-2"><i class="fa-regular fa-comment-dots"></i> Observações Adicionais</label>
-                    <textarea id="obs-item" class="form-control bg-light" rows="2" placeholder="Ex: Tirar a cebola, sem gelo..."></textarea>
+                <div style="background: white; padding: 20px; border-radius: 15px; border: 2px solid #EBE6DF; margin-bottom: 20px;">
+                    <h4 class="fw-bold mb-2" style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">${p.nome}</h4>
+                    <p class="text-muted small mb-3 fw-semibold">${p.descricao || ''}</p>
+                    <h4 style="color: var(--cor-primaria); font-weight: 900;" class="m-0">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4>
                 </div>
             `;
 
-            // Botões de Compra e Resgate (Fidelidade)
-            const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
-            const permiteResgate = p.fidelidade ? p.fidelidade.permite_resgate : false;
-            
-            let areaBotao = `<div class="d-flex gap-2 mt-4 pt-2">`;
-            areaBotao += `<button class="btn btn-outline-danger fw-bold flex-grow-1 py-3" style="border-width: 2px;" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Comprar (R$ ${p.preco_atual.toFixed(2).replace('.',',')})</button>`;
-            
-            if (permiteResgate) {
-                if (!usuario) {
-                    areaBotao += `<button class="btn btn-secondary fw-bold flex-grow-1 py-3" onclick="fecharSheet('sheet-opcoes'); abrirPerfil();"><i class="fa-solid fa-lock"></i> Entrar para Resgatar</button>`;
-                } else if (usuario.pontos >= custoPts) {
-                    areaBotao += `<button class="btn btn-success fw-bold flex-grow-1 py-3" onclick="adicionarAoCarrinho('${p.id_item}', 'resgate')"><i class="fa-solid fa-star"></i> Resgatar (${custoPts} pts)</button>`;
-                } else {
-                    areaBotao += `<button class="btn btn-light text-muted fw-bold flex-grow-1 py-3" disabled><i class="fa-solid fa-ban"></i> Faltam Pontos (${custoPts} pts)</button>`;
-                }
+            const n = p.nome.toLowerCase(); const cat = p.categoria || "";
+
+            if (cat === "Sucos") htmlOpcoes += criarSessaoOpcoes("Sabor", ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"], "opcao_sabor");
+            if (cat === "Milk Shakes") htmlOpcoes += criarSessaoOpcoes("Sabor", ["Merengue", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango"], "opcao_sabor");
+            if (cat === "Saladas") { htmlOpcoes += criarSessaoOpcoes("Proteína", ["Frango Grelhado", "Frango Empanado", "Mignon", "Salmão", "Tilápia"], "opcao_proteina"); htmlOpcoes += criarSessaoOpcoes("Molho", ["Mostarda com Mel", "Maionese Chimichurri"], "opcao_molho"); }
+            if (cat === "Parmegianas") { htmlOpcoes += criarSessaoOpcoes("Molho", ["Vermelho", "Branco"], "opcao_molho_parm"); htmlOpcoes += criarSessaoOpcoes("Acompanha", ["Fritas", "Salada"], "opcao_acomp_parm"); }
+
+            const isLanche = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'].includes(cat) || n.includes('burger') || n.includes('lanche');
+            if (isLanche && !n.includes('beirute') && !n.includes('baguete')) htmlOpcoes += criarSessaoOpcoes("Pão", ["Hamburger", "Crocante"], "opcao_pao");
+            if ((isLanche || cat === "Monte Seu Prato" || n.includes('fraldinha') || n.includes('mignon')) && !(n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro'))) htmlOpcoes += criarSessaoOpcoes("Ponto da Carne", ["Mal Passado", "Ao Ponto", "Bem Passado"], "opcao_ponto");
+            if (n.includes('x-mignon')) htmlOpcoes += criarSessaoOpcoes("Maionese", ["Da Casa", "Bacon", "Alho", "Sem Maionese"], "opcao_maionese");
+
+            if (cat === "Monte Seu Prato") {
+                const acomp = ["Abóbora Grelhada", 'Aligot', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa", "Rodelas de Pão", "Banana Milanesa"];
+                htmlOpcoes += `<label class="fw-bold small mb-3 mt-4" style="color: var(--cor-primaria); text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-utensils"></i> Escolha exatamente 3 Acompanhamentos</label><div class="row g-2 mb-3">`;
+                acomp.forEach((a) => { htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0"><input type="checkbox" name="opcao_acomp" value='${a}' onchange="limitarAcomp(this)"><span style="font-size: 13px;">${a}</span></label></div>`; });
+                htmlOpcoes += `</div>`;
             }
-            areaBotao += `</div>`;
-            htmlOpcoes += areaBotao;
 
-            document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes;
-            abrirSheet('sheet-opcoes');
+            htmlOpcoes += `<div class="mt-4 pt-4 border-top" style="border-color: #EBE6DF !important;"><label class="fw-bold small mb-2" style="text-transform: uppercase;"><i class="fa-regular fa-comment-dots"></i> Observações</label><textarea id="obs-item" class="form-control" style="border: 2px solid #EBE6DF; border-radius: 12px; background: white;" rows="2"></textarea></div>`;
+
+            const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
+            let btnAcao = `<div class="d-flex gap-2 mt-4 pt-2"><button class="btn-main" style="background: var(--cor-texto);" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Comprar</button>`;
+            
+            if (p.fidelidade?.permite_resgate) {
+                if (!usuario) btnAcao += `<button class="btn btn-outline-dark fw-bold flex-grow-1 py-3" style="border-radius: 14px; border-width: 2px;" onclick="fecharSheet('sheet-opcoes'); abrirPerfil();"><i class="fa-solid fa-lock"></i> Entrar</button>`;
+                else if (usuario.pontos >= custoPts) btnAcao += `<button class="btn-main" onclick="adicionarAoCarrinho('${p.id_item}', 'resgate')"><i class="fa-solid fa-star" style="color: #ffd700;"></i> Resgatar (${custoPts} pts)</button>`;
+                else btnAcao += `<button class="btn btn-light text-muted fw-bold flex-grow-1 py-3" style="border-radius: 14px; border: 2px solid #EBE6DF;" disabled><i class="fa-solid fa-ban"></i> Faltam Pontos</button>`;
+            }
+            htmlOpcoes += btnAcao + `</div>`;
+
+            document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes');
         }
 
-        function criarSessaoOpcoes(titulo, opcoes, nomeRadio) {
-            let h = `<label class="fw-bold small mb-2 mt-3">${titulo}</label>`;
-            opcoes.forEach((o, i) => { h += `<label class="radio-opcao"><input type="radio" name="${nomeRadio}" value="${o}" ${i===0?'checked':''}><span>${o}</span></label>`; });
-            return h;
-        }
-
-        function limitarAcomp(checkbox) {
-            if(document.querySelectorAll('input[name="opcao_acomp"]:checked').length > 3) { checkbox.checked = false; alert("Limite: 3 acompanhamentos!"); }
-        }
+        function criarSessaoOpcoes(titulo, opcoes, nomeRadio) { let h = `<label class="fw-bold small mb-3 mt-4" style="text-transform: uppercase; letter-spacing: 0.5px; color: var(--cor-texto);">${titulo}</label>`; opcoes.forEach((o, i) => { h += `<label class="radio-opcao"><input type="radio" name="${nomeRadio}" value="${o}" ${i===0?'checked':''}><span>${o}</span></label>`; }); return h; }
+        function limitarAcomp(cb) { if(document.querySelectorAll('input[name="opcao_acomp"]:checked').length > 3) { cb.checked = false; alert("Limite: 3 acompanhamentos!"); } }
 
         function adicionarAoCarrinho(id, tipoAcao) {
-            const p = todosProdutos.find(x => x.id_item === id);
-            let detalhes = [];
-
-            const nomesRadios = ["opcao_sabor", "opcao_proteina", "opcao_molho", "opcao_molho_parm", "opcao_acomp_parm", "opcao_pao", "opcao_ponto", "opcao_maionese"];
-            nomesRadios.forEach(nome => {
-                const rad = document.querySelector(`input[name="${nome}"]:checked`);
-                if(rad) detalhes.push(rad.value);
-            });
+            const p = todosProdutos.find(x => x.id_item === id); let detalhes = [];
+            ["opcao_sabor", "opcao_proteina", "opcao_molho", "opcao_molho_parm", "opcao_acomp_parm", "opcao_pao", "opcao_ponto", "opcao_maionese"].forEach(n => { const r = document.querySelector(`input[name="${n}"]:checked`); if(r) detalhes.push(r.value); });
+            let acomp = []; document.querySelectorAll('input[name="opcao_acomp"]:checked').forEach(cb => acomp.push(cb.value));
+            if (p.categoria === "Monte Seu Prato" && acomp.length !== 3) { alert("Selecione 3 acompanhamentos!"); return; }
+            if (acomp.length > 0) detalhes.push(`Acomp: ${acomp.join(', ')}`);
+            const obs = document.getElementById('obs-item').value.trim(); if(obs) detalhes.push(`Obs: ${obs}`);
             
-            let acompSelecionados = [];
-            document.querySelectorAll('input[name="opcao_acomp"]:checked').forEach(cb => acompSelecionados.push(cb.value));
-            
-            if (p.categoria === "Monte Seu Prato" && acompSelecionados.length !== 3) { alert("Selecione exatamente 3 acompanhamentos!"); return; }
-            if (acompSelecionados.length > 0) detalhes.push(`Acompanhamentos: ${acompSelecionados.join(', ')}`);
-
-            const obsText = document.getElementById('obs-item').value.trim();
-            if(obsText) detalhes.push(`Obs: ${obsText}`);
-
-            // Regra de Pontos
             const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
-            let totalPontosGastos = carrinho.filter(i => i.tipo === 'resgate').reduce((sum, item) => sum + item.pontos, 0);
-            
-            if (tipoAcao === 'resgate') {
-                if ((totalPontosGastos + custoPts) > (usuario.pontos || 0)) {
-                    alert("Atenção: Saldo insuficiente para resgatar mais este item nesta compra."); return;
-                }
-            }
+            if (tipoAcao === 'resgate' && (carrinho.filter(i => i.tipo === 'resgate').reduce((s, i) => s + i.pontos, 0) + custoPts) > (usuario.pontos || 0)) { alert("Saldo insuficiente."); return; }
 
-            carrinho.push({ 
-                idUnico: Math.random().toString(36).substr(2, 9), 
-                id_produto: p.id_item, 
-                nome: p.nome, 
-                preco: tipoAcao === 'compra' ? (p.preco_atual || 0) : 0, 
-                pontos: tipoAcao === 'resgate' ? custoPts : 0,
-                tipo: tipoAcao,
-                codigo_pdv: p.codigo_pdv || "0000",
-                obsDetalhes: detalhes.join(" | ") 
-            });
-            fecharSheet('sheet-opcoes');
-            atualizarCarrinhoFlutuante();
+            carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: tipoAcao === 'compra' ? (p.preco_atual || 0) : 0, pontos: tipoAcao === 'resgate' ? custoPts : 0, tipo: tipoAcao, obsDetalhes: detalhes.join(" | ") });
+            fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
-        // --- CARRINHO E CHECKOUT ---
-        function setModoEntrega(modo) {
-            modoEntregaAtual = modo;
-            const btnD = document.getElementById('btn-modo-delivery');
-            const btnR = document.getElementById('btn-modo-retirada');
-            const aviso = document.getElementById('aviso-retirada');
-
-            if(modo === 'delivery') {
-                btnD.classList.replace('inativo', 'ativo'); btnR.classList.replace('ativo', 'inativo');
-                aviso.style.display = 'none';
-            } else {
-                btnR.classList.replace('inativo', 'ativo'); btnD.classList.replace('ativo', 'inativo');
-                aviso.style.display = 'block';
-            }
-        }
-
-        function atualizarCarrinhoFlutuante() {
-            const bar = document.getElementById('bar-carrinho');
-            if(carrinho.length > 0) {
-                bar.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length;
-                document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((acc, i) => acc + i.preco, 0).toFixed(2).replace('.', ',')}`;
-            } else { bar.style.display = 'none'; }
-        }
-
+        function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
+        function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
+        
         function abrirCarrinho() {
-            if(carrinho.length === 0) return;
-            let html = ''; let totalReais = 0; let totalPontos = 0;
+            if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0;
             carrinho.forEach(item => {
-                totalReais += item.preco; totalPontos += item.pontos;
-                let valorLabel = item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span class="text-success"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`;
-                html += `
-                    <div class="d-flex justify-content-between align-items-center mb-3 bg-light p-3 rounded border">
-                        <div style="width: 85%;">
-                            <div class="fw-bold" style="font-size: 14px;">${item.nome}</div>
-                            ${item.obsDetalhes ? `<small class="text-muted d-block mt-1" style="font-size: 11px; line-height: 1.3;">${item.obsDetalhes}</small>` : ''}
-                            <div style="color: var(--cor-primaria); font-weight: bold; font-size: 14px; margin-top: 5px;">${valorLabel}</div>
-                        </div>
-                        <button class="btn btn-sm text-danger" style="background: white; border: 1px solid #ffcccc; border-radius: 8px;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-trash"></i></button>
-                    </div>`;
+                totalReais += item.preco; totalPts += item.pontos;
+                html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`;
             });
-            
-            html += `<div class="d-flex justify-content-between border-top pt-3 mt-4"><span class="fw-bold text-muted">Total a Pagar</span><h4 class="fw-bold text-success m-0">R$ ${totalReais.toFixed(2).replace('.',',')}</h4></div>`;
-            if(totalPontos > 0) { html += `<div class="d-flex justify-content-between mt-1"><span class="small fw-bold text-muted">Pontos Utilizados</span><span class="small fw-bold" style="color: #e65100;">${totalPontos} pts</span></div>`; }
+            html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`;
+            if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`;
             html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`;
-            
-            document.getElementById('conteudo-carrinho').innerHTML = html;
-            abrirSheet('sheet-carrinho');
+            document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho');
         }
 
-        function removerItem(idUnico) { carrinho = carrinho.filter(i => i.idUnico !== idUnico); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
+        function removerItem(id) { carrinho = carrinho.filter(i => i.idUnico !== id); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
 
-        // --- PERFIL E LOGIN ---
         function abrirPerfil() {
             const cont = document.getElementById('conteudo-perfil');
             if(!usuario) {
-                cont.innerHTML = `
-                    <h4 class="fw-bold mb-3">Acessar Conta</h4>
-                    <input type="text" id="login-celular" class="form-control mb-3" placeholder="Seu WhatsApp (apenas números)">
-                    <button class="btn-main" onclick="fazerLogin()">Entrar</button>
-                    <div id="area-cadastro-novo" style="display: none; border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
-                        <h6 class="fw-bold">Cadastro Rápido</h6>
-                        <input type="text" id="cad-nome" class="form-control mb-2" placeholder="Nome Completo">
-                        <input type="text" id="cad-rua" class="form-control mb-2" placeholder="Rua e Bairro">
-                        <input type="text" id="cad-num" class="form-control mb-3" placeholder="Número">
-                        <button class="btn btn-dark w-100 fw-bold" onclick="salvarNovoCadastro()">Criar Perfil</button>
-                    </div>`;
+                cont.innerHTML = `<h4 class="fw-bold mb-4" style="font-weight: 900; text-transform: uppercase;">Acessar Conta</h4><input type="text" id="login-celular" class="form-control mb-3" style="border: 2px solid #EBE6DF; border-radius: 12px; padding: 12px; font-weight: 600;" placeholder="Seu WhatsApp (apenas números)"><button class="btn-main" onclick="fazerLogin()">Entrar</button><div id="area-cadastro-novo" style="display: none; border-top: 2px solid #EBE6DF; padding-top: 20px; margin-top: 20px;"><h6 class="fw-bold mb-3" style="text-transform: uppercase; color: var(--cor-primaria);">Cadastro Rápido</h6><input type="text" id="cad-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Nome Completo"><input type="text" id="cad-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Rua e Bairro"><input type="text" id="cad-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Número"><button class="btn-main" style="background: var(--cor-texto);" onclick="salvarNovoCadastro()">Criar Perfil</button></div>`;
             } else {
-                cont.innerHTML = `
-                    <div class="text-center"><h4 class="fw-bold mb-1">Olá, ${usuario.nome}!</h4><div class="text-success fw-bold mb-4"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos disponíveis</div></div><hr>
-                    <label class="fw-bold small mb-2">Editar Meu Endereço de Entrega</label>
-                    <input type="text" id="edit-nome" class="form-control mb-2" value="${usuario.nome || ''}" placeholder="Seu Nome">
-                    <input type="text" id="edit-rua" class="form-control mb-2" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro">
-                    <input type="text" id="edit-num" class="form-control mb-3" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento">
-                    <button class="btn btn-dark w-100 fw-bold py-3" onclick="atualizarPerfil()">Salvar Alterações</button>`;
+                cont.innerHTML = `<div class="text-center bg-white p-4 rounded mb-4" style="border: 2px solid #EBE6DF;"><h4 class="fw-bold mb-1" style="font-weight: 900;">Olá, ${usuario.nome}!</h4><div class="fw-bold mt-2" style="color: #d4a017; font-size: 15px;"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos disponíveis</div></div><label class="fw-bold small mb-2" style="text-transform: uppercase; color: var(--cor-primaria);">Endereço de Entrega</label><input type="text" id="edit-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.nome || ''}" placeholder="Seu Nome"><input type="text" id="edit-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro"><input type="text" id="edit-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento"><button class="btn-main" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>`;
             }
             abrirSheet('sheet-perfil');
         }
 
-        async function fazerLogin() {
-            const cel = document.getElementById('login-celular').value.trim();
-            if(!cel) return;
-            const doc = await db.collection('clientes').doc(cel).get();
-            if(doc.exists) { usuario = doc.data(); document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; fecharSheet('sheet-perfil'); } 
-            else { document.getElementById('area-cadastro-novo').style.display = 'block'; }
-        }
+        async function fazerLogin() { const cel = document.getElementById('login-celular').value.trim(); if(!cel) return; const doc = await db.collection('clientes').doc(cel).get(); if(doc.exists) { usuario = doc.data(); document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; fecharSheet('sheet-perfil'); } else { document.getElementById('area-cadastro-novo').style.display = 'block'; } }
+        async function salvarNovoCadastro() { const cel = document.getElementById('login-celular').value.trim(); const nome = document.getElementById('cad-nome').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); if(!nome || !rua) return alert("Preencha nome e rua."); const novoCliente = { whatsapp: cel, nome: nome, pontos: 0, endereco: { rua: rua, numero: num }, data_cadastro: new Date().toISOString() }; await db.collection('clientes').doc(cel).set(novoCliente); usuario = novoCliente; document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = 0; fecharSheet('sheet-perfil'); alert("Cadastro sucesso!"); }
+        async function atualizarPerfil() { const n = { nome: document.getElementById('edit-nome').value.trim(), endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } }; await db.collection('clientes').doc(usuario.whatsapp).update(n); usuario = { ...usuario, ...n }; alert("Atualizado!"); fecharSheet('sheet-perfil'); }
 
-        async function salvarNovoCadastro() {
-            const cel = document.getElementById('login-celular').value.trim(); const nome = document.getElementById('cad-nome').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim();
-            if(!nome || !rua) return alert("Preencha nome e rua.");
-            const novoCliente = { whatsapp: cel, nome: nome, pontos: 0, endereco: { rua: rua, numero: num }, data_cadastro: new Date().toISOString() };
-            await db.collection('clientes').doc(cel).set(novoCliente); usuario = novoCliente;
-            document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = 0; fecharSheet('sheet-perfil'); alert("Cadastro sucesso!");
-        }
-
-        async function atualizarPerfil() {
-            const n = { nome: document.getElementById('edit-nome').value.trim(), endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } };
-            await db.collection('clientes').doc(usuario.whatsapp).update(n); usuario = { ...usuario, ...n }; alert("Atualizado!"); fecharSheet('sheet-perfil');
-        }
-
-        // --- FINALIZAÇÃO E PIX ---
         async function iniciarCheckout() {
             if(!usuario) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta para concluir."); return abrirPerfil(); }
             if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { fecharSheet('sheet-carrinho'); alert("Atualize seu endereço de entrega."); return abrirPerfil(); }
             
             const total = carrinho.reduce((acc, i) => acc + i.preco, 0);
             
-            if (total === 0) {
-                // Pedido apenas com pontos
-                finalizarPedidoNoSistema();
-            } else {
+            if (total === 0) { finalizarPedidoNoSistema(); } else {
                 fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix');
                 try {
                     const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) });
                     const data = await response.json();
-                    if(data.qr_code_copia_cola && data.id_transacao) {
-                        document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
-                        verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
-                    } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); }
+                    if(data.qr_code_copia_cola && data.id_transacao) { document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola; verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000); } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); }
                 } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); }
             }
         }
 
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); }
 
-        async function verificarStatusPagamento(idT) {
-            try {
-                const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json();
-                if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); }
-            } catch(e) {}
-        }
+        async function verificarStatusPagamento(idT) { try { const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json(); if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); } } catch(e) {} }
 
         async function finalizarPedidoNoSistema() {
-            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0);
-            const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0);
-            const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja";
-
-            await db.collection('vendas_concluidas').add({ 
-                data_pedido: firebase.firestore.FieldValue.serverTimestamp(), 
-                cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, 
-                logistica: { modo_entrega: modoEntregaAtual, endereco: end }, 
-                itens: carrinho, 
-                financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } 
-            });
+            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja";
+            await db.collection('vendas_concluidas').add({ data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: end }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } });
             
             let msg = `*NOVO PEDIDO* ✅\n👤 *Cliente:* ${usuario.nome}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${end}\n\n🛒 *ITENS:*\n`;
-            carrinho.forEach(i => { 
-                let t = i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`;
-                msg += `- ${i.nome} ${t}\n  ↳ ${i.obsDetalhes}\n`; 
-            });
-            msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`;
-            if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`;
-
-            fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante();
-            window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
+            carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; });
+            msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`;
+            fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante(); window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`);
         }
 
         function abrirSheet(id) { const o = document.getElementById(id); o.style.display = 'flex'; setTimeout(() => o.querySelector('.bottom-sheet').classList.add('show'), 10); }
