@@ -30,7 +30,6 @@
             padding-bottom: 100px; 
         }
         
-        /* ATUALIZAÇÃO 1: Largura ultra-wide para desktop (96% da tela até 1800px) */
         .main-container { max-width: 1800px; width: 96%; margin: 0 auto; }
 
         .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
@@ -38,8 +37,7 @@
         
         .cat-container { background: var(--cor-bg); padding: 15px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 2px solid #EBE6DF; }
         
-        /* ATUALIZAÇÃO 2: Menu de categorias Flexível para Desktop vs Celular */
-        .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; }
+        .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; scroll-behavior: smooth; }
         .cat-scroll::-webkit-scrollbar { display: none; }
         
         @media (min-width: 992px) {
@@ -192,6 +190,9 @@
         const db = firebase.firestore();
 
         let todosProdutos = []; let carrinho = []; let usuario = null; let verificadorPix = null; let modoEntregaAtual = 'delivery';
+        
+        // ATUALIZAÇÃO 1: Trava inteligente de rolagem
+        let rolagemManualAtiva = false;
 
         window.onload = carregarDados;
 
@@ -228,7 +229,6 @@
             categoriasDinamicas.forEach((cat, index) => {
                 const itens = todosProdutos.filter(p => p.categoria === cat);
                 if(itens.length > 0) {
-                    // ATUALIZAÇÃO 3: Define a primeira categoria como ativa (vermelha) logo de início
                     const isFirst = index === 0 ? 'ativo' : '';
                     menu.innerHTML += `<button class="btn-cat ${isFirst}" id="btn-nav-${cat.replace(/\s/g, '')}" onclick="scrollParaCategoria('${cat}')">${cat}</button>`;
                     
@@ -256,8 +256,12 @@
             });
         }
 
+        // ATUALIZAÇÃO 2: Configuração com proteção de pulos
         function configurarScrollspy() {
             const observer = new IntersectionObserver((entries) => {
+                // Se o usuário clicou no botão, o radar fica cego por um tempinho para não bugar a tela
+                if (rolagemManualAtiva) return;
+
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         const id = entry.target.id.replace('cat-section-', '');
@@ -265,18 +269,37 @@
                         const btn = document.getElementById('btn-nav-' + id);
                         if(btn) { 
                             btn.classList.add('ativo'); 
-                            // ATUALIZAÇÃO 4: Só faz a rolagem lateral do menu no celular
                             if (window.innerWidth < 992) {
                                 btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); 
                             }
                         }
                     }
                 });
-            }, { threshold: 0.1, rootMargin: "-150px 0px -50% 0px" }); // Radar re-calibrado
+            }, { threshold: 0.1, rootMargin: "-120px 0px -50% 0px" });
             document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section));
         }
 
-        function scrollParaCategoria(cat) { const el = document.getElementById('cat-section-' + cat.replace(/\s/g, '')); const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); }
+        // ATUALIZAÇÃO 3: Rolar e acionar a trava
+        function scrollParaCategoria(cat) { 
+            rolagemManualAtiva = true; // Trava ativada
+            
+            // Pinta o botão correto de imediato e centraliza ele na tela
+            document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo'));
+            const btnID = 'btn-nav-' + cat.replace(/\s/g, '');
+            const btn = document.getElementById(btnID);
+            if(btn) {
+                btn.classList.add('ativo');
+                if (window.innerWidth < 992) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+
+            // Desce a página
+            const el = document.getElementById('cat-section-' + cat.replace(/\s/g, '')); 
+            const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130; 
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); 
+
+            // Libera a trava depois de 800 milissegundos (tempo da rolagem terminar)
+            setTimeout(() => { rolagemManualAtiva = false; }, 800);
+        }
 
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
