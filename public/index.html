@@ -157,34 +157,40 @@
         function configurarScrollspy() { const observer = new IntersectionObserver((entries) => { if (rolagemManualAtiva) return; entries.forEach(entry => { if (entry.isIntersecting) { const id = entry.target.id.replace('cat-section-', ''); document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo')); const btn = document.getElementById('btn-nav-' + id); if(btn) { btn.classList.add('ativo'); if (window.innerWidth < 992) { btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } } } }); }, { threshold: 0.1, rootMargin: "-150px 0px -50% 0px" }); document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section)); }
         function scrollParaCategoria(cat) { rolagemManualAtiva = true; document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo')); const btn = document.getElementById('btn-nav-' + cat.replace(/\s/g, '')); if(btn) { btn.classList.add('ativo'); if (window.innerWidth < 992) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } const el = document.getElementById('cat-section-' + cat.replace(/\s/g, '')); const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); setTimeout(() => { rolagemManualAtiva = false; }, 800); }
 
-        // --- SISTEMA DE OPÇÕES DINÂMICAS LENDO DIRETO DO BANCO ---
+        // --- SISTEMA DE OPÇÕES E EXTRAS LENDO DIRETO DO BANCO E CALCULANDO PREÇO ---
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
-            let htmlOpcoes = `<div style="background: white; padding: 20px; border-radius: 15px; border: 2px solid #EBE6DF; margin-bottom: 20px;"><h4 class="fw-bold mb-2" style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">${p.nome}</h4><p class="text-muted small mb-3 fw-semibold">${p.descricao || ''}</p><h4 style="color: var(--cor-primaria); font-weight: 900;" class="m-0">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4></div>`;
+            // ID preco-modal-atual adicionado para podermos mudar o valor via JavaScript na hora!
+            let htmlOpcoes = `<div style="background: white; padding: 20px; border-radius: 15px; border: 2px solid #EBE6DF; margin-bottom: 20px;"><h4 class="fw-bold mb-2" style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">${p.nome}</h4><p class="text-muted small mb-3 fw-semibold">${p.descricao || ''}</p><h4 id="preco-modal-atual" style="color: var(--cor-primaria); font-weight: 900;" class="m-0">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4></div>`;
 
             if (p.grupos_opcoes && p.grupos_opcoes.length > 0) {
                 p.grupos_opcoes.forEach((g, idx) => {
-                    htmlOpcoes += `<label class="fw-bold small mb-3 mt-4" style="color: var(--cor-primaria); text-transform: uppercase; letter-spacing: 0.5px;">${g.titulo}</label>`;
+                    htmlOpcoes += `<div class="mt-4"><label class="fw-bold small mb-2" style="color: var(--cor-primaria); text-transform: uppercase; letter-spacing: 0.5px;">${g.titulo}</label>`;
+                    if(g.tipo === 'multiplo') htmlOpcoes += `<div class="text-muted small mb-3 fw-bold">Escolha até ${g.maximo} opção(ões)</div>`;
+                    
                     let nomeGrupo = `grupo_${idx}`;
                     
-                    if (g.tipo === 'multiplo') {
-                        htmlOpcoes += `<div class="row g-2 mb-3">`;
-                        g.itens.forEach((item) => {
-                            htmlOpcoes += `<div class="col-12 col-md-6"><label class="checkbox-opcao w-100 m-0"><input type="checkbox" name="${nomeGrupo}" value='${item}' onchange="limitarCheckboxes(this, '${nomeGrupo}', ${g.maximo})"><span style="font-size: 13px;">${item}</span></label></div>`;
-                        });
-                        htmlOpcoes += `</div>`;
-                    } else {
-                        g.itens.forEach((item, i) => {
-                            htmlOpcoes += `<label class="radio-opcao"><input type="radio" name="${nomeGrupo}" value="${item}" ${i===0?'checked':''}><span>${item}</span></label>`;
-                        });
-                    }
+                    g.itens.forEach((itemRaw, i) => {
+                        // Trata itens antigos (só string) e os novos (objetos com preco e pdv)
+                        let itemObj = typeof itemRaw === 'string' ? { nome: itemRaw, preco: 0, pdv: '' } : itemRaw;
+                        
+                        let precoTexto = itemObj.preco > 0 ? ` <span class="text-success fw-bold" style="float: right;">+ R$ ${itemObj.preco.toFixed(2).replace('.',',')}</span>` : '';
+                        let dataAttrs = `data-preco="${itemObj.preco || 0}" data-pdv="${itemObj.pdv || ''}"`;
+
+                        if (g.tipo === 'multiplo') {
+                            htmlOpcoes += `<label class="checkbox-opcao w-100 mb-2"><input type="checkbox" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="limitarCheckboxes(this, '${nomeGrupo}', ${g.maximo}); atualizarPrecoModal(${p.preco_atual})"><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`;
+                        } else {
+                            htmlOpcoes += `<label class="radio-opcao w-100 mb-2"><input type="radio" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="atualizarPrecoModal(${p.preco_atual})" ${i===0?'checked':''}><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`;
+                        }
+                    });
+                    htmlOpcoes += `</div>`;
                 });
             }
 
             htmlOpcoes += `<div class="mt-4 pt-4 border-top" style="border-color: #EBE6DF !important;"><label class="fw-bold small mb-2" style="text-transform: uppercase;"><i class="fa-regular fa-comment-dots"></i> Observações da Cozinha</label><textarea id="obs-item" class="form-control" style="border: 2px solid #EBE6DF; border-radius: 12px; background: white;" rows="2"></textarea></div>`;
 
             const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
-            let btnAcao = `<div class="d-flex gap-2 mt-4 pt-2"><button class="btn-main" style="background: var(--cor-texto);" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Comprar</button>`;
+            let btnAcao = `<div class="d-flex gap-2 mt-4 pt-2"><button class="btn-main" style="background: var(--cor-texto);" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Adicionar Pedido</button>`;
             
             if (p.fidelidade?.permite_resgate) {
                 if (!usuario) btnAcao += `<button class="btn btn-outline-dark fw-bold flex-grow-1 py-3" style="border-radius: 14px; border-width: 2px;" onclick="fecharSheet('sheet-opcoes'); abrirPerfil();"><i class="fa-solid fa-lock"></i> Entrar</button>`;
@@ -194,24 +200,48 @@
             htmlOpcoes += btnAcao + `</div>`;
 
             document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes');
+            atualizarPrecoModal(p.preco_atual); // Força atualizar para já contar os radios que vem marcados por padrão
         }
 
-        function limitarCheckboxes(cb, nomeGrupo, maximo) { if(document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).length > maximo) { cb.checked = false; alert(`Você só pode selecionar até ${maximo} opções!`); } }
+        function limitarCheckboxes(cb, nomeGrupo, maximo) { if(document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).length > maximo) { cb.checked = false; alert(`Você só pode selecionar até ${maximo} opções nesta lista!`); } }
+
+        function atualizarPrecoModal(precoBase) {
+            let precoExtra = 0;
+            document.querySelectorAll('#conteudo-opcoes input[type="radio"]:checked, #conteudo-opcoes input[type="checkbox"]:checked').forEach(input => {
+                precoExtra += parseFloat(input.getAttribute('data-preco')) || 0;
+            });
+            let total = precoBase + precoExtra;
+            document.getElementById('preco-modal-atual').innerText = `R$ ${total.toFixed(2).replace('.',',')}`;
+        }
 
         function adicionarAoCarrinho(id, tipoAcao) {
-            const p = todosProdutos.find(x => x.id_item === id); let detalhes = []; let falhouValidacao = false;
+            const p = todosProdutos.find(x => x.id_item === id); 
+            let detalhes = []; let falhouValidacao = false;
+            let precoTotalItem = p.preco_atual || 0;
 
             if (p.grupos_opcoes && p.grupos_opcoes.length > 0) {
                 p.grupos_opcoes.forEach((g, idx) => {
                     let nomeGrupo = `grupo_${idx}`;
-                    if (g.tipo === 'simples') {
-                        const r = document.querySelector(`input[name="${nomeGrupo}"]:checked`);
-                        if(r) detalhes.push(r.value);
-                    } else {
-                        let marcados = []; document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).forEach(cb => marcados.push(cb.value));
-                        if (g.titulo.toLowerCase().includes('exatamente') && marcados.length !== g.maximo) { alert(`Selecione exatamente ${g.maximo} opções em: ${g.titulo}`); falhouValidacao = true; }
-                        if (marcados.length > 0) detalhes.push(`${g.titulo}: ${marcados.join(', ')}`);
-                    }
+                    let marcados = []; 
+                    
+                    document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).forEach(cb => {
+                        let iNome = cb.value;
+                        let iPreco = parseFloat(cb.getAttribute('data-preco')) || 0;
+                        let iPdv = cb.getAttribute('data-pdv') || '';
+                        
+                        precoTotalItem += iPreco;
+                        
+                        // Monta o texto bonito para enviar pro seu WhatsApp depois
+                        let txt = iNome;
+                        if(iPreco > 0) txt += ` (+R$ ${iPreco.toFixed(2)})`;
+                        if(iPdv) txt += ` [PDV: ${iPdv}]`;
+                        marcados.push(txt);
+                    });
+
+                    // Valida a regra do "exatamente"
+                    if (g.tipo === 'multiplo' && g.titulo.toLowerCase().includes('exatamente') && marcados.length !== g.maximo) { alert(`Selecione exatamente ${g.maximo} opções em: ${g.titulo}`); falhouValidacao = true; }
+                    
+                    if (marcados.length > 0) detalhes.push(`${g.titulo}: ${marcados.join(', ')}`);
                 });
             }
 
@@ -221,14 +251,15 @@
             const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
             if (tipoAcao === 'resgate' && (carrinho.filter(i => i.tipo === 'resgate').reduce((s, i) => s + i.pontos, 0) + custoPts) > (usuario.pontos || 0)) { alert("Saldo insuficiente."); return; }
 
-            carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: tipoAcao === 'compra' ? (p.preco_atual || 0) : 0, pontos: tipoAcao === 'resgate' ? custoPts : 0, tipo: tipoAcao, obsDetalhes: detalhes.join(" | ") });
+            // Salva no carrinho com o preço já somado dos extras
+            carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: tipoAcao === 'compra' ? precoTotalItem : 0, pontos: tipoAcao === 'resgate' ? custoPts : 0, tipo: tipoAcao, obsDetalhes: detalhes.join(" | ") });
             fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
         function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
         function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
         function abrirCarrinho() { if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0; carrinho.forEach(item => { totalReais += item.preco; totalPts += item.pontos; html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`; }); html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`; if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`; html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`; document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho'); }
-        function removerItem(id) { carrinho = carrinho.filter(i => i.idUnico !== id); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
+        function removerItem(id) { carrinho = filter(c => c.idUnico !== id); carrinho = carrinho.filter(i => i.idUnico !== id); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
         function abrirPerfil() { const cont = document.getElementById('conteudo-perfil'); if(!usuario) { cont.innerHTML = `<h4 class="fw-bold mb-4" style="font-weight: 900; text-transform: uppercase;">Acessar Conta</h4><input type="text" id="login-celular" class="form-control mb-3" style="border: 2px solid #EBE6DF; border-radius: 12px; padding: 12px; font-weight: 600;" placeholder="Seu WhatsApp (apenas números)"><button class="btn-main" onclick="fazerLogin()">Entrar</button><div id="area-cadastro-novo" style="display: none; border-top: 2px solid #EBE6DF; padding-top: 20px; margin-top: 20px;"><h6 class="fw-bold mb-3" style="text-transform: uppercase; color: var(--cor-primaria);">Cadastro Rápido</h6><input type="text" id="cad-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Nome Completo"><input type="text" id="cad-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Rua e Bairro"><input type="text" id="cad-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Número"><button class="btn-main" style="background: var(--cor-texto);" onclick="salvarNovoCadastro()">Criar Perfil</button></div>`; } else { cont.innerHTML = `<div class="text-center bg-white p-4 rounded mb-4" style="border: 2px solid #EBE6DF;"><h4 class="fw-bold mb-1" style="font-weight: 900;">Olá, ${usuario.nome}!</h4><div class="fw-bold mt-2" style="color: #d4a017; font-size: 15px;"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos disponíveis</div></div><label class="fw-bold small mb-2" style="text-transform: uppercase; color: var(--cor-primaria);">Endereço de Entrega</label><input type="text" id="edit-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.nome || ''}" placeholder="Seu Nome"><input type="text" id="edit-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro"><input type="text" id="edit-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento"><button class="btn-main" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>`; } abrirSheet('sheet-perfil'); }
         async function fazerLogin() { const cel = document.getElementById('login-celular').value.trim(); if(!cel) return; const doc = await db.collection('clientes').doc(cel).get(); if(doc.exists) { usuario = doc.data(); document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; fecharSheet('sheet-perfil'); } else { document.getElementById('area-cadastro-novo').style.display = 'block'; } }
         async function salvarNovoCadastro() { const cel = document.getElementById('login-celular').value.trim(); const nome = document.getElementById('cad-nome').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); if(!nome || !rua) return alert("Preencha nome e rua."); const novoCliente = { whatsapp: cel, nome: nome, pontos: 0, endereco: { rua: rua, numero: num }, data_cadastro: new Date().toISOString() }; await db.collection('clientes').doc(cel).set(novoCliente); usuario = novoCliente; document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = 0; fecharSheet('sheet-perfil'); alert("Cadastro sucesso!"); }
