@@ -16,30 +16,45 @@
 
     <style>
         :root { --cor-primaria: #D11221; --cor-bg: #F4F1EA; --cor-texto: #1a1a1a; --raio: 16px; }
-        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: var(--cor-texto); -webkit-tap-highlight-color: transparent; padding-bottom: 100px; }
+        body { font-family: 'Montserrat', sans-serif; background: var(--cor-bg); color: var(--cor-texto); -webkit-tap-highlight-color: transparent; padding-bottom: 100px; margin: 0; }
         .main-container { max-width: 1800px; width: 96%; margin: 0 auto; }
+        
         .navbar-app { background: white; padding: 12px 0; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .logo-app { height: 38px; border-radius: 8px; }
+        
         .cat-container { background: var(--cor-bg); padding: 15px 0; position: sticky; top: 62px; z-index: 999; border-bottom: 2px solid #EBE6DF; }
         .cat-scroll { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; scrollbar-width: none; scroll-behavior: smooth; }
         .cat-scroll::-webkit-scrollbar { display: none; }
         @media (min-width: 992px) { .cat-scroll { justify-content: center; flex-wrap: wrap; overflow-x: visible; gap: 12px; } .card-p { margin-bottom: 25px !important; } }
+        
         .btn-cat { background: white; border: 2px solid #EBE6DF; padding: 8px 18px; border-radius: 50px; font-weight: 700; font-size: 13px; white-space: nowrap; color: #555; transition: 0.3s; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
         .btn-cat.ativo { background: var(--cor-primaria); color: white; border-color: var(--cor-primaria); }
         .categoria-titulo { background-color: var(--cor-primaria); color: white; display: inline-block; padding: 8px 24px; border-radius: 12px; font-weight: 900; font-size: 18px; text-transform: uppercase; letter-spacing: 1px; margin: 40px 0 20px 0; box-shadow: 3px 4px 0px rgba(0,0,0,0.15); }
+        
         .card-p { background: white; border-radius: var(--raio); border: 2px solid #EBE6DF; overflow: hidden; margin-bottom: 15px; cursor: pointer; height: 100%; display: flex; flex-direction: column; transition: 0.2s; box-shadow: 0 6px 15px rgba(0,0,0,0.03); }
         .card-p:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.08); border-color: #dfd8cd; }
         .card-p:active { transform: scale(0.98); }
         .img-p { height: 180px; object-fit: cover; width: 100%; border-bottom: 1px solid #f0f0f0; }
         .body-p { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; }
         .badge-pts { background: #1a1a1a; color: #ffd700; font-size: 10px; font-weight: 800; padding: 5px 10px; border-radius: 6px; margin-bottom: 10px; display: inline-block; width: fit-content; text-transform: uppercase; letter-spacing: 0.5px; }
+        
         .radio-opcao, .checkbox-opcao { display: flex; align-items: center; gap: 10px; padding: 12px 15px; border: 2px solid #EBE6DF; border-radius: 12px; margin-bottom: 8px; cursor: pointer; transition: 0.2s; font-size: 13px; font-weight: 700; color: #444; background: white; }
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
         .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: var(--cor-primaria); transform: scale(1.2); margin-top: -2px; }
+        
+        /* BOTTOM SHEETS (Para Carrinho e Opções do Produto) */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
         .bottom-sheet { background: var(--cor-bg); width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 5px; background: #ccc; border-radius: 10px; margin: 0 auto 20px; }
+        
+        /* TELA CHEIA NATIVA (Para o Perfil do Cliente) */
+        .tela-full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--cor-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; overflow-x: hidden; transform: translateX(100%); transition: transform 0.3s ease-in-out; }
+        .tela-full.show { transform: translateX(0); }
+        .header-full { background: white; padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #EBE6DF; position: sticky; top: 0; z-index: 3010; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .btn-voltar-full { background: none; border: none; font-size: 20px; color: var(--cor-primaria); cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; }
+        .conteudo-full { padding: 20px; flex-grow: 1; background: var(--cor-bg); max-width: 800px; margin: 0 auto; width: 100%; }
+
         .btn-cart-float { position: fixed; bottom: 25px; left: 50%; transform: translateX(-50%); background: #1a1a1a; color: white; padding: 15px 25px; border-radius: 50px; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 1500; border: none; font-weight: 800; width: 90%; max-width: 450px; justify-content: space-between; cursor: pointer; }
         .cart-count { background: var(--cor-primaria); padding: 3px 12px; border-radius: 10px; font-size: 14px; }
         .btn-main { background: var(--cor-primaria); color: white; border: none; padding: 16px; border-radius: 14px; font-weight: 800; width: 100%; transition: 0.2s; cursor: pointer; font-size: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -47,17 +62,26 @@
         .btn-toggle { flex-grow: 1; text-align: center; padding: 12px; font-weight: 800; border-radius: 10px; cursor: pointer; transition: 0.3s; font-size: 13px; text-transform: uppercase; }
         .btn-toggle.ativo { background: var(--cor-primaria); color: white; box-shadow: 0 4px 10px rgba(209, 18, 33, 0.3); }
         .btn-toggle.inativo { background: transparent; color: #666; }
+
+        /* Menu do Cliente (iFood Style) */
+        .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 20px 15px; background: white; border: 2px solid #EBE6DF; border-radius: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; color: var(--cor-texto); font-weight: 800; }
+        .menu-item:active { transform: scale(0.98); background: #fdfdfd; border-color: var(--cor-primaria); }
+        .menu-item-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--cor-primaria); font-size: 18px; background: #fff5f5; }
+        .pedido-card { background: white; border: 2px solid #EBE6DF; border-radius: 14px; padding: 18px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        
+        .form-entrada { border: 2px solid #EBE6DF; border-radius: 12px; padding: 14px; font-weight: 600; width: 100%; margin-bottom: 15px; font-family: 'Montserrat'; outline: none; transition: 0.3s; background: white; }
+        .form-entrada:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(209,18,33,0.1); }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <nav class="navbar-app">
-        <div class="main-container d-flex justify-content-between align-items-center">
+        <div class="main-container d-flex justify-content-between align-items-center px-3">
             <div class="d-flex align-items-center gap-2">
                 <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-app">
                 <span class="fw-bold" style="font-size: 1.1rem; letter-spacing: -0.5px;">Nossa Carne</span>
             </div>
-            <div id="perfil-btn" onclick="abrirPerfil()" style="cursor: pointer;" class="d-flex align-items-center gap-2">
+            <div id="perfil-btn" onclick="abrirPerfilFull()" style="cursor: pointer;" class="d-flex align-items-center gap-2">
                 <div id="pontos-badge-nav" class="small fw-bold text-success" style="display:none;"><i class="fa-solid fa-star"></i> <span id="val-pontos-nav">0</span></div>
                 <i class="fa-solid fa-circle-user fa-xl" style="color: #1a1a1a;"></i>
             </div>
@@ -72,24 +96,10 @@
     </div>
 
     <div class="main-container text-center mt-5 pt-4"><h5 style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">Leve no seu bolso!</h5><p class="text-muted small mb-3 fw-bold">Instale nosso aplicativo para pedir mais rápido.</p><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px;"></div>
-
-    <section class="py-5 mt-5 border-top" style="background: white; border-radius: 30px 30px 0 0; border-top: 3px solid #EBE6DF !important;">
-        <div class="main-container">
-            <div class="row align-items-center g-4 justify-content-center">
-                <div class="col-md-5 text-center"><img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="img-fluid rounded" style="max-height: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></div>
-                <div class="col-md-7 col-lg-6">
-                    <h3 class="fw-bold mb-3" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Nossa História</h3>
-                    <p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial.</p>
-                    <p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p>
-                    <div class="p-3 mt-4 rounded" style="background-color: var(--cor-bg); border-left: 5px solid var(--cor-primaria);"><p class="m-0 fw-bold fst-italic" style="color: var(--cor-texto); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p></div>
-                </div>
-            </div>
-        </div>
-    </section>
+    <section class="py-5 mt-5 border-top" style="background: white; border-radius: 30px 30px 0 0; border-top: 3px solid #EBE6DF !important;"><div class="main-container"><div class="row align-items-center g-4 justify-content-center"><div class="col-md-5 text-center"><img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="img-fluid rounded" style="max-height: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></div><div class="col-md-7 col-lg-6"><h3 class="fw-bold mb-3" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Nossa História</h3><p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial.</p><p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p><div class="p-3 mt-4 rounded" style="background-color: var(--cor-bg); border-left: 5px solid var(--cor-primaria);"><p class="m-0 fw-bold fst-italic" style="color: var(--cor-texto); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p></div></div></div></div></section>
 
     <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinho()"><span><i class="fa-solid fa-bag-shopping"></i> Sacola</span><div class="d-flex align-items-center gap-3"><span id="cart-total" style="color: #ffd700;">R$ 0,00</span><span class="cart-count" id="cart-qtd">0</span></div></button>
 
-    <div class="sheet-overlay" id="sheet-perfil" onclick="fecharSheet('sheet-perfil')"><div class="bottom-sheet" onclick="event.stopPropagation()"><div class="handle"></div><div id="conteudo-perfil"></div></div></div>
     <div class="sheet-overlay" id="sheet-opcoes" onclick="fecharSheet('sheet-opcoes')"><div class="bottom-sheet" onclick="event.stopPropagation()"><div class="handle"></div><div id="conteudo-opcoes"></div></div></div>
     
     <div class="sheet-overlay" id="sheet-carrinho" onclick="fecharSheet('sheet-carrinho')">
@@ -101,23 +111,46 @@
         </div>
     </div>
 
-    <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')">
-        <div class="bottom-sheet text-center" onclick="event.stopPropagation()">
-            <div class="handle"></div><i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i><h4 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pagamento Instantâneo</h4>
-            <div id="loading-pix" class="my-4"><div class="spinner-border text-success spinner-border-sm"></div> <span class="fw-bold ms-2">Gerando código...</span></div>
-            <div id="area-codigo-pix" style="display: none;"><div id="pix-code" class="p-3 bg-white rounded border border-2 border-dark my-4 small text-break fw-bold text-muted" style="border-style: dashed !important;"></div><button class="btn-main mb-4" onclick="copiarPix()"><i class="fa-regular fa-copy me-2"></i> Copiar Código PIX</button><div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm" style="color: var(--cor-primaria);"></div><span class="small fw-bold">Aguardando banco...</span></div></div>
+    <div id="tela-perfil-full" class="tela-full">
+        <div class="header-full">
+            <button class="btn-voltar-full" onclick="fecharPerfilFull()"><i class="fa-solid fa-chevron-left"></i></button>
+            <h5 class="m-0 fw-bold" id="titulo-tela-full" style="text-transform: uppercase; letter-spacing: 0.5px;">Área do Cliente</h5>
         </div>
+        <div class="conteudo-full" id="conteudo-perfil-full">
+            </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
         const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", projectId: "nossa-carne-fidelidade" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
+        const auth = firebase.auth(); // Ativando Auth de cliente
 
         let todosProdutos = []; let carrinho = []; let usuario = null; let verificadorPix = null; let modoEntregaAtual = 'delivery'; let rolagemManualAtiva = false;
+
+        // VIGIA DE AUTENTICAÇÃO DO FIREBASE (Lê se o cliente já logou antes)
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // Busca os dados complementares (Nome, WhatsApp, Pontos) usando o ID Único do Firebase Auth
+                const doc = await db.collection('clientes').doc(user.uid).get();
+                if(doc.exists) {
+                    usuario = { uid: user.uid, ...doc.data() };
+                    document.getElementById('pontos-badge-nav').style.display = 'block';
+                    document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
+                    
+                    // Se a tela full estiver aberta, atualiza a view para o menu
+                    if(document.getElementById('tela-perfil-full').classList.contains('show')) mostrarMenuPerfil();
+                }
+            } else {
+                usuario = null;
+                document.getElementById('pontos-badge-nav').style.display = 'none';
+                if(document.getElementById('tela-perfil-full').classList.contains('show')) renderizarTelaAcesso();
+            }
+        });
 
         window.onload = carregarDados;
 
@@ -130,7 +163,7 @@
                 document.getElementById('loading-cardapio').style.display = 'none';
                 if(categoriasDinamicas.length === 0) { document.getElementById('listagem-produtos').innerHTML = '<p class="text-center mt-5 text-muted fw-bold">Nenhuma categoria cadastrada.</p>'; return; }
                 renderizarCardapio(categoriasDinamicas); configurarScrollspy();
-            } catch (error) { document.getElementById('loading-cardapio').innerHTML = '<p class="text-danger fw-bold">Erro de conexão. Atualize a página.</p>'; }
+            } catch (error) { document.getElementById('loading-cardapio').innerHTML = '<p class="text-danger fw-bold">Erro de conexão.</p>'; }
         }
 
         function renderizarCardapio(categoriasDinamicas) {
@@ -157,10 +190,8 @@
         function configurarScrollspy() { const observer = new IntersectionObserver((entries) => { if (rolagemManualAtiva) return; entries.forEach(entry => { if (entry.isIntersecting) { const id = entry.target.id.replace('cat-section-', ''); document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo')); const btn = document.getElementById('btn-nav-' + id); if(btn) { btn.classList.add('ativo'); if (window.innerWidth < 992) { btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } } } }); }, { threshold: 0.1, rootMargin: "-150px 0px -50% 0px" }); document.querySelectorAll('.categoria-ancora').forEach(section => observer.observe(section)); }
         function scrollParaCategoria(cat) { rolagemManualAtiva = true; document.querySelectorAll('.btn-cat').forEach(b => b.classList.remove('ativo')); const btn = document.getElementById('btn-nav-' + cat.replace(/\s/g, '')); if(btn) { btn.classList.add('ativo'); if (window.innerWidth < 992) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } const el = document.getElementById('cat-section-' + cat.replace(/\s/g, '')); const offsetPosition = (el.getBoundingClientRect().top - document.body.getBoundingClientRect().top) - 130; window.scrollTo({ top: offsetPosition, behavior: 'smooth' }); setTimeout(() => { rolagemManualAtiva = false; }, 800); }
 
-        // --- SISTEMA DE OPÇÕES E EXTRAS LENDO DIRETO DO BANCO E CALCULANDO PREÇO ---
         function abrirOpcoes(idItem) {
             const p = todosProdutos.find(x => x.id_item === idItem);
-            // ID preco-modal-atual adicionado para podermos mudar o valor via JavaScript na hora!
             let htmlOpcoes = `<div style="background: white; padding: 20px; border-radius: 15px; border: 2px solid #EBE6DF; margin-bottom: 20px;"><h4 class="fw-bold mb-2" style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">${p.nome}</h4><p class="text-muted small mb-3 fw-semibold">${p.descricao || ''}</p><h4 id="preco-modal-atual" style="color: var(--cor-primaria); font-weight: 900;" class="m-0">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</h4></div>`;
 
             if (p.grupos_opcoes && p.grupos_opcoes.length > 0) {
@@ -169,11 +200,8 @@
                     if(g.tipo === 'multiplo') htmlOpcoes += `<div class="text-muted small mb-3 fw-bold">Escolha até ${g.maximo} opção(ões)</div>`;
                     
                     let nomeGrupo = `grupo_${idx}`;
-                    
                     g.itens.forEach((itemRaw, i) => {
-                        // Trata itens antigos (só string) e os novos (objetos com preco e pdv)
                         let itemObj = typeof itemRaw === 'string' ? { nome: itemRaw, preco: 0, pdv: '' } : itemRaw;
-                        
                         let precoTexto = itemObj.preco > 0 ? ` <span class="text-success fw-bold" style="float: right;">+ R$ ${itemObj.preco.toFixed(2).replace('.',',')}</span>` : '';
                         let dataAttrs = `data-preco="${itemObj.preco || 0}" data-pdv="${itemObj.pdv || ''}"`;
 
@@ -193,83 +221,350 @@
             let btnAcao = `<div class="d-flex gap-2 mt-4 pt-2"><button class="btn-main" style="background: var(--cor-texto);" onclick="adicionarAoCarrinho('${p.id_item}', 'compra')">Adicionar Pedido</button>`;
             
             if (p.fidelidade?.permite_resgate) {
-                if (!usuario) btnAcao += `<button class="btn btn-outline-dark fw-bold flex-grow-1 py-3" style="border-radius: 14px; border-width: 2px;" onclick="fecharSheet('sheet-opcoes'); abrirPerfil();"><i class="fa-solid fa-lock"></i> Entrar</button>`;
+                if (!usuario) btnAcao += `<button class="btn btn-outline-dark fw-bold flex-grow-1 py-3" style="border-radius: 14px; border-width: 2px;" onclick="fecharSheet('sheet-opcoes'); abrirPerfilFull();"><i class="fa-solid fa-lock"></i> Entrar</button>`;
                 else if (usuario.pontos >= custoPts) btnAcao += `<button class="btn-main" onclick="adicionarAoCarrinho('${p.id_item}', 'resgate')"><i class="fa-solid fa-star" style="color: #ffd700;"></i> Resgatar (${custoPts} pts)</button>`;
                 else btnAcao += `<button class="btn btn-light text-muted fw-bold flex-grow-1 py-3" style="border-radius: 14px; border: 2px solid #EBE6DF;" disabled><i class="fa-solid fa-ban"></i> Faltam Pontos</button>`;
             }
             htmlOpcoes += btnAcao + `</div>`;
 
             document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes');
-            atualizarPrecoModal(p.preco_atual); // Força atualizar para já contar os radios que vem marcados por padrão
+            atualizarPrecoModal(p.preco_atual);
         }
 
         function limitarCheckboxes(cb, nomeGrupo, maximo) { if(document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).length > maximo) { cb.checked = false; alert(`Você só pode selecionar até ${maximo} opções nesta lista!`); } }
-
-        function atualizarPrecoModal(precoBase) {
-            let precoExtra = 0;
-            document.querySelectorAll('#conteudo-opcoes input[type="radio"]:checked, #conteudo-opcoes input[type="checkbox"]:checked').forEach(input => {
-                precoExtra += parseFloat(input.getAttribute('data-preco')) || 0;
-            });
-            let total = precoBase + precoExtra;
-            document.getElementById('preco-modal-atual').innerText = `R$ ${total.toFixed(2).replace('.',',')}`;
-        }
+        function atualizarPrecoModal(precoBase) { let precoExtra = 0; document.querySelectorAll('#conteudo-opcoes input[type="radio"]:checked, #conteudo-opcoes input[type="checkbox"]:checked').forEach(input => { precoExtra += parseFloat(input.getAttribute('data-preco')) || 0; }); let total = precoBase + precoExtra; document.getElementById('preco-modal-atual').innerText = `R$ ${total.toFixed(2).replace('.',',')}`; }
 
         function adicionarAoCarrinho(id, tipoAcao) {
             const p = todosProdutos.find(x => x.id_item === id); 
-            let detalhes = []; let falhouValidacao = false;
-            let precoTotalItem = p.preco_atual || 0;
+            let detalhes = []; let falhouValidacao = false; let precoTotalItem = p.preco_atual || 0;
 
             if (p.grupos_opcoes && p.grupos_opcoes.length > 0) {
                 p.grupos_opcoes.forEach((g, idx) => {
-                    let nomeGrupo = `grupo_${idx}`;
-                    let marcados = []; 
-                    
+                    let nomeGrupo = `grupo_${idx}`; let marcados = []; 
                     document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).forEach(cb => {
-                        let iNome = cb.value;
-                        let iPreco = parseFloat(cb.getAttribute('data-preco')) || 0;
-                        let iPdv = cb.getAttribute('data-pdv') || '';
-                        
+                        let iNome = cb.value; let iPreco = parseFloat(cb.getAttribute('data-preco')) || 0; let iPdv = cb.getAttribute('data-pdv') || '';
                         precoTotalItem += iPreco;
-                        
-                        // Monta o texto bonito para enviar pro seu WhatsApp depois
-                        let txt = iNome;
-                        if(iPreco > 0) txt += ` (+R$ ${iPreco.toFixed(2)})`;
-                        if(iPdv) txt += ` [PDV: ${iPdv}]`;
+                        let txt = iNome; if(iPreco > 0) txt += ` (+R$ ${iPreco.toFixed(2)})`; if(iPdv) txt += ` [PDV: ${iPdv}]`;
                         marcados.push(txt);
                     });
-
-                    // Valida a regra do "exatamente"
                     if (g.tipo === 'multiplo' && g.titulo.toLowerCase().includes('exatamente') && marcados.length !== g.maximo) { alert(`Selecione exatamente ${g.maximo} opções em: ${g.titulo}`); falhouValidacao = true; }
-                    
                     if (marcados.length > 0) detalhes.push(`${g.titulo}: ${marcados.join(', ')}`);
                 });
             }
-
             if (falhouValidacao) return; 
 
             const obs = document.getElementById('obs-item').value.trim(); if(obs) detalhes.push(`Obs: ${obs}`);
             const custoPts = p.fidelidade ? p.fidelidade.custo_em_pontos : 0;
             if (tipoAcao === 'resgate' && (carrinho.filter(i => i.tipo === 'resgate').reduce((s, i) => s + i.pontos, 0) + custoPts) > (usuario.pontos || 0)) { alert("Saldo insuficiente."); return; }
 
-            // Salva no carrinho com o preço já somado dos extras
             carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: p.id_item, nome: p.nome, preco: tipoAcao === 'compra' ? precoTotalItem : 0, pontos: tipoAcao === 'resgate' ? custoPts : 0, tipo: tipoAcao, obsDetalhes: detalhes.join(" | ") });
             fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
+        // --- CONTROLES DE SACOLA ---
         function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
         function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
         function abrirCarrinho() { if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0; carrinho.forEach(item => { totalReais += item.preco; totalPts += item.pontos; html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`; }); html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`; if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`; html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`; document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho'); }
-        function removerItem(id) { carrinho = filter(c => c.idUnico !== id); carrinho = carrinho.filter(i => i.idUnico !== id); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
-        function abrirPerfil() { const cont = document.getElementById('conteudo-perfil'); if(!usuario) { cont.innerHTML = `<h4 class="fw-bold mb-4" style="font-weight: 900; text-transform: uppercase;">Acessar Conta</h4><input type="text" id="login-celular" class="form-control mb-3" style="border: 2px solid #EBE6DF; border-radius: 12px; padding: 12px; font-weight: 600;" placeholder="Seu WhatsApp (apenas números)"><button class="btn-main" onclick="fazerLogin()">Entrar</button><div id="area-cadastro-novo" style="display: none; border-top: 2px solid #EBE6DF; padding-top: 20px; margin-top: 20px;"><h6 class="fw-bold mb-3" style="text-transform: uppercase; color: var(--cor-primaria);">Cadastro Rápido</h6><input type="text" id="cad-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Nome Completo"><input type="text" id="cad-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Rua e Bairro"><input type="text" id="cad-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" placeholder="Número"><button class="btn-main" style="background: var(--cor-texto);" onclick="salvarNovoCadastro()">Criar Perfil</button></div>`; } else { cont.innerHTML = `<div class="text-center bg-white p-4 rounded mb-4" style="border: 2px solid #EBE6DF;"><h4 class="fw-bold mb-1" style="font-weight: 900;">Olá, ${usuario.nome}!</h4><div class="fw-bold mt-2" style="color: #d4a017; font-size: 15px;"><i class="fa-solid fa-star"></i> Você tem ${usuario.pontos || 0} pontos disponíveis</div></div><label class="fw-bold small mb-2" style="text-transform: uppercase; color: var(--cor-primaria);">Endereço de Entrega</label><input type="text" id="edit-nome" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.nome || ''}" placeholder="Seu Nome"><input type="text" id="edit-rua" class="form-control mb-2" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.rua || ''}" placeholder="Nome da Rua e Bairro"><input type="text" id="edit-num" class="form-control mb-4" style="border: 2px solid #EBE6DF; border-radius: 12px; font-weight: 600;" value="${usuario.endereco?.numero || ''}" placeholder="Número / Complemento"><button class="btn-main" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>`; } abrirSheet('sheet-perfil'); }
-        async function fazerLogin() { const cel = document.getElementById('login-celular').value.trim(); if(!cel) return; const doc = await db.collection('clientes').doc(cel).get(); if(doc.exists) { usuario = doc.data(); document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; fecharSheet('sheet-perfil'); } else { document.getElementById('area-cadastro-novo').style.display = 'block'; } }
-        async function salvarNovoCadastro() { const cel = document.getElementById('login-celular').value.trim(); const nome = document.getElementById('cad-nome').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); if(!nome || !rua) return alert("Preencha nome e rua."); const novoCliente = { whatsapp: cel, nome: nome, pontos: 0, endereco: { rua: rua, numero: num }, data_cadastro: new Date().toISOString() }; await db.collection('clientes').doc(cel).set(novoCliente); usuario = novoCliente; document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = 0; fecharSheet('sheet-perfil'); alert("Cadastro sucesso!"); }
-        async function atualizarPerfil() { const n = { nome: document.getElementById('edit-nome').value.trim(), endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } }; await db.collection('clientes').doc(usuario.whatsapp).update(n); usuario = { ...usuario, ...n }; alert("Atualizado!"); fecharSheet('sheet-perfil'); }
-        async function iniciarCheckout() { if(!usuario) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta para concluir."); return abrirPerfil(); } if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { fecharSheet('sheet-carrinho'); alert("Atualize seu endereço de entrega."); return abrirPerfil(); } const total = carrinho.reduce((acc, i) => acc + i.preco, 0); if (total === 0) { finalizarPedidoNoSistema(); } else { fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix'); try { const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) }); const data = await response.json(); if(data.qr_code_copia_cola && data.id_transacao) { document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola; verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000); } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); } } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); } } }
+        function removerItem(id) { carrinho = carrinho.filter(i => i.idUnico !== id); atualizarCarrinhoFlutuante(); carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); }
+        
+        async function iniciarCheckout() { 
+            if(!usuario) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta para concluir."); return abrirPerfilFull(); } 
+            if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { fecharSheet('sheet-carrinho'); alert("Atualize seu endereço de entrega no seu perfil."); return abrirPerfilFull(); } 
+            
+            const total = carrinho.reduce((acc, i) => acc + i.preco, 0); 
+            if (total === 0) { finalizarPedidoNoSistema(); } else { 
+                fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix'); 
+                try { 
+                    const response = await fetch('/gerar-pix', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ valorTotal: total }) }); const data = await response.json(); 
+                    if(data.qr_code_copia_cola && data.id_transacao) { document.getElementById('loading-pix').style.display = 'none'; document.getElementById('area-codigo-pix').style.display = 'block'; document.getElementById('pix-code').innerText = data.qr_code_copia_cola; verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000); } else { alert("Erro ao gerar PIX."); fecharSheet('sheet-pix'); } 
+                } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); } 
+            } 
+        }
+        
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); }
         async function verificarStatusPagamento(idT) { try { const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json(); if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); } } catch(e) {} }
-        async function finalizarPedidoNoSistema() { const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja"; await db.collection('vendas_concluidas').add({ data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: end }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } }); let msg = `*NOVO PEDIDO* ✅\n👤 *Cliente:* ${usuario.nome}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${end}\n\n🛒 *ITENS:*\n`; carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; }); msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`; fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante(); window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`); }
+        
+        async function finalizarPedidoNoSistema() { 
+            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja"; 
+            const idGerado = Math.floor(1000 + Math.random() * 9000); 
+            await db.collection('vendas_concluidas').add({ numero_pedido: idGerado, data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: end }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } }); 
+            let msg = `*NOVO PEDIDO #${idGerado}* ✅\n👤 *Cliente:* ${usuario.nome}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${end}\n\n🛒 *ITENS:*\n`; carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; }); msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`; 
+            fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante(); window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`); 
+        }
+
         function abrirSheet(id) { const o = document.getElementById(id); o.style.display = 'flex'; setTimeout(() => o.querySelector('.bottom-sheet').classList.add('show'), 10); }
         function fecharSheet(id) { const o = document.getElementById(id); o.querySelector('.bottom-sheet').classList.remove('show'); setTimeout(() => o.style.display = 'none', 300); if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); }
+
+        // ==========================================
+        // NOVO MOTOR DE PERFIL: TELA CHEIA & AUTH
+        // ==========================================
+        function abrirPerfilFull() {
+            document.body.style.overflow = 'hidden'; // Trava o scroll do site fundo
+            document.getElementById('tela-perfil-full').style.display = 'flex';
+            setTimeout(() => document.getElementById('tela-perfil-full').classList.add('show'), 10);
+            
+            if(!usuario) { renderizarTelaAcesso(); } 
+            else { mostrarMenuPerfil(); }
+        }
+
+        function fecharPerfilFull() {
+            document.getElementById('tela-perfil-full').classList.remove('show');
+            setTimeout(() => { 
+                document.getElementById('tela-perfil-full').style.display = 'none'; 
+                document.body.style.overflow = 'auto'; // Libera o scroll do site fundo
+            }, 300);
+        }
+
+        function renderizarTelaAcesso() {
+            document.getElementById('titulo-tela-full').innerText = "Acessar Conta";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `
+                <div class="text-center mb-4"><i class="fa-solid fa-circle-user fa-3x" style="color: #ccc;"></i><h4 class="fw-bold mt-3" style="font-weight: 900; text-transform: uppercase;">Entrar no App</h4></div>
+                
+                <label class="fw-bold small mb-2 text-muted">SEU E-MAIL</label>
+                <input type="email" id="login-email" class="form-entrada" placeholder="exemplo@email.com">
+                
+                <label class="fw-bold small mb-2 text-muted mt-2">SUA SENHA SECRETA</label>
+                <input type="password" id="login-senha" class="form-entrada" placeholder="••••••••">
+                
+                <button class="btn-main mt-3" onclick="fazerLoginAuth()">Entrar de Forma Segura</button>
+                <button class="btn btn-light w-100 fw-bold mt-3 py-3" style="border: 2px solid #EBE6DF; border-radius: 12px;" onclick="renderizarTelaCadastro()">Primeira vez aqui? Criar conta</button>
+            `;
+        }
+
+        function renderizarTelaCadastro() {
+            document.getElementById('titulo-tela-full').innerText = "Criar Perfil";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `
+                <div class="mb-4">
+                    <h5 class="fw-bold" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Cadastro Completo</h5>
+                    <p class="small text-muted fw-bold">Seus dados e pontos seguros pelo Google.</p>
+                </div>
+                
+                <label class="fw-bold small mb-2 text-muted">NOME COMPLETO</label>
+                <input type="text" id="cad-nome" class="form-entrada" placeholder="João da Silva">
+
+                <label class="fw-bold small mb-2 text-muted">SEU MELHOR E-MAIL</label>
+                <input type="email" id="cad-email" class="form-entrada" placeholder="exemplo@email.com">
+                
+                <label class="fw-bold small mb-2 text-muted">CRIE UMA SENHA (Mínimo 6 números/letras)</label>
+                <input type="password" id="cad-senha" class="form-entrada" placeholder="Sua senha segura">
+
+                <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD (Para o delivery)</label>
+                <input type="number" id="cad-whats" class="form-entrada" placeholder="11999999999">
+
+                <div class="row g-2">
+                    <div class="col-8">
+                        <label class="fw-bold small mb-2 text-muted">ENDEREÇO E BAIRRO</label>
+                        <input type="text" id="cad-rua" class="form-entrada" placeholder="Rua das Flores, Tatuapé">
+                    </div>
+                    <div class="col-4">
+                        <label class="fw-bold small mb-2 text-muted">NÚMERO</label>
+                        <input type="text" id="cad-num" class="form-entrada" placeholder="123">
+                    </div>
+                </div>
+
+                <button class="btn-main mt-4" onclick="salvarNovoCadastroAuth()"><i class="fa-solid fa-shield-halved me-2"></i> Criar Conta Blindada</button>
+                <button class="btn btn-link text-muted w-100 fw-bold mt-2 text-decoration-none" onclick="renderizarTelaAcesso()">Voltar para Login</button>
+            `;
+        }
+
+        async function fazerLoginAuth() {
+            const email = document.getElementById('login-email').value.trim();
+            const senha = document.getElementById('login-senha').value.trim();
+            if(!email || !senha) return alert("Preencha e-mail e senha.");
+            
+            try {
+                // Isso vai disparar o AuthStateChanged que buscará os dados e mostrará o menu
+                await auth.signInWithEmailAndPassword(email, senha);
+            } catch(e) {
+                alert("Erro ao entrar. Verifique seu e-mail e senha.");
+            }
+        }
+
+        async function salvarNovoCadastroAuth() {
+            const nome = document.getElementById('cad-nome').value.trim();
+            const email = document.getElementById('cad-email').value.trim();
+            const senha = document.getElementById('cad-senha').value.trim();
+            const whats = document.getElementById('cad-whats').value.trim();
+            const rua = document.getElementById('cad-rua').value.trim();
+            const num = document.getElementById('cad-num').value.trim();
+
+            if(!nome || !email || !senha || !whats || !rua) return alert("Preencha todos os campos corretamente.");
+            if(senha.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
+
+            try {
+                // 1. Cria a conta no cofre do Google
+                const credencial = await auth.createUserWithEmailAndPassword(email, senha);
+                
+                // 2. Salva os dados de perfil no Banco de Dados atrelados ao ID único criado
+                const dadosCliente = {
+                    nome: nome,
+                    email: email,
+                    whatsapp: whats,
+                    pontos: 0,
+                    endereco: { rua: rua, numero: num },
+                    data_cadastro: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                await db.collection('clientes').doc(credencial.user.uid).set(dadosCliente);
+                // O AuthStateChanged fará o resto da mágica visual.
+            } catch(e) {
+                alert("Erro no cadastro. Verifique se o e-mail já está em uso.");
+            }
+        }
+
+        function mostrarMenuPerfil() {
+            document.getElementById('titulo-tela-full').innerText = "Meu Perfil";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `
+                <div class="mb-4 pt-2">
+                    <h3 class="fw-bold m-0" style="font-weight: 900; color: var(--cor-texto);">Olá, ${usuario.nome.split(' ')[0]}</h3>
+                    <p class="small text-muted fw-bold">${usuario.email}</p>
+                </div>
+                
+                <div class="menu-item" onclick="mostrarFidelidade()">
+                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon"><i class="fa-solid fa-star"></i></div><span>Clube Nossa Carne</span></div>
+                    <i class="fa-solid fa-chevron-right text-muted small"></i>
+                </div>
+                <div class="menu-item" onclick="mostrarHistoricoPedidos()">
+                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-texto); background: #f0f0f0;"><i class="fa-solid fa-receipt"></i></div><span>Meus Pedidos</span></div>
+                    <i class="fa-solid fa-chevron-right text-muted small"></i>
+                </div>
+                <div class="menu-item" onclick="mostrarMeusDados()">
+                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #666; background: #f0f0f0;"><i class="fa-solid fa-gear"></i></div><span>Meus Dados e Endereço</span></div>
+                    <i class="fa-solid fa-chevron-right text-muted small"></i>
+                </div>
+                <div class="menu-item" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20minha%20conta.')">
+                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #32bcad; background: #ebfcf9;"><i class="fa-solid fa-headset"></i></div><span>Preciso de Ajuda</span></div>
+                    <i class="fa-solid fa-chevron-right text-muted small"></i>
+                </div>
+                
+                <div class="menu-item mt-5" style="border-color: #ffe5e5; background: #fff9f9;" onclick="sairConta()">
+                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-primaria); background: transparent;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div><span style="color: var(--cor-primaria);">Sair da conta segura</span></div>
+                </div>
+            `;
+        }
+
+        function mostrarFidelidade() {
+            document.getElementById('titulo-tela-full').innerText = "Clube Fidelidade";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `
+                <div class="text-center py-4">
+                    <i class="fa-solid fa-star fa-4x mb-3" style="color: #ffd700; filter: drop-shadow(0 4px 10px rgba(255,215,0,0.4));"></i>
+                    <h2 class="fw-bold m-0" style="font-weight: 900; font-size: 32px;">${usuario.pontos || 0} pts</h2>
+                    <p class="text-muted fw-bold mt-2">Seu saldo atual no Clube</p>
+                </div>
+                <div class="p-4 rounded mt-2" style="background: white; border: 2px solid #EBE6DF;">
+                    <h6 class="fw-bold text-uppercase" style="color: var(--cor-primaria);">Como funciona?</h6>
+                    <p class="small text-muted fw-bold mb-0 mt-2" style="line-height: 1.6;">Ao comprar no nosso aplicativo, você acumula pontos que ficam guardados na sua carteira digital. Procure pelos produtos com o selo amarelo "CLUBE" no cardápio e troque seus pontos por eles de graça!</p>
+                </div>
+                <button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar ao Menu</button>
+            `;
+        }
+
+        function mostrarMeusDados() {
+            document.getElementById('titulo-tela-full').innerText = "Meus Dados";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `
+                <label class="fw-bold small mb-2 text-muted mt-3">NOME COMPLETO</label>
+                <input type="text" id="edit-nome" class="form-entrada" value="${usuario.nome || ''}">
+                
+                <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD</label>
+                <input type="number" id="edit-whats" class="form-entrada" value="${usuario.whatsapp || ''}">
+                
+                <h6 class="fw-bold mt-4 mb-3" style="color: var(--cor-primaria); text-transform: uppercase;">Endereço de Entrega</h6>
+                <label class="fw-bold small mb-2 text-muted">RUA E BAIRRO</label>
+                <input type="text" id="edit-rua" class="form-entrada" value="${usuario.endereco?.rua || ''}">
+                <label class="fw-bold small mb-2 text-muted">NÚMERO E COMPLEMENTO</label>
+                <input type="text" id="edit-num" class="form-entrada" value="${usuario.endereco?.numero || ''}">
+                
+                <button class="btn-main mt-4" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>
+                <button class="btn btn-link text-muted w-100 fw-bold mt-2 text-decoration-none" onclick="mostrarMenuPerfil()">Cancelar e Voltar</button>
+            `;
+        }
+
+        async function atualizarPerfil() { 
+            const n = { 
+                nome: document.getElementById('edit-nome').value.trim(), 
+                whatsapp: document.getElementById('edit-whats').value.trim(), 
+                endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } 
+            }; 
+            await db.collection('clientes').doc(usuario.uid).update(n); 
+            usuario = { ...usuario, ...n }; 
+            alert("Dados atualizados com sucesso no cofre digital!"); 
+            mostrarMenuPerfil(); 
+        }
+
+        async function mostrarHistoricoPedidos() {
+            document.getElementById('titulo-tela-full').innerText = "Meus Pedidos";
+            const cont = document.getElementById('conteudo-perfil-full');
+            cont.innerHTML = `<div class="text-center my-5"><div class="spinner-border" style="color: var(--cor-primaria);"></div><p class="mt-3 fw-bold text-muted small">Buscando na nuvem...</p></div>`;
+            
+            try {
+                // Agora ele busca pelo ID Seguro (UID) do cliente, em vez de só pelo número de telefone
+                const snap = await db.collection('vendas_concluidas').where('cliente.uid', '==', usuario.uid).get();
+                let pedidos = [];
+                snap.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
+                
+                pedidos.sort((a, b) => {
+                    const dataA = a.data_pedido ? a.data_pedido.toDate() : new Date();
+                    const dataB = b.data_pedido ? b.data_pedido.toDate() : new Date();
+                    return dataB - dataA;
+                });
+
+                let html = ``;
+                if (pedidos.length === 0) {
+                    html += `<div class="text-center py-5"><i class="fa-solid fa-receipt fa-3x mb-3" style="color: #EBE6DF;"></i><p class="fw-bold text-muted">Você ainda não fez nenhum pedido conosco.</p></div>`;
+                } else {
+                    pedidos.forEach(p => {
+                        let dataFormatada = p.data_pedido ? p.data_pedido.toDate().toLocaleDateString('pt-BR') : 'Data recente';
+                        let numPedido = p.numero_pedido || p.id.substring(0, 5).toUpperCase();
+                        
+                        let itensHTML = '';
+                        p.itens.forEach(i => { itensHTML += `<div class="small fw-bold text-muted mb-1"><span style="color: var(--cor-texto);">1x</span> ${i.nome}</div>`; });
+
+                        html += `
+                            <div class="pedido-card">
+                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3" style="border-color: #EBE6DF !important;">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" style="width: 40px; border-radius: 8px;">
+                                        <div><div class="fw-bold" style="font-size: 14px;">Nossa Carne</div><div class="small text-muted fw-bold">Nº ${numPedido} • ${dataFormatada}</div></div>
+                                    </div>
+                                    <div class="fw-bold" style="color: var(--cor-primaria);">R$ ${p.financeiro.total_pago_reais.toFixed(2).replace('.',',')}</div>
+                                </div>
+                                <div class="mb-4">${itensHTML}</div>
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-sm w-100 fw-bold py-2" style="background: transparent; color: var(--cor-primaria); border: 2px solid #ffe5e5; border-radius: 8px;" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20meu%20pedido%20N%C2%BA%20${numPedido}.')">Ajuda</button>
+                                    <button class="btn btn-sm w-100 fw-bold py-2" style="background: var(--cor-bg); color: var(--cor-texto); border: 2px solid #EBE6DF; border-radius: 8px;" onclick='refazerPedido(${JSON.stringify(p.itens)})'>Pedir Novamente</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                html += `<button class="btn btn-outline-dark w-100 fw-bold py-3 mt-2 mb-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar ao Menu</button>`;
+                cont.innerHTML = html;
+            } catch (error) {
+                cont.innerHTML = `<p class="text-danger fw-bold text-center mt-5">Erro ao carregar histórico.</p><button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar</button>`;
+            }
+        }
+
+        function refazerPedido(itens) {
+            itens.forEach(i => { carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: i.id_produto, nome: i.nome, preco: i.preco, pontos: i.pontos, tipo: i.tipo, obsDetalhes: i.obsDetalhes }); });
+            atualizarCarrinhoFlutuante();
+            fecharPerfilFull();
+            setTimeout(() => abrirCarrinho(), 400); 
+        }
+
+        function sairConta() {
+            auth.signOut().then(() => {
+                carrinho = []; 
+                atualizarCarrinhoFlutuante();
+                fecharPerfilFull();
+            });
+        }
+        // ==========================================
+
         function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
         function instalarAndroid() { alert("🤖 Chrome > Três pontinhos > Instalar aplicativo."); }
         document.onkeydown = function(e) { if(e.keyCode == 123 || (e.ctrlKey && e.shiftKey && (e.keyCode == 73 || e.keyCode == 74)) || (e.ctrlKey && e.keyCode == 85)) return false; };
