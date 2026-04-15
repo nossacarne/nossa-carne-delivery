@@ -42,13 +42,13 @@
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
         .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: var(--cor-primaria); transform: scale(1.2); margin-top: -2px; }
         
-        /* BOTTOM SHEETS (Para Carrinho e Opções do Produto) */
+        /* BOTTOM SHEETS */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
         .bottom-sheet { background: var(--cor-bg); width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 5px; background: #ccc; border-radius: 10px; margin: 0 auto 20px; }
         
-        /* TELA CHEIA NATIVA (Para o Perfil do Cliente) */
+        /* TELA CHEIA (Para o Perfil do Cliente) */
         .tela-full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--cor-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; overflow-x: hidden; transform: translateX(100%); transition: transform 0.3s ease-in-out; }
         .tela-full.show { transform: translateX(0); }
         .header-full { background: white; padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #EBE6DF; position: sticky; top: 0; z-index: 3010; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -63,7 +63,6 @@
         .btn-toggle.ativo { background: var(--cor-primaria); color: white; box-shadow: 0 4px 10px rgba(209, 18, 33, 0.3); }
         .btn-toggle.inativo { background: transparent; color: #666; }
 
-        /* Menu do Cliente (iFood Style) */
         .menu-item { display: flex; align-items: center; justify-content: space-between; padding: 20px 15px; background: white; border: 2px solid #EBE6DF; border-radius: 14px; margin-bottom: 12px; cursor: pointer; transition: 0.2s; color: var(--cor-texto); font-weight: 800; }
         .menu-item:active { transform: scale(0.98); background: #fdfdfd; border-color: var(--cor-primaria); }
         .menu-item-icon { width: 35px; height: 35px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--cor-primaria); font-size: 18px; background: #fff5f5; }
@@ -71,6 +70,11 @@
         
         .form-entrada { border: 2px solid #EBE6DF; border-radius: 12px; padding: 14px; font-weight: 600; width: 100%; margin-bottom: 15px; font-family: 'Montserrat'; outline: none; transition: 0.3s; background: white; }
         .form-entrada:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(209,18,33,0.1); }
+        
+        /* Botões de Login Social */
+        .btn-social { border-radius: 12px; padding: 14px; font-weight: 800; width: 100%; border: 2px solid #EBE6DF; background: white; color: var(--cor-texto); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
+        .btn-social:active { transform: scale(0.98); }
+        .btn-social.google { border-color: #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body oncontextmenu="return false;">
@@ -120,6 +124,14 @@
             </div>
     </div>
 
+    <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')">
+        <div class="bottom-sheet text-center" onclick="event.stopPropagation()">
+            <div class="handle"></div><i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i><h4 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pagamento Instantâneo</h4>
+            <div id="loading-pix" class="my-4"><div class="spinner-border text-success spinner-border-sm"></div> <span class="fw-bold ms-2">Gerando código...</span></div>
+            <div id="area-codigo-pix" style="display: none;"><div id="pix-code" class="p-3 bg-white rounded border border-2 border-dark my-4 small text-break fw-bold text-muted" style="border-style: dashed !important;"></div><button class="btn-main mb-4" onclick="copiarPix()"><i class="fa-regular fa-copy me-2"></i> Copiar Código PIX</button><div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm" style="color: var(--cor-primaria);"></div><span class="small fw-bold">Aguardando banco...</span></div></div>
+        </div>
+    </div>
+
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -128,25 +140,33 @@
         const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", projectId: "nossa-carne-fidelidade" };
         if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.firestore();
-        const auth = firebase.auth(); // Ativando Auth de cliente
+        const auth = firebase.auth(); 
 
-        let todosProdutos = []; let carrinho = []; let usuario = null; let verificadorPix = null; let modoEntregaAtual = 'delivery'; let rolagemManualAtiva = false;
+        let todosProdutos = []; let carrinho = []; let usuario = null; let usuarioIncompleto = null; let verificadorPix = null; let modoEntregaAtual = 'delivery'; let rolagemManualAtiva = false;
 
         // VIGIA DE AUTENTICAÇÃO DO FIREBASE (Lê se o cliente já logou antes)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Busca os dados complementares (Nome, WhatsApp, Pontos) usando o ID Único do Firebase Auth
+                // Busca os dados complementares (Nome, WhatsApp, Pontos) usando o ID Único
                 const doc = await db.collection('clientes').doc(user.uid).get();
                 if(doc.exists) {
                     usuario = { uid: user.uid, ...doc.data() };
+                    usuarioIncompleto = null;
                     document.getElementById('pontos-badge-nav').style.display = 'block';
                     document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
                     
-                    // Se a tela full estiver aberta, atualiza a view para o menu
                     if(document.getElementById('tela-perfil-full').classList.contains('show')) mostrarMenuPerfil();
+                } else {
+                    usuarioIncompleto = user;
+                    if(document.getElementById('tela-perfil-full').classList.contains('show')) {
+                        renderizarTelaCompletarCadastro();
+                    } else {
+                        abrirPerfilFull(); 
+                    }
                 }
             } else {
                 usuario = null;
+                usuarioIncompleto = null;
                 document.getElementById('pontos-badge-nav').style.display = 'none';
                 if(document.getElementById('tela-perfil-full').classList.contains('show')) renderizarTelaAcesso();
             }
@@ -200,6 +220,7 @@
                     if(g.tipo === 'multiplo') htmlOpcoes += `<div class="text-muted small mb-3 fw-bold">Escolha até ${g.maximo} opção(ões)</div>`;
                     
                     let nomeGrupo = `grupo_${idx}`;
+                    
                     g.itens.forEach((itemRaw, i) => {
                         let itemObj = typeof itemRaw === 'string' ? { nome: itemRaw, preco: 0, pdv: '' } : itemRaw;
                         let precoTexto = itemObj.preco > 0 ? ` <span class="text-success fw-bold" style="float: right;">+ R$ ${itemObj.preco.toFixed(2).replace('.',',')}</span>` : '';
@@ -228,7 +249,7 @@
             htmlOpcoes += btnAcao + `</div>`;
 
             document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes');
-            atualizarPrecoModal(p.preco_atual);
+            atualizarPrecoModal(p.preco_atual); 
         }
 
         function limitarCheckboxes(cb, nomeGrupo, maximo) { if(document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).length > maximo) { cb.checked = false; alert(`Você só pode selecionar até ${maximo} opções nesta lista!`); } }
@@ -243,8 +264,7 @@
                     let nomeGrupo = `grupo_${idx}`; let marcados = []; 
                     document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).forEach(cb => {
                         let iNome = cb.value; let iPreco = parseFloat(cb.getAttribute('data-preco')) || 0; let iPdv = cb.getAttribute('data-pdv') || '';
-                        precoTotalItem += iPreco;
-                        let txt = iNome; if(iPreco > 0) txt += ` (+R$ ${iPreco.toFixed(2)})`; if(iPdv) txt += ` [PDV: ${iPdv}]`;
+                        precoTotalItem += iPreco; let txt = iNome; if(iPreco > 0) txt += ` (+R$ ${iPreco.toFixed(2)})`; if(iPdv) txt += ` [PDV: ${iPdv}]`;
                         marcados.push(txt);
                     });
                     if (g.tipo === 'multiplo' && g.titulo.toLowerCase().includes('exatamente') && marcados.length !== g.maximo) { alert(`Selecione exatamente ${g.maximo} opções em: ${g.titulo}`); falhouValidacao = true; }
@@ -261,7 +281,7 @@
             fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
-        // --- CONTROLES DE SACOLA ---
+        // --- CONTROLES DE SACOLA E PIX ---
         function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
         function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
         function abrirCarrinho() { if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0; carrinho.forEach(item => { totalReais += item.preco; totalPts += item.pontos; html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`; }); html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`; if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`; html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`; document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho'); }
@@ -285,10 +305,19 @@
         async function verificarStatusPagamento(idT) { try { const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json(); if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); } } catch(e) {} }
         
         async function finalizarPedidoNoSistema() { 
-            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); const end = modoEntregaAtual === 'delivery' ? `${usuario.endereco.rua}, ${usuario.endereco.numero}` : "Retirada na Loja"; 
+            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); 
+            let endStr = "Retirada na Loja";
+            if(modoEntregaAtual === 'delivery') {
+                const e = usuario.endereco;
+                endStr = `${e.rua}, ${e.numero}`;
+                if(e.complemento) endStr += ` - Compl: ${e.complemento}`;
+                endStr += ` - ${e.bairro} - CEP ${e.cep}`;
+                if(e.cidade) endStr += ` (${e.cidade})`;
+            }
+
             const idGerado = Math.floor(1000 + Math.random() * 9000); 
-            await db.collection('vendas_concluidas').add({ numero_pedido: idGerado, data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: end }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } }); 
-            let msg = `*NOVO PEDIDO #${idGerado}* ✅\n👤 *Cliente:* ${usuario.nome}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${end}\n\n🛒 *ITENS:*\n`; carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; }); msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`; 
+            await db.collection('vendas_concluidas').add({ numero_pedido: idGerado, data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: endStr }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } }); 
+            let msg = `*NOVO PEDIDO #${idGerado}* ✅\n👤 *Cliente:* ${usuario.nome}\n📞 *WhatsApp:* ${usuario.whatsapp}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${endStr}\n\n🛒 *ITENS:*\n`; carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; }); msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`; 
             fecharSheet('sheet-pix'); carrinho = []; atualizarCarrinhoFlutuante(); window.open(`https://wa.me/5511944889002?text=${encodeURIComponent(msg)}`); 
         }
 
@@ -296,23 +325,38 @@
         function fecharSheet(id) { const o = document.getElementById(id); o.querySelector('.bottom-sheet').classList.remove('show'); setTimeout(() => o.style.display = 'none', 300); if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); }
 
         // ==========================================
-        // NOVO MOTOR DE PERFIL: TELA CHEIA & AUTH
+        // MOTOR DE PERFIL E AUTENTICAÇÃO
         // ==========================================
+        
+        async function buscarCep(cepStr, prefixoInput) {
+            let cep = cepStr.replace(/\D/g, '');
+            if(cep.length === 8) {
+                try {
+                    let res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+                    let data = await res.json();
+                    if(!data.erro) {
+                        document.getElementById(`${prefixoInput}-rua`).value = data.logradouro;
+                        document.getElementById(`${prefixoInput}-bairro`).value = data.bairro;
+                        document.getElementById(`${prefixoInput}-cidade`).value = data.localidade + ' - ' + data.uf;
+                        document.getElementById(`${prefixoInput}-num`).focus();
+                    }
+                } catch(e) {}
+            }
+        }
+
         function abrirPerfilFull() {
-            document.body.style.overflow = 'hidden'; // Trava o scroll do site fundo
+            document.body.style.overflow = 'hidden'; 
             document.getElementById('tela-perfil-full').style.display = 'flex';
             setTimeout(() => document.getElementById('tela-perfil-full').classList.add('show'), 10);
             
-            if(!usuario) { renderizarTelaAcesso(); } 
-            else { mostrarMenuPerfil(); }
+            if(usuario) { mostrarMenuPerfil(); } 
+            else if(usuarioIncompleto) { renderizarTelaCompletarCadastro(); }
+            else { renderizarTelaAcesso(); }
         }
 
         function fecharPerfilFull() {
             document.getElementById('tela-perfil-full').classList.remove('show');
-            setTimeout(() => { 
-                document.getElementById('tela-perfil-full').style.display = 'none'; 
-                document.body.style.overflow = 'auto'; // Libera o scroll do site fundo
-            }, 300);
+            setTimeout(() => { document.getElementById('tela-perfil-full').style.display = 'none'; document.body.style.overflow = 'auto'; }, 300);
         }
 
         function renderizarTelaAcesso() {
@@ -321,13 +365,14 @@
             cont.innerHTML = `
                 <div class="text-center mb-4"><i class="fa-solid fa-circle-user fa-3x" style="color: #ccc;"></i><h4 class="fw-bold mt-3" style="font-weight: 900; text-transform: uppercase;">Entrar no App</h4></div>
                 
-                <label class="fw-bold small mb-2 text-muted">SEU E-MAIL</label>
-                <input type="email" id="login-email" class="form-entrada" placeholder="exemplo@email.com">
+                <button class="btn-social google" onclick="loginComGoogle()"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18"> Continuar com o Google</button>
                 
-                <label class="fw-bold small mb-2 text-muted mt-2">SUA SENHA SECRETA</label>
-                <input type="password" id="login-senha" class="form-entrada" placeholder="••••••••">
+                <div class="d-flex align-items-center my-4"><hr class="flex-grow-1" style="border-color: #EBE6DF;"><span class="mx-3 small fw-bold text-muted">OU COM E-MAIL</span><hr class="flex-grow-1" style="border-color: #EBE6DF;"></div>
+
+                <input type="email" id="login-email" class="form-entrada" placeholder="Seu E-mail">
+                <input type="password" id="login-senha" class="form-entrada" placeholder="Sua Senha">
                 
-                <button class="btn-main mt-3" onclick="fazerLoginAuth()">Entrar de Forma Segura</button>
+                <button class="btn-main mt-2" onclick="fazerLoginAuth()">Entrar</button>
                 <button class="btn btn-light w-100 fw-bold mt-3 py-3" style="border: 2px solid #EBE6DF; border-radius: 12px;" onclick="renderizarTelaCadastro()">Primeira vez aqui? Criar conta</button>
             `;
         }
@@ -336,113 +381,107 @@
             document.getElementById('titulo-tela-full').innerText = "Criar Perfil";
             const cont = document.getElementById('conteudo-perfil-full');
             cont.innerHTML = `
-                <div class="mb-4">
-                    <h5 class="fw-bold" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Cadastro Completo</h5>
-                    <p class="small text-muted fw-bold">Seus dados e pontos seguros pelo Google.</p>
+                <div class="mb-4"><h5 class="fw-bold" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Cadastro Completo</h5><p class="small text-muted fw-bold">Seus dados e pontos seguros no cofre do Google.</p></div>
+                
+                <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-id-card"></i> Conta e Segurança</h6>
+                <input type="text" id="cad-nome" class="form-entrada" placeholder="Nome Completo">
+                <input type="email" id="cad-email" class="form-entrada" placeholder="E-mail (ex: max@gmail.com)">
+                <input type="password" id="cad-senha" class="form-entrada" placeholder="Crie uma Senha Forte (mín 6 dig.)">
+                <input type="number" id="cad-whats" class="form-entrada" placeholder="WhatsApp com DDD (Ex: 11999999999)">
+
+                <h6 class="fw-bold text-primary mt-4 mb-3"><i class="fa-solid fa-location-dot"></i> Onde entregamos?</h6>
+                <div class="row g-2 mb-2">
+                    <div class="col-5"><input type="number" id="cad-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'cad')"></div>
+                    <div class="col-7"><input type="text" id="cad-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div>
                 </div>
-                
-                <label class="fw-bold small mb-2 text-muted">NOME COMPLETO</label>
-                <input type="text" id="cad-nome" class="form-entrada" placeholder="João da Silva">
-
-                <label class="fw-bold small mb-2 text-muted">SEU MELHOR E-MAIL</label>
-                <input type="email" id="cad-email" class="form-entrada" placeholder="exemplo@email.com">
-                
-                <label class="fw-bold small mb-2 text-muted">CRIE UMA SENHA (Mínimo 6 números/letras)</label>
-                <input type="password" id="cad-senha" class="form-entrada" placeholder="Sua senha segura">
-
-                <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD (Para o delivery)</label>
-                <input type="number" id="cad-whats" class="form-entrada" placeholder="11999999999">
-
+                <input type="text" id="cad-rua" class="form-entrada" placeholder="Rua / Avenida">
                 <div class="row g-2">
-                    <div class="col-8">
-                        <label class="fw-bold small mb-2 text-muted">ENDEREÇO E BAIRRO</label>
-                        <input type="text" id="cad-rua" class="form-entrada" placeholder="Rua das Flores, Tatuapé">
-                    </div>
-                    <div class="col-4">
-                        <label class="fw-bold small mb-2 text-muted">NÚMERO</label>
-                        <input type="text" id="cad-num" class="form-entrada" placeholder="123">
-                    </div>
+                    <div class="col-4"><input type="text" id="cad-num" class="form-entrada" placeholder="Número"></div>
+                    <div class="col-8"><input type="text" id="cad-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div>
                 </div>
+                <input type="text" id="cad-bairro" class="form-entrada" placeholder="Bairro">
 
-                <button class="btn-main mt-4" onclick="salvarNovoCadastroAuth()"><i class="fa-solid fa-shield-halved me-2"></i> Criar Conta Blindada</button>
+                <button class="btn-main mt-3" onclick="salvarNovoCadastroAuth()"><i class="fa-solid fa-shield-halved me-2"></i> Criar Conta Blindada</button>
                 <button class="btn btn-link text-muted w-100 fw-bold mt-2 text-decoration-none" onclick="renderizarTelaAcesso()">Voltar para Login</button>
             `;
         }
 
-        async function fazerLoginAuth() {
-            const email = document.getElementById('login-email').value.trim();
-            const senha = document.getElementById('login-senha').value.trim();
-            if(!email || !senha) return alert("Preencha e-mail e senha.");
+        function renderizarTelaCompletarCadastro() {
+            document.getElementById('titulo-tela-full').innerText = "Falta Pouco!";
+            const cont = document.getElementById('conteudo-perfil-full');
+            let nomeGoogle = usuarioIncompleto.displayName || '';
             
-            try {
-                // Isso vai disparar o AuthStateChanged que buscará os dados e mostrará o menu
-                await auth.signInWithEmailAndPassword(email, senha);
-            } catch(e) {
-                alert("Erro ao entrar. Verifique seu e-mail e senha.");
-            }
+            cont.innerHTML = `
+                <div class="text-center mb-4"><i class="fa-regular fa-face-smile fa-3x" style="color: var(--cor-primaria);"></i><h5 class="fw-bold mt-3" style="font-weight: 900;">Bem-vindo, ${nomeGoogle.split(' ')[0]}!</h5><p class="small text-muted fw-bold">Como você entrou pela rede social, precisamos só do seu Endereço para realizar as entregas.</p></div>
+                
+                <input type="text" id="comp-nome" class="form-entrada" placeholder="Nome Completo" value="${nomeGoogle}">
+                <input type="number" id="comp-whats" class="form-entrada" placeholder="WhatsApp com DDD (Ex: 11999999999)">
+
+                <h6 class="fw-bold text-primary mt-4 mb-3"><i class="fa-solid fa-location-dot"></i> Onde entregamos?</h6>
+                <div class="row g-2 mb-2">
+                    <div class="col-5"><input type="number" id="comp-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'comp')"></div>
+                    <div class="col-7"><input type="text" id="comp-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div>
+                </div>
+                <input type="text" id="comp-rua" class="form-entrada" placeholder="Rua / Avenida">
+                <div class="row g-2">
+                    <div class="col-4"><input type="text" id="comp-num" class="form-entrada" placeholder="Número"></div>
+                    <div class="col-8"><input type="text" id="comp-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div>
+                </div>
+                <input type="text" id="comp-bairro" class="form-entrada" placeholder="Bairro">
+
+                <button class="btn-main mt-3" onclick="salvarCadastroSocial()"><i class="fa-solid fa-check me-2"></i> Concluir Cadastro</button>
+            `;
+        }
+
+        async function fazerLoginAuth() {
+            const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim();
+            if(!email || !senha) return alert("Preencha e-mail e senha.");
+            try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); }
+        }
+
+        async function loginComGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            try { await auth.signInWithPopup(provider); } catch(e) { console.error("Erro no login social", e); }
         }
 
         async function salvarNovoCadastroAuth() {
-            const nome = document.getElementById('cad-nome').value.trim();
-            const email = document.getElementById('cad-email').value.trim();
-            const senha = document.getElementById('cad-senha').value.trim();
-            const whats = document.getElementById('cad-whats').value.trim();
-            const rua = document.getElementById('cad-rua').value.trim();
-            const num = document.getElementById('cad-num').value.trim();
-
-            if(!nome || !email || !senha || !whats || !rua) return alert("Preencha todos os campos corretamente.");
+            const nome = document.getElementById('cad-nome').value.trim(); const email = document.getElementById('cad-email').value.trim(); const senha = document.getElementById('cad-senha').value.trim(); const whats = document.getElementById('cad-whats').value.trim();
+            const cep = document.getElementById('cad-cep').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); const comp = document.getElementById('cad-comp').value.trim(); const bairro = document.getElementById('cad-bairro').value.trim(); const cidade = document.getElementById('cad-cidade').value.trim();
+            if(!nome || !email || !senha || !whats || !cep || !rua || !num || !bairro) return alert("Preencha todos os campos obrigatórios.");
             if(senha.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
 
             try {
-                // 1. Cria a conta no cofre do Google
                 const credencial = await auth.createUserWithEmailAndPassword(email, senha);
-                
-                // 2. Salva os dados de perfil no Banco de Dados atrelados ao ID único criado
-                const dadosCliente = {
-                    nome: nome,
-                    email: email,
-                    whatsapp: whats,
-                    pontos: 0,
-                    endereco: { rua: rua, numero: num },
-                    data_cadastro: firebase.firestore.FieldValue.serverTimestamp()
-                };
-                
+                const dadosCliente = { nome: nome, email: email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() };
                 await db.collection('clientes').doc(credencial.user.uid).set(dadosCliente);
-                // O AuthStateChanged fará o resto da mágica visual.
-            } catch(e) {
-                alert("Erro no cadastro. Verifique se o e-mail já está em uso.");
-            }
+            } catch(e) { alert("Erro no cadastro. Este e-mail já pode estar em uso."); }
+        }
+
+        async function salvarCadastroSocial() {
+            const nome = document.getElementById('comp-nome').value.trim(); const whats = document.getElementById('comp-whats').value.trim();
+            const cep = document.getElementById('comp-cep').value.trim(); const rua = document.getElementById('comp-rua').value.trim(); const num = document.getElementById('comp-num').value.trim(); const comp = document.getElementById('comp-comp').value.trim(); const bairro = document.getElementById('comp-bairro').value.trim(); const cidade = document.getElementById('comp-cidade').value.trim();
+            if(!nome || !whats || !cep || !rua || !num || !bairro) return alert("Precisamos do seu endereço completo e WhatsApp para as entregas!");
+            
+            try {
+                const dadosCliente = { nome: nome, email: usuarioIncompleto.email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() };
+                await db.collection('clientes').doc(usuarioIncompleto.uid).set(dadosCliente);
+                usuario = { uid: usuarioIncompleto.uid, ...dadosCliente };
+                usuarioIncompleto = null;
+                document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
+                mostrarMenuPerfil();
+            } catch(e) { alert("Erro ao salvar os dados complementares."); }
         }
 
         function mostrarMenuPerfil() {
             document.getElementById('titulo-tela-full').innerText = "Meu Perfil";
             const cont = document.getElementById('conteudo-perfil-full');
             cont.innerHTML = `
-                <div class="mb-4 pt-2">
-                    <h3 class="fw-bold m-0" style="font-weight: 900; color: var(--cor-texto);">Olá, ${usuario.nome.split(' ')[0]}</h3>
-                    <p class="small text-muted fw-bold">${usuario.email}</p>
-                </div>
-                
-                <div class="menu-item" onclick="mostrarFidelidade()">
-                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon"><i class="fa-solid fa-star"></i></div><span>Clube Nossa Carne</span></div>
-                    <i class="fa-solid fa-chevron-right text-muted small"></i>
-                </div>
-                <div class="menu-item" onclick="mostrarHistoricoPedidos()">
-                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-texto); background: #f0f0f0;"><i class="fa-solid fa-receipt"></i></div><span>Meus Pedidos</span></div>
-                    <i class="fa-solid fa-chevron-right text-muted small"></i>
-                </div>
-                <div class="menu-item" onclick="mostrarMeusDados()">
-                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #666; background: #f0f0f0;"><i class="fa-solid fa-gear"></i></div><span>Meus Dados e Endereço</span></div>
-                    <i class="fa-solid fa-chevron-right text-muted small"></i>
-                </div>
-                <div class="menu-item" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20minha%20conta.')">
-                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #32bcad; background: #ebfcf9;"><i class="fa-solid fa-headset"></i></div><span>Preciso de Ajuda</span></div>
-                    <i class="fa-solid fa-chevron-right text-muted small"></i>
-                </div>
-                
-                <div class="menu-item mt-5" style="border-color: #ffe5e5; background: #fff9f9;" onclick="sairConta()">
-                    <div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-primaria); background: transparent;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div><span style="color: var(--cor-primaria);">Sair da conta segura</span></div>
-                </div>
+                <div class="mb-4 pt-2"><h3 class="fw-bold m-0" style="font-weight: 900; color: var(--cor-texto);">Olá, ${usuario.nome.split(' ')[0]}</h3><p class="small text-muted fw-bold">${usuario.email}</p></div>
+                <div class="menu-item" onclick="mostrarFidelidade()"><div class="d-flex align-items-center gap-3"><div class="menu-item-icon"><i class="fa-solid fa-star"></i></div><span>Clube Nossa Carne</span></div><i class="fa-solid fa-chevron-right text-muted small"></i></div>
+                <div class="menu-item" onclick="mostrarHistoricoPedidos()"><div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-texto); background: #f0f0f0;"><i class="fa-solid fa-receipt"></i></div><span>Meus Pedidos</span></div><i class="fa-solid fa-chevron-right text-muted small"></i></div>
+                <div class="menu-item" onclick="mostrarMeusDados()"><div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #666; background: #f0f0f0;"><i class="fa-solid fa-gear"></i></div><span>Meus Dados e Endereço</span></div><i class="fa-solid fa-chevron-right text-muted small"></i></div>
+                <div class="menu-item" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20minha%20conta.')"><div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: #32bcad; background: #ebfcf9;"><i class="fa-solid fa-headset"></i></div><span>Preciso de Ajuda</span></div><i class="fa-solid fa-chevron-right text-muted small"></i></div>
+                <div class="menu-item mt-5" style="border-color: #ffe5e5; background: #fff9f9;" onclick="sairConta()"><div class="d-flex align-items-center gap-3"><div class="menu-item-icon" style="color: var(--cor-primaria); background: transparent;"><i class="fa-solid fa-arrow-right-from-bracket"></i></div><span style="color: var(--cor-primaria);">Sair da conta segura</span></div></div>
             `;
         }
 
@@ -450,15 +489,8 @@
             document.getElementById('titulo-tela-full').innerText = "Clube Fidelidade";
             const cont = document.getElementById('conteudo-perfil-full');
             cont.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="fa-solid fa-star fa-4x mb-3" style="color: #ffd700; filter: drop-shadow(0 4px 10px rgba(255,215,0,0.4));"></i>
-                    <h2 class="fw-bold m-0" style="font-weight: 900; font-size: 32px;">${usuario.pontos || 0} pts</h2>
-                    <p class="text-muted fw-bold mt-2">Seu saldo atual no Clube</p>
-                </div>
-                <div class="p-4 rounded mt-2" style="background: white; border: 2px solid #EBE6DF;">
-                    <h6 class="fw-bold text-uppercase" style="color: var(--cor-primaria);">Como funciona?</h6>
-                    <p class="small text-muted fw-bold mb-0 mt-2" style="line-height: 1.6;">Ao comprar no nosso aplicativo, você acumula pontos que ficam guardados na sua carteira digital. Procure pelos produtos com o selo amarelo "CLUBE" no cardápio e troque seus pontos por eles de graça!</p>
-                </div>
+                <div class="text-center py-4"><i class="fa-solid fa-star fa-4x mb-3" style="color: #ffd700; filter: drop-shadow(0 4px 10px rgba(255,215,0,0.4));"></i><h2 class="fw-bold m-0" style="font-weight: 900; font-size: 32px;">${usuario.pontos || 0} pts</h2><p class="text-muted fw-bold mt-2">Seu saldo atual no Clube</p></div>
+                <div class="p-4 rounded mt-2" style="background: white; border: 2px solid #EBE6DF;"><h6 class="fw-bold text-uppercase" style="color: var(--cor-primaria);">Como funciona?</h6><p class="small text-muted fw-bold mb-0 mt-2" style="line-height: 1.6;">Ao comprar no nosso aplicativo, você acumula pontos que ficam guardados na sua carteira digital. Procure pelos produtos com o selo amarelo "CLUBE" no cardápio e troque seus pontos por eles de graça!</p></div>
                 <button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar ao Menu</button>
             `;
         }
@@ -466,18 +498,16 @@
         function mostrarMeusDados() {
             document.getElementById('titulo-tela-full').innerText = "Meus Dados";
             const cont = document.getElementById('conteudo-perfil-full');
+            const e = usuario.endereco || {};
             cont.innerHTML = `
-                <label class="fw-bold small mb-2 text-muted mt-3">NOME COMPLETO</label>
-                <input type="text" id="edit-nome" class="form-entrada" value="${usuario.nome || ''}">
-                
-                <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD</label>
-                <input type="number" id="edit-whats" class="form-entrada" value="${usuario.whatsapp || ''}">
+                <label class="fw-bold small mb-2 text-muted mt-3">NOME COMPLETO</label><input type="text" id="edit-nome" class="form-entrada" value="${usuario.nome || ''}">
+                <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD</label><input type="number" id="edit-whats" class="form-entrada" value="${usuario.whatsapp || ''}">
                 
                 <h6 class="fw-bold mt-4 mb-3" style="color: var(--cor-primaria); text-transform: uppercase;">Endereço de Entrega</h6>
-                <label class="fw-bold small mb-2 text-muted">RUA E BAIRRO</label>
-                <input type="text" id="edit-rua" class="form-entrada" value="${usuario.endereco?.rua || ''}">
-                <label class="fw-bold small mb-2 text-muted">NÚMERO E COMPLEMENTO</label>
-                <input type="text" id="edit-num" class="form-entrada" value="${usuario.endereco?.numero || ''}">
+                <div class="row g-2 mb-2"><div class="col-5"><input type="number" id="edit-cep" class="form-entrada mb-0" placeholder="CEP" value="${e.cep || ''}" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'edit')"></div><div class="col-7"><input type="text" id="edit-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF" value="${e.cidade || ''}"></div></div>
+                <input type="text" id="edit-rua" class="form-entrada" placeholder="Rua" value="${e.rua || ''}">
+                <div class="row g-2"><div class="col-4"><input type="text" id="edit-num" class="form-entrada" placeholder="Nº" value="${e.numero || ''}"></div><div class="col-8"><input type="text" id="edit-comp" class="form-entrada" placeholder="Complemento" value="${e.complemento || ''}"></div></div>
+                <input type="text" id="edit-bairro" class="form-entrada" placeholder="Bairro" value="${e.bairro || ''}">
                 
                 <button class="btn-main mt-4" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>
                 <button class="btn btn-link text-muted w-100 fw-bold mt-2 text-decoration-none" onclick="mostrarMenuPerfil()">Cancelar e Voltar</button>
@@ -485,85 +515,40 @@
         }
 
         async function atualizarPerfil() { 
-            const n = { 
-                nome: document.getElementById('edit-nome').value.trim(), 
-                whatsapp: document.getElementById('edit-whats').value.trim(), 
-                endereco: { rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim() } 
-            }; 
-            await db.collection('clientes').doc(usuario.uid).update(n); 
-            usuario = { ...usuario, ...n }; 
-            alert("Dados atualizados com sucesso no cofre digital!"); 
-            mostrarMenuPerfil(); 
+            const n = { nome: document.getElementById('edit-nome').value.trim(), whatsapp: document.getElementById('edit-whats').value.trim(), endereco: { cep: document.getElementById('edit-cep').value.trim(), rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim(), complemento: document.getElementById('edit-comp').value.trim(), bairro: document.getElementById('edit-bairro').value.trim(), cidade: document.getElementById('edit-cidade').value.trim() } }; 
+            await db.collection('clientes').doc(usuario.uid).update(n); usuario = { ...usuario, ...n }; alert("Dados atualizados com sucesso no cofre digital!"); mostrarMenuPerfil(); 
         }
 
         async function mostrarHistoricoPedidos() {
             document.getElementById('titulo-tela-full').innerText = "Meus Pedidos";
             const cont = document.getElementById('conteudo-perfil-full');
             cont.innerHTML = `<div class="text-center my-5"><div class="spinner-border" style="color: var(--cor-primaria);"></div><p class="mt-3 fw-bold text-muted small">Buscando na nuvem...</p></div>`;
-            
             try {
-                // Agora ele busca pelo ID Seguro (UID) do cliente, em vez de só pelo número de telefone
                 const snap = await db.collection('vendas_concluidas').where('cliente.uid', '==', usuario.uid).get();
-                let pedidos = [];
-                snap.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
-                
-                pedidos.sort((a, b) => {
-                    const dataA = a.data_pedido ? a.data_pedido.toDate() : new Date();
-                    const dataB = b.data_pedido ? b.data_pedido.toDate() : new Date();
-                    return dataB - dataA;
-                });
+                let pedidos = []; snap.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
+                pedidos.sort((a, b) => { const dataA = a.data_pedido ? a.data_pedido.toDate() : new Date(); const dataB = b.data_pedido ? b.data_pedido.toDate() : new Date(); return dataB - dataA; });
 
                 let html = ``;
-                if (pedidos.length === 0) {
-                    html += `<div class="text-center py-5"><i class="fa-solid fa-receipt fa-3x mb-3" style="color: #EBE6DF;"></i><p class="fw-bold text-muted">Você ainda não fez nenhum pedido conosco.</p></div>`;
-                } else {
+                if (pedidos.length === 0) { html += `<div class="text-center py-5"><i class="fa-solid fa-receipt fa-3x mb-3" style="color: #EBE6DF;"></i><p class="fw-bold text-muted">Você ainda não fez nenhum pedido conosco.</p></div>`; } 
+                else {
                     pedidos.forEach(p => {
                         let dataFormatada = p.data_pedido ? p.data_pedido.toDate().toLocaleDateString('pt-BR') : 'Data recente';
                         let numPedido = p.numero_pedido || p.id.substring(0, 5).toUpperCase();
-                        
-                        let itensHTML = '';
-                        p.itens.forEach(i => { itensHTML += `<div class="small fw-bold text-muted mb-1"><span style="color: var(--cor-texto);">1x</span> ${i.nome}</div>`; });
-
-                        html += `
-                            <div class="pedido-card">
-                                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3" style="border-color: #EBE6DF !important;">
-                                    <div class="d-flex align-items-center gap-3">
-                                        <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" style="width: 40px; border-radius: 8px;">
-                                        <div><div class="fw-bold" style="font-size: 14px;">Nossa Carne</div><div class="small text-muted fw-bold">Nº ${numPedido} • ${dataFormatada}</div></div>
-                                    </div>
-                                    <div class="fw-bold" style="color: var(--cor-primaria);">R$ ${p.financeiro.total_pago_reais.toFixed(2).replace('.',',')}</div>
-                                </div>
-                                <div class="mb-4">${itensHTML}</div>
-                                <div class="d-flex gap-2">
-                                    <button class="btn btn-sm w-100 fw-bold py-2" style="background: transparent; color: var(--cor-primaria); border: 2px solid #ffe5e5; border-radius: 8px;" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20meu%20pedido%20N%C2%BA%20${numPedido}.')">Ajuda</button>
-                                    <button class="btn btn-sm w-100 fw-bold py-2" style="background: var(--cor-bg); color: var(--cor-texto); border: 2px solid #EBE6DF; border-radius: 8px;" onclick='refazerPedido(${JSON.stringify(p.itens)})'>Pedir Novamente</button>
-                                </div>
-                            </div>
-                        `;
+                        let itensHTML = ''; p.itens.forEach(i => { itensHTML += `<div class="small fw-bold text-muted mb-1"><span style="color: var(--cor-texto);">1x</span> ${i.nome}</div>`; });
+                        html += `<div class="pedido-card"><div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-3" style="border-color: #EBE6DF !important;"><div class="d-flex align-items-center gap-3"><img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" style="width: 40px; border-radius: 8px;"><div><div class="fw-bold" style="font-size: 14px;">Nossa Carne</div><div class="small text-muted fw-bold">Nº ${numPedido} • ${dataFormatada}</div></div></div><div class="fw-bold" style="color: var(--cor-primaria);">R$ ${p.financeiro.total_pago_reais.toFixed(2).replace('.',',')}</div></div><div class="mb-4">${itensHTML}</div><div class="d-flex gap-2"><button class="btn btn-sm w-100 fw-bold py-2" style="background: transparent; color: var(--cor-primaria); border: 2px solid #ffe5e5; border-radius: 8px;" onclick="window.open('https://wa.me/5511944889002?text=Ol%C3%A1%2C%20preciso%20de%20ajuda%20com%20o%20meu%20pedido%20N%C2%BA%20${numPedido}.')">Ajuda</button><button class="btn btn-sm w-100 fw-bold py-2" style="background: var(--cor-bg); color: var(--cor-texto); border: 2px solid #EBE6DF; border-radius: 8px;" onclick='refazerPedido(${JSON.stringify(p.itens)})'>Pedir Novamente</button></div></div>`;
                     });
                 }
                 html += `<button class="btn btn-outline-dark w-100 fw-bold py-3 mt-2 mb-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar ao Menu</button>`;
                 cont.innerHTML = html;
-            } catch (error) {
-                cont.innerHTML = `<p class="text-danger fw-bold text-center mt-5">Erro ao carregar histórico.</p><button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar</button>`;
-            }
+            } catch (error) { cont.innerHTML = `<p class="text-danger fw-bold text-center mt-5">Erro ao carregar histórico.</p><button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar</button>`; }
         }
 
         function refazerPedido(itens) {
             itens.forEach(i => { carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: i.id_produto, nome: i.nome, preco: i.preco, pontos: i.pontos, tipo: i.tipo, obsDetalhes: i.obsDetalhes }); });
-            atualizarCarrinhoFlutuante();
-            fecharPerfilFull();
-            setTimeout(() => abrirCarrinho(), 400); 
+            atualizarCarrinhoFlutuante(); fecharPerfilFull(); setTimeout(() => abrirCarrinho(), 400); 
         }
 
-        function sairConta() {
-            auth.signOut().then(() => {
-                carrinho = []; 
-                atualizarCarrinhoFlutuante();
-                fecharPerfilFull();
-            });
-        }
-        // ==========================================
+        function sairConta() { auth.signOut().then(() => { carrinho = []; atualizarCarrinhoFlutuante(); fecharPerfilFull(); }); }
 
         function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
         function instalarAndroid() { alert("🤖 Chrome > Três pontinhos > Instalar aplicativo."); }
