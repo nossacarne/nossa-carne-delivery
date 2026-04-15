@@ -42,13 +42,11 @@
         .radio-opcao:hover, .checkbox-opcao:hover { border-color: var(--cor-primaria); background-color: #fff9f9; }
         .radio-opcao input[type="radio"], .checkbox-opcao input[type="checkbox"] { accent-color: var(--cor-primaria); transform: scale(1.2); margin-top: -2px; }
         
-        /* BOTTOM SHEETS */
         .sheet-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 2000; display: none; align-items: flex-end; }
         .bottom-sheet { background: var(--cor-bg); width: 100%; border-radius: 25px 25px 0 0; padding: 25px; transform: translateY(100%); transition: transform 0.3s ease-out; max-height: 90vh; overflow-y: auto; max-width: 600px; margin: 0 auto; box-shadow: 0 -10px 40px rgba(0,0,0,0.2); }
         .bottom-sheet.show { transform: translateY(0); }
         .handle { width: 40px; height: 5px; background: #ccc; border-radius: 10px; margin: 0 auto 20px; }
         
-        /* TELA CHEIA (Para o Perfil do Cliente) */
         .tela-full { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: var(--cor-bg); z-index: 3000; display: none; flex-direction: column; overflow-y: auto; overflow-x: hidden; transform: translateX(100%); transition: transform 0.3s ease-in-out; }
         .tela-full.show { transform: translateX(0); }
         .header-full { background: white; padding: 20px; display: flex; align-items: center; gap: 15px; border-bottom: 2px solid #EBE6DF; position: sticky; top: 0; z-index: 3010; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
@@ -71,7 +69,6 @@
         .form-entrada { border: 2px solid #EBE6DF; border-radius: 12px; padding: 14px; font-weight: 600; width: 100%; margin-bottom: 15px; font-family: 'Montserrat'; outline: none; transition: 0.3s; background: white; }
         .form-entrada:focus { border-color: var(--cor-primaria); box-shadow: 0 0 0 3px rgba(209,18,33,0.1); }
         
-        /* Botões de Login Social */
         .btn-social { border-radius: 12px; padding: 14px; font-weight: 800; width: 100%; border: 2px solid #EBE6DF; background: white; color: var(--cor-texto); cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 14px; text-transform: uppercase; margin-bottom: 10px; }
         .btn-social:active { transform: scale(0.98); }
         .btn-social.google { border-color: #ddd; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
@@ -100,6 +97,7 @@
     </div>
 
     <div class="main-container text-center mt-5 pt-4"><h5 style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">Leve no seu bolso!</h5><p class="text-muted small mb-3 fw-bold">Instale nosso aplicativo para pedir mais rápido.</p><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px;"></div>
+    
     <section class="py-5 mt-5 border-top" style="background: white; border-radius: 30px 30px 0 0; border-top: 3px solid #EBE6DF !important;"><div class="main-container"><div class="row align-items-center g-4 justify-content-center"><div class="col-md-5 text-center"><img src="https://static.ifood-static.com.br/image/upload/t_high/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="img-fluid rounded" style="max-height: 250px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);"></div><div class="col-md-7 col-lg-6"><h3 class="fw-bold mb-3" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Nossa História</h3><p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Fundada em 2007 como umas das 1ª boutiques de carnes de SP, trazendo para o público do bairro a mesma qualidade nas carnes que a empresa da família <strong>"Keiko San"</strong> que há mais de 35 anos é a fornecedora de carnes oficial.</p><p class="small text-muted fw-bold" style="line-height: 1.7; text-align: justify;">Continuamos evoluindo para um restaurante familiar, onde prezamos sempre pela qualidade e o bem-estar de nossos clientes.</p><div class="p-3 mt-4 rounded" style="background-color: var(--cor-bg); border-left: 5px solid var(--cor-primaria);"><p class="m-0 fw-bold fst-italic" style="color: var(--cor-texto); font-size: 13px;">"A evolução virou nossa missão com o nosso lema 'sempre podemos fazer melhor', o que nos faz sempre escutar nossos clientes e lembrarmos de sermos humildes!"</p></div></div></div></div></section>
 
     <button class="btn-cart-float" id="bar-carrinho" style="display: none;" onclick="abrirCarrinho()"><span><i class="fa-solid fa-bag-shopping"></i> Sacola</span><div class="d-flex align-items-center gap-3"><span id="cart-total" style="color: #ffd700;">R$ 0,00</span><span class="cart-count" id="cart-qtd">0</span></div></button>
@@ -120,8 +118,7 @@
             <button class="btn-voltar-full" onclick="fecharPerfilFull()"><i class="fa-solid fa-chevron-left"></i></button>
             <h5 class="m-0 fw-bold" id="titulo-tela-full" style="text-transform: uppercase; letter-spacing: 0.5px;">Área do Cliente</h5>
         </div>
-        <div class="conteudo-full" id="conteudo-perfil-full">
-            </div>
+        <div class="conteudo-full" id="conteudo-perfil-full"></div>
     </div>
 
     <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')">
@@ -144,29 +141,21 @@
 
         let todosProdutos = []; let carrinho = []; let usuario = null; let usuarioIncompleto = null; let verificadorPix = null; let modoEntregaAtual = 'delivery'; let rolagemManualAtiva = false;
 
-        // VIGIA DE AUTENTICAÇÃO DO FIREBASE (Lê se o cliente já logou antes)
         auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Busca os dados complementares (Nome, WhatsApp, Pontos) usando o ID Único
                 const doc = await db.collection('clientes').doc(user.uid).get();
                 if(doc.exists) {
                     usuario = { uid: user.uid, ...doc.data() };
                     usuarioIncompleto = null;
                     document.getElementById('pontos-badge-nav').style.display = 'block';
                     document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
-                    
                     if(document.getElementById('tela-perfil-full').classList.contains('show')) mostrarMenuPerfil();
                 } else {
                     usuarioIncompleto = user;
-                    if(document.getElementById('tela-perfil-full').classList.contains('show')) {
-                        renderizarTelaCompletarCadastro();
-                    } else {
-                        abrirPerfilFull(); 
-                    }
+                    if(document.getElementById('tela-perfil-full').classList.contains('show')) { renderizarTelaCompletarCadastro(); } else { abrirPerfilFull(); }
                 }
             } else {
-                usuario = null;
-                usuarioIncompleto = null;
+                usuario = null; usuarioIncompleto = null;
                 document.getElementById('pontos-badge-nav').style.display = 'none';
                 if(document.getElementById('tela-perfil-full').classList.contains('show')) renderizarTelaAcesso();
             }
@@ -189,7 +178,6 @@
         function renderizarCardapio(categoriasDinamicas) {
             const menu = document.getElementById('menu-categorias'); const lista = document.getElementById('listagem-produtos');
             menu.innerHTML = ''; lista.innerHTML = '';
-
             categoriasDinamicas.forEach((cat, index) => {
                 const itens = todosProdutos.filter(p => p.categoria === cat);
                 if(itens.length > 0) {
@@ -218,19 +206,13 @@
                 p.grupos_opcoes.forEach((g, idx) => {
                     htmlOpcoes += `<div class="mt-4"><label class="fw-bold small mb-2" style="color: var(--cor-primaria); text-transform: uppercase; letter-spacing: 0.5px;">${g.titulo}</label>`;
                     if(g.tipo === 'multiplo') htmlOpcoes += `<div class="text-muted small mb-3 fw-bold">Escolha até ${g.maximo} opção(ões)</div>`;
-                    
                     let nomeGrupo = `grupo_${idx}`;
-                    
                     g.itens.forEach((itemRaw, i) => {
                         let itemObj = typeof itemRaw === 'string' ? { nome: itemRaw, preco: 0, pdv: '' } : itemRaw;
                         let precoTexto = itemObj.preco > 0 ? ` <span class="text-success fw-bold" style="float: right;">+ R$ ${itemObj.preco.toFixed(2).replace('.',',')}</span>` : '';
                         let dataAttrs = `data-preco="${itemObj.preco || 0}" data-pdv="${itemObj.pdv || ''}"`;
-
-                        if (g.tipo === 'multiplo') {
-                            htmlOpcoes += `<label class="checkbox-opcao w-100 mb-2"><input type="checkbox" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="limitarCheckboxes(this, '${nomeGrupo}', ${g.maximo}); atualizarPrecoModal(${p.preco_atual})"><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`;
-                        } else {
-                            htmlOpcoes += `<label class="radio-opcao w-100 mb-2"><input type="radio" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="atualizarPrecoModal(${p.preco_atual})" ${i===0?'checked':''}><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`;
-                        }
+                        if (g.tipo === 'multiplo') { htmlOpcoes += `<label class="checkbox-opcao w-100 mb-2"><input type="checkbox" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="limitarCheckboxes(this, '${nomeGrupo}', ${g.maximo}); atualizarPrecoModal(${p.preco_atual})"><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`; } 
+                        else { htmlOpcoes += `<label class="radio-opcao w-100 mb-2"><input type="radio" name="${nomeGrupo}" value="${itemObj.nome}" ${dataAttrs} onchange="atualizarPrecoModal(${p.preco_atual})" ${i===0?'checked':''}><span style="font-size: 14px; flex-grow: 1; display: flex; justify-content: space-between;">${itemObj.nome}${precoTexto}</span></label>`; }
                     });
                     htmlOpcoes += `</div>`;
                 });
@@ -248,16 +230,14 @@
             }
             htmlOpcoes += btnAcao + `</div>`;
 
-            document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes');
-            atualizarPrecoModal(p.preco_atual); 
+            document.getElementById('conteudo-opcoes').innerHTML = htmlOpcoes; abrirSheet('sheet-opcoes'); atualizarPrecoModal(p.preco_atual);
         }
 
         function limitarCheckboxes(cb, nomeGrupo, maximo) { if(document.querySelectorAll(`input[name="${nomeGrupo}"]:checked`).length > maximo) { cb.checked = false; alert(`Você só pode selecionar até ${maximo} opções nesta lista!`); } }
         function atualizarPrecoModal(precoBase) { let precoExtra = 0; document.querySelectorAll('#conteudo-opcoes input[type="radio"]:checked, #conteudo-opcoes input[type="checkbox"]:checked').forEach(input => { precoExtra += parseFloat(input.getAttribute('data-preco')) || 0; }); let total = precoBase + precoExtra; document.getElementById('preco-modal-atual').innerText = `R$ ${total.toFixed(2).replace('.',',')}`; }
 
         function adicionarAoCarrinho(id, tipoAcao) {
-            const p = todosProdutos.find(x => x.id_item === id); 
-            let detalhes = []; let falhouValidacao = false; let precoTotalItem = p.preco_atual || 0;
+            const p = todosProdutos.find(x => x.id_item === id); let detalhes = []; let falhouValidacao = false; let precoTotalItem = p.preco_atual || 0;
 
             if (p.grupos_opcoes && p.grupos_opcoes.length > 0) {
                 p.grupos_opcoes.forEach((g, idx) => {
@@ -281,7 +261,7 @@
             fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
-        // --- CONTROLES DE SACOLA E PIX ---
+        // --- CONTROLES DE SACOLA ---
         function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
         function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
         function abrirCarrinho() { if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0; carrinho.forEach(item => { totalReais += item.preco; totalPts += item.pontos; html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`; }); html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`; if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`; html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`; document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho'); }
@@ -325,9 +305,8 @@
         function fecharSheet(id) { const o = document.getElementById(id); o.querySelector('.bottom-sheet').classList.remove('show'); setTimeout(() => o.style.display = 'none', 300); if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); }
 
         // ==========================================
-        // MOTOR DE PERFIL E AUTENTICAÇÃO
+        // MOTOR DE PERFIL, VIA CEP E LOGIN SOCIAL
         // ==========================================
-        
         async function buscarCep(cepStr, prefixoInput) {
             let cep = cepStr.replace(/\D/g, '');
             if(cep.length === 8) {
@@ -344,20 +323,8 @@
             }
         }
 
-        function abrirPerfilFull() {
-            document.body.style.overflow = 'hidden'; 
-            document.getElementById('tela-perfil-full').style.display = 'flex';
-            setTimeout(() => document.getElementById('tela-perfil-full').classList.add('show'), 10);
-            
-            if(usuario) { mostrarMenuPerfil(); } 
-            else if(usuarioIncompleto) { renderizarTelaCompletarCadastro(); }
-            else { renderizarTelaAcesso(); }
-        }
-
-        function fecharPerfilFull() {
-            document.getElementById('tela-perfil-full').classList.remove('show');
-            setTimeout(() => { document.getElementById('tela-perfil-full').style.display = 'none'; document.body.style.overflow = 'auto'; }, 300);
-        }
+        function abrirPerfilFull() { document.body.style.overflow = 'hidden'; document.getElementById('tela-perfil-full').style.display = 'flex'; setTimeout(() => document.getElementById('tela-perfil-full').classList.add('show'), 10); if(usuario) { mostrarMenuPerfil(); } else if(usuarioIncompleto) { renderizarTelaCompletarCadastro(); } else { renderizarTelaAcesso(); } }
+        function fecharPerfilFull() { document.getElementById('tela-perfil-full').classList.remove('show'); setTimeout(() => { document.getElementById('tela-perfil-full').style.display = 'none'; document.body.style.overflow = 'auto'; }, 300); }
 
         function renderizarTelaAcesso() {
             document.getElementById('titulo-tela-full').innerText = "Acessar Conta";
@@ -365,7 +332,10 @@
             cont.innerHTML = `
                 <div class="text-center mb-4"><i class="fa-solid fa-circle-user fa-3x" style="color: #ccc;"></i><h4 class="fw-bold mt-3" style="font-weight: 900; text-transform: uppercase;">Entrar no App</h4></div>
                 
-                <button class="btn-social google" onclick="loginComGoogle()"><img src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg" width="18"> Continuar com o Google</button>
+                <button class="btn-social google" onclick="loginComGoogle()">
+                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48"><g><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></g></svg>
+                    Continuar com o Google
+                </button>
                 
                 <div class="d-flex align-items-center my-4"><hr class="flex-grow-1" style="border-color: #EBE6DF;"><span class="mx-3 small fw-bold text-muted">OU COM E-MAIL</span><hr class="flex-grow-1" style="border-color: #EBE6DF;"></div>
 
@@ -382,7 +352,6 @@
             const cont = document.getElementById('conteudo-perfil-full');
             cont.innerHTML = `
                 <div class="mb-4"><h5 class="fw-bold" style="color: var(--cor-primaria); font-weight: 900; text-transform: uppercase;">Cadastro Completo</h5><p class="small text-muted fw-bold">Seus dados e pontos seguros no cofre do Google.</p></div>
-                
                 <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-id-card"></i> Conta e Segurança</h6>
                 <input type="text" id="cad-nome" class="form-entrada" placeholder="Nome Completo">
                 <input type="email" id="cad-email" class="form-entrada" placeholder="E-mail (ex: max@gmail.com)">
@@ -390,15 +359,9 @@
                 <input type="number" id="cad-whats" class="form-entrada" placeholder="WhatsApp com DDD (Ex: 11999999999)">
 
                 <h6 class="fw-bold text-primary mt-4 mb-3"><i class="fa-solid fa-location-dot"></i> Onde entregamos?</h6>
-                <div class="row g-2 mb-2">
-                    <div class="col-5"><input type="number" id="cad-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'cad')"></div>
-                    <div class="col-7"><input type="text" id="cad-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div>
-                </div>
+                <div class="row g-2 mb-2"><div class="col-5"><input type="number" id="cad-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'cad')"></div><div class="col-7"><input type="text" id="cad-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div></div>
                 <input type="text" id="cad-rua" class="form-entrada" placeholder="Rua / Avenida">
-                <div class="row g-2">
-                    <div class="col-4"><input type="text" id="cad-num" class="form-entrada" placeholder="Número"></div>
-                    <div class="col-8"><input type="text" id="cad-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div>
-                </div>
+                <div class="row g-2"><div class="col-4"><input type="text" id="cad-num" class="form-entrada" placeholder="Número"></div><div class="col-8"><input type="text" id="cad-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div></div>
                 <input type="text" id="cad-bairro" class="form-entrada" placeholder="Bairro">
 
                 <button class="btn-main mt-3" onclick="salvarNovoCadastroAuth()"><i class="fa-solid fa-shield-halved me-2"></i> Criar Conta Blindada</button>
@@ -410,66 +373,34 @@
             document.getElementById('titulo-tela-full').innerText = "Falta Pouco!";
             const cont = document.getElementById('conteudo-perfil-full');
             let nomeGoogle = usuarioIncompleto.displayName || '';
-            
             cont.innerHTML = `
                 <div class="text-center mb-4"><i class="fa-regular fa-face-smile fa-3x" style="color: var(--cor-primaria);"></i><h5 class="fw-bold mt-3" style="font-weight: 900;">Bem-vindo, ${nomeGoogle.split(' ')[0]}!</h5><p class="small text-muted fw-bold">Como você entrou pela rede social, precisamos só do seu Endereço para realizar as entregas.</p></div>
-                
                 <input type="text" id="comp-nome" class="form-entrada" placeholder="Nome Completo" value="${nomeGoogle}">
                 <input type="number" id="comp-whats" class="form-entrada" placeholder="WhatsApp com DDD (Ex: 11999999999)">
 
                 <h6 class="fw-bold text-primary mt-4 mb-3"><i class="fa-solid fa-location-dot"></i> Onde entregamos?</h6>
-                <div class="row g-2 mb-2">
-                    <div class="col-5"><input type="number" id="comp-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'comp')"></div>
-                    <div class="col-7"><input type="text" id="comp-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div>
-                </div>
+                <div class="row g-2 mb-2"><div class="col-5"><input type="number" id="comp-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'comp')"></div><div class="col-7"><input type="text" id="comp-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div></div>
                 <input type="text" id="comp-rua" class="form-entrada" placeholder="Rua / Avenida">
-                <div class="row g-2">
-                    <div class="col-4"><input type="text" id="comp-num" class="form-entrada" placeholder="Número"></div>
-                    <div class="col-8"><input type="text" id="comp-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div>
-                </div>
+                <div class="row g-2"><div class="col-4"><input type="text" id="comp-num" class="form-entrada" placeholder="Número"></div><div class="col-8"><input type="text" id="comp-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div></div>
                 <input type="text" id="comp-bairro" class="form-entrada" placeholder="Bairro">
 
                 <button class="btn-main mt-3" onclick="salvarCadastroSocial()"><i class="fa-solid fa-check me-2"></i> Concluir Cadastro</button>
             `;
         }
 
-        async function fazerLoginAuth() {
-            const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim();
-            if(!email || !senha) return alert("Preencha e-mail e senha.");
-            try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); }
-        }
-
-        async function loginComGoogle() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            try { await auth.signInWithPopup(provider); } catch(e) { console.error("Erro no login social", e); }
-        }
+        async function fazerLoginAuth() { const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim(); if(!email || !senha) return alert("Preencha e-mail e senha."); try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); } }
+        async function loginComGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); try { await auth.signInWithPopup(provider); } catch(e) { console.error("Erro no login social", e); } }
 
         async function salvarNovoCadastroAuth() {
-            const nome = document.getElementById('cad-nome').value.trim(); const email = document.getElementById('cad-email').value.trim(); const senha = document.getElementById('cad-senha').value.trim(); const whats = document.getElementById('cad-whats').value.trim();
-            const cep = document.getElementById('cad-cep').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); const comp = document.getElementById('cad-comp').value.trim(); const bairro = document.getElementById('cad-bairro').value.trim(); const cidade = document.getElementById('cad-cidade').value.trim();
-            if(!nome || !email || !senha || !whats || !cep || !rua || !num || !bairro) return alert("Preencha todos os campos obrigatórios.");
-            if(senha.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
-
-            try {
-                const credencial = await auth.createUserWithEmailAndPassword(email, senha);
-                const dadosCliente = { nome: nome, email: email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() };
-                await db.collection('clientes').doc(credencial.user.uid).set(dadosCliente);
-            } catch(e) { alert("Erro no cadastro. Este e-mail já pode estar em uso."); }
+            const nome = document.getElementById('cad-nome').value.trim(); const email = document.getElementById('cad-email').value.trim(); const senha = document.getElementById('cad-senha').value.trim(); const whats = document.getElementById('cad-whats').value.trim(); const cep = document.getElementById('cad-cep').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); const comp = document.getElementById('cad-comp').value.trim(); const bairro = document.getElementById('cad-bairro').value.trim(); const cidade = document.getElementById('cad-cidade').value.trim();
+            if(!nome || !email || !senha || !whats || !cep || !rua || !num || !bairro) return alert("Preencha todos os campos obrigatórios."); if(senha.length < 6) return alert("A senha precisa ter pelo menos 6 caracteres.");
+            try { const credencial = await auth.createUserWithEmailAndPassword(email, senha); const dadosCliente = { nome: nome, email: email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() }; await db.collection('clientes').doc(credencial.user.uid).set(dadosCliente); } catch(e) { alert("Erro no cadastro. Este e-mail já pode estar em uso."); }
         }
 
         async function salvarCadastroSocial() {
-            const nome = document.getElementById('comp-nome').value.trim(); const whats = document.getElementById('comp-whats').value.trim();
-            const cep = document.getElementById('comp-cep').value.trim(); const rua = document.getElementById('comp-rua').value.trim(); const num = document.getElementById('comp-num').value.trim(); const comp = document.getElementById('comp-comp').value.trim(); const bairro = document.getElementById('comp-bairro').value.trim(); const cidade = document.getElementById('comp-cidade').value.trim();
+            const nome = document.getElementById('comp-nome').value.trim(); const whats = document.getElementById('comp-whats').value.trim(); const cep = document.getElementById('comp-cep').value.trim(); const rua = document.getElementById('comp-rua').value.trim(); const num = document.getElementById('comp-num').value.trim(); const comp = document.getElementById('comp-comp').value.trim(); const bairro = document.getElementById('comp-bairro').value.trim(); const cidade = document.getElementById('comp-cidade').value.trim();
             if(!nome || !whats || !cep || !rua || !num || !bairro) return alert("Precisamos do seu endereço completo e WhatsApp para as entregas!");
-            
-            try {
-                const dadosCliente = { nome: nome, email: usuarioIncompleto.email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() };
-                await db.collection('clientes').doc(usuarioIncompleto.uid).set(dadosCliente);
-                usuario = { uid: usuarioIncompleto.uid, ...dadosCliente };
-                usuarioIncompleto = null;
-                document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0;
-                mostrarMenuPerfil();
-            } catch(e) { alert("Erro ao salvar os dados complementares."); }
+            try { const dadosCliente = { nome: nome, email: usuarioIncompleto.email, whatsapp: whats, pontos: 0, endereco: { cep: cep, rua: rua, numero: num, complemento: comp, bairro: bairro, cidade: cidade }, data_cadastro: firebase.firestore.FieldValue.serverTimestamp() }; await db.collection('clientes').doc(usuarioIncompleto.uid).set(dadosCliente); usuario = { uid: usuarioIncompleto.uid, ...dadosCliente }; usuarioIncompleto = null; document.getElementById('pontos-badge-nav').style.display = 'block'; document.getElementById('val-pontos-nav').innerText = usuario.pontos || 0; mostrarMenuPerfil(); } catch(e) { alert("Erro ao salvar os dados complementares."); }
         }
 
         function mostrarMenuPerfil() {
@@ -502,22 +433,17 @@
             cont.innerHTML = `
                 <label class="fw-bold small mb-2 text-muted mt-3">NOME COMPLETO</label><input type="text" id="edit-nome" class="form-entrada" value="${usuario.nome || ''}">
                 <label class="fw-bold small mb-2 text-muted">WHATSAPP COM DDD</label><input type="number" id="edit-whats" class="form-entrada" value="${usuario.whatsapp || ''}">
-                
                 <h6 class="fw-bold mt-4 mb-3" style="color: var(--cor-primaria); text-transform: uppercase;">Endereço de Entrega</h6>
                 <div class="row g-2 mb-2"><div class="col-5"><input type="number" id="edit-cep" class="form-entrada mb-0" placeholder="CEP" value="${e.cep || ''}" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'edit')"></div><div class="col-7"><input type="text" id="edit-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF" value="${e.cidade || ''}"></div></div>
                 <input type="text" id="edit-rua" class="form-entrada" placeholder="Rua" value="${e.rua || ''}">
                 <div class="row g-2"><div class="col-4"><input type="text" id="edit-num" class="form-entrada" placeholder="Nº" value="${e.numero || ''}"></div><div class="col-8"><input type="text" id="edit-comp" class="form-entrada" placeholder="Complemento" value="${e.complemento || ''}"></div></div>
                 <input type="text" id="edit-bairro" class="form-entrada" placeholder="Bairro" value="${e.bairro || ''}">
-                
                 <button class="btn-main mt-4" style="background: var(--cor-texto);" onclick="atualizarPerfil()">Salvar Alterações</button>
                 <button class="btn btn-link text-muted w-100 fw-bold mt-2 text-decoration-none" onclick="mostrarMenuPerfil()">Cancelar e Voltar</button>
             `;
         }
 
-        async function atualizarPerfil() { 
-            const n = { nome: document.getElementById('edit-nome').value.trim(), whatsapp: document.getElementById('edit-whats').value.trim(), endereco: { cep: document.getElementById('edit-cep').value.trim(), rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim(), complemento: document.getElementById('edit-comp').value.trim(), bairro: document.getElementById('edit-bairro').value.trim(), cidade: document.getElementById('edit-cidade').value.trim() } }; 
-            await db.collection('clientes').doc(usuario.uid).update(n); usuario = { ...usuario, ...n }; alert("Dados atualizados com sucesso no cofre digital!"); mostrarMenuPerfil(); 
-        }
+        async function atualizarPerfil() { const n = { nome: document.getElementById('edit-nome').value.trim(), whatsapp: document.getElementById('edit-whats').value.trim(), endereco: { cep: document.getElementById('edit-cep').value.trim(), rua: document.getElementById('edit-rua').value.trim(), numero: document.getElementById('edit-num').value.trim(), complemento: document.getElementById('edit-comp').value.trim(), bairro: document.getElementById('edit-bairro').value.trim(), cidade: document.getElementById('edit-cidade').value.trim() } }; await db.collection('clientes').doc(usuario.uid).update(n); usuario = { ...usuario, ...n }; alert("Dados atualizados com sucesso no cofre digital!"); mostrarMenuPerfil(); }
 
         async function mostrarHistoricoPedidos() {
             document.getElementById('titulo-tela-full').innerText = "Meus Pedidos";
@@ -527,7 +453,6 @@
                 const snap = await db.collection('vendas_concluidas').where('cliente.uid', '==', usuario.uid).get();
                 let pedidos = []; snap.forEach(doc => { pedidos.push({ id: doc.id, ...doc.data() }); });
                 pedidos.sort((a, b) => { const dataA = a.data_pedido ? a.data_pedido.toDate() : new Date(); const dataB = b.data_pedido ? b.data_pedido.toDate() : new Date(); return dataB - dataA; });
-
                 let html = ``;
                 if (pedidos.length === 0) { html += `<div class="text-center py-5"><i class="fa-solid fa-receipt fa-3x mb-3" style="color: #EBE6DF;"></i><p class="fw-bold text-muted">Você ainda não fez nenhum pedido conosco.</p></div>`; } 
                 else {
@@ -543,11 +468,7 @@
             } catch (error) { cont.innerHTML = `<p class="text-danger fw-bold text-center mt-5">Erro ao carregar histórico.</p><button class="btn btn-outline-dark w-100 fw-bold py-3 mt-4" style="border-radius: 12px; border-width: 2px;" onclick="mostrarMenuPerfil()">Voltar</button>`; }
         }
 
-        function refazerPedido(itens) {
-            itens.forEach(i => { carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: i.id_produto, nome: i.nome, preco: i.preco, pontos: i.pontos, tipo: i.tipo, obsDetalhes: i.obsDetalhes }); });
-            atualizarCarrinhoFlutuante(); fecharPerfilFull(); setTimeout(() => abrirCarrinho(), 400); 
-        }
-
+        function refazerPedido(itens) { itens.forEach(i => { carrinho.push({ idUnico: Math.random().toString(36).substr(2, 9), id_produto: i.id_produto, nome: i.nome, preco: i.preco, pontos: i.pontos, tipo: i.tipo, obsDetalhes: i.obsDetalhes }); }); atualizarCarrinhoFlutuante(); fecharPerfilFull(); setTimeout(() => abrirCarrinho(), 400); }
         function sairConta() { auth.signOut().then(() => { carrinho = []; atualizarCarrinhoFlutuante(); fecharPerfilFull(); }); }
 
         function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
