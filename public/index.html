@@ -118,7 +118,8 @@
             <button class="btn-voltar-full" onclick="fecharPerfilFull()"><i class="fa-solid fa-chevron-left"></i></button>
             <h5 class="m-0 fw-bold" id="titulo-tela-full" style="text-transform: uppercase; letter-spacing: 0.5px;">Área do Cliente</h5>
         </div>
-        <div class="conteudo-full" id="conteudo-perfil-full"></div>
+        <div class="conteudo-full" id="conteudo-perfil-full">
+            </div>
     </div>
 
     <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')">
@@ -261,7 +262,6 @@
             fecharSheet('sheet-opcoes'); atualizarCarrinhoFlutuante();
         }
 
-        // --- CONTROLES DE SACOLA ---
         function setModoEntrega(modo) { modoEntregaAtual = modo; document.getElementById('btn-modo-delivery').className = `btn-toggle ${modo==='delivery'?'ativo':'inativo'}`; document.getElementById('btn-modo-retirada').className = `btn-toggle ${modo==='retirada'?'ativo':'inativo'}`; document.getElementById('aviso-retirada').style.display = modo==='retirada'?'block':'none'; }
         function atualizarCarrinhoFlutuante() { const b = document.getElementById('bar-carrinho'); if(carrinho.length > 0) { b.style.display = 'flex'; document.getElementById('cart-qtd').innerText = carrinho.length; document.getElementById('cart-total').innerText = `R$ ${carrinho.reduce((a, i) => a + i.preco, 0).toFixed(2).replace('.', ',')}`; } else { b.style.display = 'none'; } }
         function abrirCarrinho() { if(carrinho.length === 0) return; let html = ''; let totalReais = 0; let totalPts = 0; carrinho.forEach(item => { totalReais += item.preco; totalPts += item.pontos; html += `<div class="d-flex justify-content-between align-items-center mb-3 bg-white p-3 rounded" style="border: 2px solid #EBE6DF;"><div style="width: 85%;"><div class="fw-bold" style="font-size: 14px;">${item.nome}</div>${item.obsDetalhes ? `<small class="text-muted d-block mt-1 fw-bold" style="font-size: 11px;">${item.obsDetalhes}</small>` : ''}<div style="color: var(--cor-texto); font-weight: 900; font-size: 14px; margin-top: 5px;">${item.tipo === 'compra' ? `R$ ${item.preco.toFixed(2).replace('.',',')}` : `<span style="color: #d4a017;"><i class="fa-solid fa-star"></i> ${item.pontos} pts</span>`}</div></div><button class="btn btn-sm" style="background: var(--cor-bg); color: var(--cor-primaria); border-radius: 8px; font-weight: 900;" onclick="removerItem('${item.idUnico}')"><i class="fa-solid fa-xmark"></i></button></div>`; }); html += `<div class="d-flex justify-content-between border-top pt-4 mt-4" style="border-color: #EBE6DF !important;"><span class="fw-bold text-muted text-uppercase">Total a Pagar</span><h3 class="fw-bold m-0" style="color: var(--cor-texto); font-weight: 900;">R$ ${totalReais.toFixed(2).replace('.',',')}</h3></div>`; if(totalPts > 0) html += `<div class="d-flex justify-content-between mt-2"><span class="small fw-bold text-muted text-uppercase">Pontos Usados</span><span class="small fw-bold" style="color: #d4a017;">${totalPts} pts</span></div>`; html += `<button class="btn-main mt-4" onclick="iniciarCheckout()"><i class="fa-brands fa-pix me-2"></i> Confirmar Pedido</button>`; document.getElementById('conteudo-carrinho').innerHTML = html; abrirSheet('sheet-carrinho'); }
@@ -270,7 +270,6 @@
         async function iniciarCheckout() { 
             if(!usuario) { fecharSheet('sheet-carrinho'); alert("Acesse sua conta para concluir."); return abrirPerfilFull(); } 
             if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { fecharSheet('sheet-carrinho'); alert("Atualize seu endereço de entrega no seu perfil."); return abrirPerfilFull(); } 
-            
             const total = carrinho.reduce((acc, i) => acc + i.preco, 0); 
             if (total === 0) { finalizarPedidoNoSistema(); } else { 
                 fecharSheet('sheet-carrinho'); document.getElementById('loading-pix').style.display = 'block'; document.getElementById('area-codigo-pix').style.display = 'none'; abrirSheet('sheet-pix'); 
@@ -280,21 +279,13 @@
                 } catch (e) { alert("Servidor offline."); fecharSheet('sheet-pix'); } 
             } 
         }
-        
         function copiarPix() { navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); }
         async function verificarStatusPagamento(idT) { try { const r = await fetch(`/consultar-pix/${idT}`); const d = await r.json(); if(d.status === 'approved') { clearInterval(verificadorPix); alert("✅ PIX Confirmado!"); finalizarPedidoNoSistema(); } } catch(e) {} }
         
         async function finalizarPedidoNoSistema() { 
             const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); 
             let endStr = "Retirada na Loja";
-            if(modoEntregaAtual === 'delivery') {
-                const e = usuario.endereco;
-                endStr = `${e.rua}, ${e.numero}`;
-                if(e.complemento) endStr += ` - Compl: ${e.complemento}`;
-                endStr += ` - ${e.bairro} - CEP ${e.cep}`;
-                if(e.cidade) endStr += ` (${e.cidade})`;
-            }
-
+            if(modoEntregaAtual === 'delivery') { const e = usuario.endereco; endStr = `${e.rua}, ${e.numero}`; if(e.complemento) endStr += ` - Compl: ${e.complemento}`; endStr += ` - ${e.bairro} - CEP ${e.cep}`; if(e.cidade) endStr += ` (${e.cidade})`; }
             const idGerado = Math.floor(1000 + Math.random() * 9000); 
             await db.collection('vendas_concluidas').add({ numero_pedido: idGerado, data_pedido: firebase.firestore.FieldValue.serverTimestamp(), cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, logistica: { modo_entrega: modoEntregaAtual, endereco: endStr }, itens: carrinho, financeiro: { total_pago_reais: totalR, pontos_utilizados: totalPts, metodo_pagamento: totalR > 0 ? "PIX" : "Apenas Pontos" } }); 
             let msg = `*NOVO PEDIDO #${idGerado}* ✅\n👤 *Cliente:* ${usuario.nome}\n📞 *WhatsApp:* ${usuario.whatsapp}\n🛵 *Modo:* ${modoEntregaAtual === 'delivery' ? 'Delivery' : 'Retirada'}\n📍 *End:* ${endStr}\n\n🛒 *ITENS:*\n`; carrinho.forEach(i => { msg += `- ${i.nome} ${i.tipo === 'compra' ? `(R$ ${i.preco.toFixed(2)})` : `(Resgate: ${i.pontos} pts)`}\n  ↳ ${i.obsDetalhes}\n`; }); msg += `\n💰 *Total PIX:* R$ ${totalR.toFixed(2)}`; if (totalPts > 0) msg += `\n⭐ *Pontos Usados:* ${totalPts} pts`; 
@@ -329,17 +320,16 @@
         function renderizarTelaAcesso() {
             document.getElementById('titulo-tela-full').innerText = "Acessar Conta";
             const cont = document.getElementById('conteudo-perfil-full');
+            const logoGoogleBase64 = "data:image/svg+xml;base64,PHN2ZyB2ZXJzaW9uPSIxLjEiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyIgd2lkdGg9IjE4cHgiIGhlaWdodD0iMThweCIgdmlld0JveD0iMCAwIDQ4IDQ4Ij48Zz48cGF0aCBmaWxsPSIjRUE0MzM1IiBkPSJNMjQgOS41YzMuNTQgMCA2LjcxIDEuMjIgOS4yMSAzLjZsNi44NS02Ljg1QzM1LjkgMi4zOCAzMC40NyAwIDI0IDAgMTQuNjIgMCA2LjUxIDUuMzggMi41NiAxMy4yMmw3Ljk4IDYuMTlDMTIuNDMgMTMuNzIgMTcuNzQgOS41IDI0IDkuNXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjNDI4NUY0IiBkPSJNNDYuOTggMjQuNTVjMC0xLjU3LS4xNS0zLjA5LS4zOC00LjU1SDI0djkuMDJoMTIuOTRjLS41OCAyLjk2LTIuMjYgNS40OC00Ljc4IDcuMThsNy43MyA2YzQuNTEtNC4xOCA3LjA5LTEwLjM2IDcuMDktMTcuNjV6Ij48L3BhdGg+PHBhdGggZmlsbD0iI0ZCQkMwNSIgZD0iTTEwLjUzIDI4LjU5Yy0uNDgtMS40NS0uNzYtMi45OS0uNzYtNC41OXMuMjctMy4xNC43Ni00LjU5bC03Ljk4LTYuMTlDLjkyIDE2LjQ2IDAgMjAuMTIgMCAyNGMwIDMuODguOTIgNy41NCAyLjU2IDEwLjc4bDcuOTctNi4xOXoiPjwvcGF0aD48cGF0aCBmaWxsPSIjMzRBAjUzIiBkPSJNMjQgNDhjNi40OCAwIDExLjkzLTIuMTMgMTUuODktNS44MWwtNy43My02Yy0yLjE1IDEuNDUtNC45MiAyLjMtOC4xNiAyLjMtNi4yNiAwLTExLjU3LTQuMjItMTMuNDctOS45MWwtNy45OCA2LjE5QzYuNTEgNDIuNjIgMTQuNjIgNDggMjQgNDh6Ij48L3BhdGg+PHBhdGggZmlsbD0ibm9uZSIgZD0iTTAgMGg0OHY0OEgwIDB6Ij48L3BhdGg+PC9nPjwvc3ZnPg==";
+            
             cont.innerHTML = `
                 <div class="text-center mb-4"><i class="fa-solid fa-circle-user fa-3x" style="color: #ccc;"></i><h4 class="fw-bold mt-3" style="font-weight: 900; text-transform: uppercase;">Entrar no App</h4></div>
                 
-                <button class="btn-social google" onclick="loginComGoogle()">
-                    <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 48 48"><g><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></g></svg>
-                    Continuar com o Google
-                </button>
+                <button class="btn-social google" onclick="loginComGoogle()"><img src="${logoGoogleBase64}" width="18"> Continuar com o Google</button>
                 
-                <div class="d-flex align-items-center my-4"><hr class="flex-grow-1" style="border-color: #EBE6DF;"><span class="mx-3 small fw-bold text-muted">OU COM E-MAIL</span><hr class="flex-grow-1" style="border-color: #EBE6DF;"></div>
+                <div class="d-flex align-items-center my-4"><hr class="flex-grow-1" style="border-color: #EBE6DF;"><span class="mx-3 small fw-bold text-muted">OU ENTRE COM SEU E-MAIL E SENHA</span><hr class="flex-grow-1" style="border-color: #EBE6DF;"></div>
 
-                <input type="email" id="login-email" class="form-entrada" placeholder="Seu E-mail">
+                <input type="email" id="login-email" class="form-entrada" placeholder="Seu E-mail Cadastrado">
                 <input type="password" id="login-senha" class="form-entrada" placeholder="Sua Senha">
                 
                 <button class="btn-main mt-2" onclick="fazerLoginAuth()">Entrar</button>
@@ -377,19 +367,26 @@
                 <div class="text-center mb-4"><i class="fa-regular fa-face-smile fa-3x" style="color: var(--cor-primaria);"></i><h5 class="fw-bold mt-3" style="font-weight: 900;">Bem-vindo, ${nomeGoogle.split(' ')[0]}!</h5><p class="small text-muted fw-bold">Como você entrou pela rede social, precisamos só do seu Endereço para realizar as entregas.</p></div>
                 <input type="text" id="comp-nome" class="form-entrada" placeholder="Nome Completo" value="${nomeGoogle}">
                 <input type="number" id="comp-whats" class="form-entrada" placeholder="WhatsApp com DDD (Ex: 11999999999)">
-
                 <h6 class="fw-bold text-primary mt-4 mb-3"><i class="fa-solid fa-location-dot"></i> Onde entregamos?</h6>
                 <div class="row g-2 mb-2"><div class="col-5"><input type="number" id="comp-cep" class="form-entrada mb-0" placeholder="CEP" onkeyup="if(this.value.length >= 8) buscarCep(this.value, 'comp')"></div><div class="col-7"><input type="text" id="comp-cidade" class="form-entrada mb-0 bg-light" placeholder="Cidade/UF"></div></div>
                 <input type="text" id="comp-rua" class="form-entrada" placeholder="Rua / Avenida">
                 <div class="row g-2"><div class="col-4"><input type="text" id="comp-num" class="form-entrada" placeholder="Número"></div><div class="col-8"><input type="text" id="comp-comp" class="form-entrada" placeholder="Complemento (Apto, Bloco)"></div></div>
                 <input type="text" id="comp-bairro" class="form-entrada" placeholder="Bairro">
-
                 <button class="btn-main mt-3" onclick="salvarCadastroSocial()"><i class="fa-solid fa-check me-2"></i> Concluir Cadastro</button>
             `;
         }
 
         async function fazerLoginAuth() { const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim(); if(!email || !senha) return alert("Preencha e-mail e senha."); try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); } }
-        async function loginComGoogle() { const provider = new firebase.auth.GoogleAuthProvider(); try { await auth.signInWithPopup(provider); } catch(e) { console.error("Erro no login social", e); } }
+        
+        async function loginComGoogle() { 
+            const provider = new firebase.auth.GoogleAuthProvider(); 
+            try { 
+                await auth.signInWithPopup(provider); 
+            } catch(e) { 
+                console.error("Erro no login social", e);
+                alert("Erro ao abrir o Google: Verifique se o domínio do site está autorizado no painel do Firebase."); 
+            } 
+        }
 
         async function salvarNovoCadastroAuth() {
             const nome = document.getElementById('cad-nome').value.trim(); const email = document.getElementById('cad-email').value.trim(); const senha = document.getElementById('cad-senha').value.trim(); const whats = document.getElementById('cad-whats').value.trim(); const cep = document.getElementById('cad-cep').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); const comp = document.getElementById('cad-comp').value.trim(); const bairro = document.getElementById('cad-bairro').value.trim(); const cidade = document.getElementById('cad-cidade').value.trim();
