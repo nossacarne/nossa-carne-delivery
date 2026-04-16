@@ -376,15 +376,12 @@
 
         async function fazerLoginAuth() { const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim(); if(!email || !senha) return alert("Preencha e-mail e senha."); try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); } }
         
-        async function loginComGoogle() { 
-            const provider = new firebase.auth.GoogleAuthProvider(); 
-            try { 
-                await auth.signInWithPopup(provider); 
-            } catch(e) { 
-                console.error("Erro no login social", e);
-                alert("Atenção: Para o botão do Google funcionar, adicione o domínio do site lá na lista de Domínios Autorizados no painel do Firebase."); 
-            } 
-        }
+        function loginComGoogle() { 
+    const provider = new firebase.auth.GoogleAuthProvider(); 
+    auth.signInWithRedirect(provider).catch(e => {
+        alert("Erro no Google: Verifique se o provedor Google está Ativado no menu 'Método de Login' do Firebase.");
+    });
+}
 
         async function salvarNovoCadastroAuth() {
             const nome = document.getElementById('cad-nome').value.trim(); const email = document.getElementById('cad-email').value.trim(); const senha = document.getElementById('cad-senha').value.trim(); const whats = document.getElementById('cad-whats').value.trim(); const cep = document.getElementById('cad-cep').value.trim(); const rua = document.getElementById('cad-rua').value.trim(); const num = document.getElementById('cad-num').value.trim(); const comp = document.getElementById('cad-comp').value.trim(); const bairro = document.getElementById('cad-bairro').value.trim(); const cidade = document.getElementById('cad-cidade').value.trim();
