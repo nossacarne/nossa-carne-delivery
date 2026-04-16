@@ -376,11 +376,17 @@
 
         async function fazerLoginAuth() { const email = document.getElementById('login-email').value.trim(); const senha = document.getElementById('login-senha').value.trim(); if(!email || !senha) return alert("Preencha e-mail e senha."); try { await auth.signInWithEmailAndPassword(email, senha); } catch(e) { alert("Erro ao entrar. Verifique seu e-mail e senha."); } }
         
-        function loginComGoogle() { 
+        async function loginComGoogle() { 
     const provider = new firebase.auth.GoogleAuthProvider(); 
-    auth.signInWithRedirect(provider).catch(e => {
-        alert("Erro no Google: Verifique se o provedor Google está Ativado no menu 'Método de Login' do Firebase.");
-    });
+    try { 
+        // Chama a janelinha oficial do Google
+        await auth.signInWithPopup(provider); 
+        // Se der certo, o sistema já fecha a tela e atualiza o perfil automaticamente!
+    } catch(e) { 
+        console.error("Erro Google:", e);
+        // Se der erro, ele vai nos mostrar a mensagem EXATA que o servidor do Google devolveu
+        alert("Erro do Google: " + e.message); 
+    } 
 }
 
         async function salvarNovoCadastroAuth() {
