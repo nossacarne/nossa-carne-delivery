@@ -13,20 +13,23 @@
     <style>
         body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; }
         
-        /* NOVO FUNDO DO LOGIN AQUI */
+        /* Fundo do Login com a Capa do Restaurante */
         #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.8)), url('https://static.ifood-static.com.br/image/upload//capa/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202101170317_NBHB_@2x.jpeg') center/cover no-repeat; padding: 20px; }
         
         .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.5); }
         .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
         #conteudo-gestor { display: none; }
         
-        .header-gestor { background: #8B0000; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .header-gestor { background: #8B0000; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
         .pedido-card-admin { border: 2px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: white; border-left: 6px solid #ccc; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
         .pedido-card-admin.pendente { border-left-color: #dc3545; background: #fff5f5; animation: piscar 2s infinite; }
         .pedido-card-admin.confirmado { border-left-color: #0d6efd; }
         .pedido-card-admin.preparo { border-left-color: #ffc107; }
         .pedido-card-admin.rota { border-left-color: #6f42c1; }
         .pedido-card-admin.concluido { border-left-color: #198754; opacity: 0.6; }
+        
+        .nav-btn { transition: 0.2s; border-bottom: 2px solid transparent; border-radius: 0; padding: 5px 10px; }
+        .nav-btn.ativo { border-bottom-color: white; border-radius: 4px; background: rgba(255,255,255,0.1); }
         
         @keyframes piscar { 0% { box-shadow: 0 0 0px rgba(220,53,69,0.5); } 50% { box-shadow: 0 0 15px rgba(220,53,69,0.8); } 100% { box-shadow: 0 0 0px rgba(220,53,69,0.5); } }
     </style>
@@ -38,11 +41,17 @@
     <div id="tela-login"><div class="login-card text-center"><img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-login"><h4 class="fw-bold mb-4">Acesso ao Balcão</h4><input type="email" id="email-admin" class="form-control mb-3" placeholder="E-mail Operacional"><input type="password" id="senha-admin" class="form-control mb-4" placeholder="Senha"><button class="btn btn-dark w-100 fw-bold py-2" onclick="fazerLogin()">Acessar Pedidos</button><p id="erro-auth" class="text-danger mt-3 small" style="display:none;">Credenciais incorretas.</p></div></div>
 
     <div id="conteudo-gestor">
-        <div class="header-gestor">
+        <div class="header-gestor flex-column flex-md-row gap-3">
             <div class="d-flex align-items-center gap-3">
                 <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" style="width: 40px; border-radius: 8px;">
-                <h4 class="m-0 fw-bold">Gestor de Pedidos</h4>
+                <h4 class="m-0 fw-bold">KDS Operacional</h4>
             </div>
+            
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn text-white fw-bold nav-btn ativo" id="tab-pedidos" onclick="alternarAba('pedidos')"><i class="fa-solid fa-receipt"></i> Controle de Pedidos</button>
+                <button class="btn text-white fw-bold nav-btn" id="tab-cardapio" onclick="alternarAba('cardapio')"><i class="fa-solid fa-burger"></i> Pausar Itens</button>
+            </div>
+
             <div class="d-flex align-items-center gap-3">
                 <button class="btn btn-light btn-sm fw-bold text-danger" onclick="pedirPermissaoAudio()"><i class="fa-solid fa-bell"></i> Ligar Som</button>
                 <button class="btn btn-outline-light btn-sm" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair</button>
@@ -50,9 +59,33 @@
         </div>
 
         <div class="container-fluid p-4">
-            <div class="row g-3" id="lista-gestor-pedidos">
-                <div class="text-center text-muted fw-bold mt-5"><div class="spinner-border text-danger mb-3"></div><br>Aguardando conexão com a cozinha...</div>
-            </div>
+            <section id="secao-pedidos">
+                <div class="row g-3" id="lista-gestor-pedidos">
+                    <div class="text-center text-muted fw-bold mt-5"><div class="spinner-border text-danger mb-3"></div><br>Aguardando conexão com a cozinha...</div>
+                </div>
+            </section>
+
+            <section id="secao-cardapio" style="display:none;">
+                <div class="card p-4 border-0 shadow-sm mx-auto" style="border-radius: 15px; max-width: 1000px;">
+                    <h3 class="fw-bold mb-1" style="color: #8B0000;">Disponibilidade de Itens</h3>
+                    <p class="text-muted fw-bold small mb-4">Pause itens que esgotaram para retirá-los imediatamente do aplicativo do cliente.</p>
+                    
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Item</th>
+                                    <th>Categoria</th>
+                                    <th>Status Atual</th>
+                                    <th>Ação Rápida</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-pausa-itens">
+                                </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -71,6 +104,67 @@
         function fazerLogout() { auth.signOut(); }
         function pedirPermissaoAudio() { document.getElementById('som-campainha').play().then(() => { document.getElementById('som-campainha').pause(); alert("Som ativado! Você ouvirá quando chegar pedido."); }).catch(e => alert("Erro ao ativar som.")); }
 
+        // --- SISTEMA DE NAVEGAÇÃO ENTRE ABAS ---
+        function alternarAba(aba) {
+            document.getElementById('secao-pedidos').style.display = aba === 'pedidos' ? 'block' : 'none';
+            document.getElementById('secao-cardapio').style.display = aba === 'cardapio' ? 'block' : 'none';
+            
+            if(aba === 'pedidos') {
+                document.getElementById('tab-pedidos').classList.add('ativo');
+                document.getElementById('tab-cardapio').classList.remove('ativo');
+            } else {
+                document.getElementById('tab-cardapio').classList.add('ativo');
+                document.getElementById('tab-pedidos').classList.remove('ativo');
+                carregarCardapioRapido();
+            }
+        }
+
+        // --- LÓGICA DO CARDÁPIO DE 1-CLIQUE ---
+        async function carregarCardapioRapido() {
+            document.getElementById('tabela-pausa-itens').innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-danger"></div></td></tr>';
+            const s = await db.collection('cardapio').get();
+            let html = '';
+            
+            // Ordenar por nome para facilitar a busca do atendente
+            let itens = [];
+            s.forEach(d => { itens.push({ id: d.id, ...d.data() }); });
+            itens.sort((a, b) => a.nome.localeCompare(b.nome));
+
+            itens.forEach(p => {
+                const isAtivo = p.ativo !== false; // Se for null/undefined, considera ativo
+                const badge = isAtivo ? '<span class="badge bg-success">Disponível</span>' : '<span class="badge bg-danger">Pausado/Esgotado</span>';
+                
+                const btn = isAtivo 
+                    ? `<button class="btn btn-sm btn-danger fw-bold w-100" onclick="pausarItemRapido('${p.id}', false)"><i class="fa-solid fa-pause"></i> Pausar Hoje</button>` 
+                    : `<button class="btn btn-sm btn-success fw-bold w-100" onclick="pausarItemRapido('${p.id}', true)"><i class="fa-solid fa-play"></i> Reativar Item</button>`;
+                
+                html += `<tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <img src="${p.imagem_url || 'https://via.placeholder.com/150'}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; border: 1px solid #eee;">
+                            <span class="fw-bold">${p.nome}</span>
+                        </div>
+                    </td>
+                    <td><span class="text-muted fw-bold small">${p.categoria}</span></td>
+                    <td>${badge}</td>
+                    <td style="width: 160px;">${btn}</td>
+                </tr>`;
+            });
+            document.getElementById('tabela-pausa-itens').innerHTML = html;
+        }
+
+        async function pausarItemRapido(id, statusDesejado) {
+            try {
+                // Atualiza diretamente no Firebase
+                await db.collection('cardapio').doc(id).update({ ativo: statusDesejado });
+                // Recarrega a tabela para mostrar o botão novo
+                carregarCardapioRapido();
+            } catch(e) {
+                alert("Erro ao alterar o status do item.");
+            }
+        }
+
+        // --- LÓGICA DE PEDIDOS EM TEMPO REAL ---
         function carregarGestorPedidos() {
             db.collection('vendas_concluidas').orderBy('data_pedido','desc').limit(40).onSnapshot(s => {
                 let html = ''; let novosPendentes = 0; listaTodosPedidos = [];
