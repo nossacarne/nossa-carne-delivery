@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Pedidos - Nossa Carne</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Montserrat', sans-serif; background-color: #f4f7f6; }
+        #tela-login { height: 100vh; display: flex; align-items: center; justify-content: center; background: #1a1a1a; padding: 20px; }
+        .login-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .logo-login { width: 100px; margin-bottom: 20px; border-radius: 10px; }
+        #conteudo-gestor { display: none; }
+        
+        .header-gestor { background: #8B0000; color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .pedido-card-admin { border: 2px solid #eee; border-radius: 12px; padding: 15px; margin-bottom: 15px; background: white; border-left: 6px solid #ccc; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .pedido-card-admin.pendente { border-left-color: #dc3545; background: #fff5f5; animation: piscar 2s infinite; }
+        .pedido-card-admin.confirmado { border-left-color: #0d6efd; }
+        .pedido-card-admin.preparo { border-left-color: #ffc107; }
+        .pedido-card-admin.rota { border-left-color: #6f42c1; }
+        .pedido-card-admin.concluido { border-left-color: #198754; opacity: 0.6; }
+        
+        @keyframes piscar { 0% { box-shadow: 0 0 0px rgba(220,53,69,0.5); } 50% { box-shadow: 0 0 15px rgba(220,53,69,0.8); } 100% { box-shadow: 0 0 0px rgba(220,53,69,0.5); } }
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <audio id="som-campainha" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <div id="tela-login"><div class="login-card text-center"><img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" class="logo-login"><h4 class="fw-bold mb-4">Acesso ao Balcão</h4><input type="email" id="email-admin" class="form-control mb-3" placeholder="E-mail Operacional"><input type="password" id="senha-admin" class="form-control mb-4" placeholder="Senha"><button class="btn btn-dark w-100 fw-bold py-2" onclick="fazerLogin()">Acessar Pedidos</button><p id="erro-auth" class="text-danger mt-3 small" style="display:none;">Credenciais incorretas.</p></div></div>
+
+    <div id="conteudo-gestor">
+        <div class="header-gestor">
+            <div class="d-flex align-items-center gap-3">
+                <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" style="width: 40px; border-radius: 8px;">
+                <h4 class="m-0 fw-bold">Gestor de Pedidos</h4>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light btn-sm fw-bold text-danger" onclick="pedirPermissaoAudio()"><i class="fa-solid fa-bell"></i> Ligar Som</button>
+                <button class="btn btn-outline-light btn-sm" onclick="fazerLogout()"><i class="fa-solid fa-power-off"></i> Sair</button>
+            </div>
+        </div>
+
+        <div class="container-fluid p-4">
+            <div class="row g-3" id="lista-gestor-pedidos">
+                <div class="text-center text-muted fw-bold mt-5"><div class="spinner-border text-danger mb-3"></div><br>Aguardando conexão com a cozinha...</div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+
+    <script>
+        const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", authDomain: "nossa-carne-fidelidade.firebaseapp.com", projectId: "nossa-carne-fidelidade" };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore(); const auth = firebase.auth();
+        let qtdPedidosPendentes = 0; let listaTodosPedidos = [];
+
+        auth.onAuthStateChanged(u => { if (u) { document.getElementById('tela-login').style.display = 'none'; document.getElementById('conteudo-gestor').style.display = 'block'; carregarGestorPedidos(); } else { document.getElementById('tela-login').style.display = 'flex'; document.getElementById('conteudo-gestor').style.display = 'none'; } });
+        async function fazerLogin() { try { await auth.signInWithEmailAndPassword(document.getElementById('email-admin').value, document.getElementById('senha-admin').value); } catch(e){ document.getElementById('erro-auth').style.display='block'; } }
+        function fazerLogout() { auth.signOut(); }
+        function pedirPermissaoAudio() { document.getElementById('som-campainha').play().then(() => { document.getElementById('som-campainha').pause(); alert("Som ativado! Você ouvirá quando chegar pedido."); }).catch(e => alert("Erro ao ativar som.")); }
+
+        function carregarGestorPedidos() {
+            db.collection('vendas_concluidas').orderBy('data_pedido','desc').limit(40).onSnapshot(s => {
+                let html = ''; let novosPendentes = 0; listaTodosPedidos = [];
+                s.forEach(d => {
+                    const p = d.data(); p.id = d.id; listaTodosPedidos.push(p);
+                    const status = p.status || 'pendente';
+                    if (status === 'pendente') novosPendentes++;
+
+                    let statusNome = ''; let btnAcao = '';
+                    if(status === 'pendente') { statusNome = '🔴 Aguardando Aceite'; btnAcao = `<button class="btn btn-primary btn-sm fw-bold w-100" onclick="mudarStatusPedido('${p.id}', 'confirmado')">Aceitar Pedido</button>`; }
+                    if(status === 'confirmado') { statusNome = '🔵 Confirmado'; btnAcao = `<button class="btn btn-warning btn-sm fw-bold w-100" onclick="mudarStatusPedido('${p.id}', 'preparo')">Mandar p/ Cozinha</button>`; }
+                    if(status === 'preparo') { statusNome = '🟡 Em Preparo'; btnAcao = `<button class="btn btn-purple btn-sm fw-bold w-100 text-white" style="background:#6f42c1;" onclick="mudarStatusPedido('${p.id}', 'rota')">${p.logistica?.modo_entrega==='retirada'?'Pronto para Retirada':'Saiu para Entrega'}</button>`; }
+                    if(status === 'rota') { statusNome = '🟣 Aguardando Cliente'; btnAcao = `<button class="btn btn-success btn-sm fw-bold w-100" onclick="mudarStatusPedido('${p.id}', 'concluido')">Finalizar Pedido</button>`; }
+                    if(status === 'concluido') { statusNome = '🟢 Concluído'; btnAcao = `<span class="badge bg-success w-100 py-2">Entregue</span>`; }
+
+                    let itensHtml = '';
+                    p.itens.forEach(i => { itensHtml += `<div class="mb-2 border-bottom pb-1"><strong>1x ${i.nome}</strong><br><small class="text-muted">${i.obsDetalhes || ''}</small></div>`; });
+                    const dataStr = p.data_pedido ? p.data_pedido.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '';
+
+                    html += `
+                    <div class="col-md-4 col-lg-3">
+                        <div class="pedido-card-admin ${status}">
+                            <div class="d-flex justify-content-between mb-2">
+                                <h4 class="fw-bold m-0 text-danger">#${p.numero_pedido || p.id.substring(0,4)}</h4>
+                                <span class="badge bg-dark">${p.logistica?.modo_entrega==='retirada'?'RETIRADA':'DELIVERY'}</span>
+                            </div>
+                            <div class="fw-bold mb-1">${p.cliente.nome} <span class="text-muted fw-normal float-end">${dataStr}</span></div>
+                            <div class="small text-muted mb-3"><i class="fa-solid fa-location-dot"></i> ${p.logistica?.endereco}</div>
+                            <div class="p-2 bg-light rounded mb-3" style="min-height: 100px; max-height: 180px; overflow-y:auto; font-size:13px;">${itensHtml}</div>
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <span class="fw-bold text-success">R$ ${p.financeiro.total_pago_reais.toFixed(2)}</span>
+                                <span class="fw-bold text-muted small">${statusNome}</span>
+                            </div>
+                            <div class="d-flex gap-2">
+                                ${btnAcao}
+                                <button class="btn btn-outline-dark btn-sm py-2" title="Imprimir Comanda" onclick="imprimirComanda('${p.id}')"><i class="fa-solid fa-print"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                document.getElementById('lista-gestor-pedidos').innerHTML = html;
+                
+                if (novosPendentes > qtdPedidosPendentes) { document.getElementById('som-campainha').play().catch(e => console.log("Áudio bloqueado.")); }
+                qtdPedidosPendentes = novosPendentes;
+            });
+        }
+
+        async function mudarStatusPedido(id, novoStatus) { await db.collection('vendas_concluidas').doc(id).update({ status: novoStatus }); }
+
+        function imprimirComanda(idPedido) {
+            const p = listaTodosPedidos.find(x => x.id === idPedido); if(!p) return;
+            let itensPrint = ''; p.itens.forEach(i => { itensPrint += `<div style="font-weight: bold; margin-top: 5px;">1x ${i.nome} - R$ ${i.preco.toFixed(2)}</div><div style="font-size: 12px; margin-left: 10px;">${i.obsDetalhes || ''}</div><div style="border-bottom: 1px dashed #000; margin: 5px 0;"></div>`; });
+            const dataStr = p.data_pedido ? p.data_pedido.toDate().toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+            const janela = window.open('', '', 'width=400,height=600');
+            janela.document.write(`<html><head><title>Comanda #${p.numero_pedido || '000'}</title><style>body { font-family: monospace; width: 300px; margin: 0; padding: 10px; color: #000; } .center { text-align: center; } .bold { font-weight: bold; } .line { border-bottom: 1px dashed #000; margin: 10px 0; }</style></head><body><h2 class="center m-0">NOSSA CARNE</h2><div class="center">Pedido #${p.numero_pedido || p.id.substring(0,4)}</div><div class="center" style="font-size:12px;">${dataStr}</div><div class="line"></div><div><span class="bold">Cliente:</span> ${p.cliente.nome}</div><div><span class="bold">WhatsApp:</span> ${p.cliente.telefone}</div><div><span class="bold">Tipo:</span> ${p.logistica?.modo_entrega.toUpperCase()}</div><div style="font-size:14px; font-weight:bold; margin-top:5px;">Endereço:</div><div>${p.logistica?.endereco}</div><div class="line"></div><h3 class="center m-0">ITENS DO PEDIDO</h3><div class="line"></div>${itensPrint}<div style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 10px;">TOTAL: R$ ${p.financeiro.total_pago_reais.toFixed(2)}</div><div class="line"></div><div class="center" style="font-size:12px;">Obrigado pela preferência!</div><script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script></body></html>`);
+        }
+    </script>
+</body>
+</html>
