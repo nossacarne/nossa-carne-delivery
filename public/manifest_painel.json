@@ -1,0 +1,15 @@
+{
+  "name": "Admin Nossa Carne",
+  "short_name": "Admin",
+  "start_url": "painel.html",
+  "display": "standalone",
+  "background_color": "#1a1a1a",
+  "theme_color": "#8B0000",
+  "icons": [
+    {
+      "src": "icone.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
