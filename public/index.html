@@ -145,6 +145,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
 
     <script>
         const firebaseConfig = { 
@@ -154,7 +155,18 @@
         };
         
         if (!firebase.apps.length) { 
-            firebase.initializeApp(firebaseConfig); 
+            const app = firebase.initializeApp(firebaseConfig); 
+            
+            // INICIALIZAÇÃO DO ESCUDO DE SEGURANÇA (APP CHECK)
+            try {
+                const appCheck = firebase.appCheck();
+                appCheck.activate(
+                  '6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc',
+                  true // Permite a atualização automática do token de segurança
+                );
+            } catch(e) {
+                console.log("App Check initialization info:", e);
+            }
         }
         
         const db = firebase.firestore(); 
@@ -593,55 +605,64 @@
             carrinho.length === 0 ? fecharSheet('sheet-carrinho') : abrirCarrinho(); 
         }
         
-        async function iniciarCheckout() { 
-            if(!usuario) { 
-                fecharSheet('sheet-carrinho'); 
-                alert("Acesse sua conta para concluir."); 
-                return abrirPerfilFull(); 
-            } 
-            
-            if(modoEntregaAtual === 'delivery' && !podeEntregar) { 
-                return alert("Seu endereço está fora da nossa área de entrega."); 
+        async function iniciarCheckout() {
+            if(!usuario) {
+                fecharSheet('sheet-carrinho');
+                alert("Acesse sua conta para concluir.");
+                return abrirPerfilFull();
             }
             
-            if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) { 
-                fecharSheet('sheet-carrinho'); 
-                alert("Atualize seu endereço de entrega no seu perfil."); 
-                return abrirPerfilFull(); 
-            } 
+            if(modoEntregaAtual === 'delivery' && !podeEntregar) {
+                return alert("Seu endereço está fora da nossa área de entrega.");
+            }
             
-            const total = carrinho.reduce((acc, i) => acc + i.preco, 0) + taxaAtualCobrada; 
+            if(modoEntregaAtual === 'delivery' && (!usuario.endereco || !usuario.endereco.rua)) {
+                fecharSheet('sheet-carrinho');
+                alert("Atualize seu endereço de entrega no seu perfil.");
+                return abrirPerfilFull();
+            }
             
-            if (total === 0) { 
-                finalizarPedidoNoSistema(); 
-            } else { 
-                fecharSheet('sheet-carrinho'); 
-                document.getElementById('loading-pix').style.display = 'block'; 
-                document.getElementById('area-codigo-pix').style.display = 'none'; 
-                abrirSheet('sheet-pix'); 
+            // TRAVA DE SEGURANÇA: Impede Duplo Clique e Spam
+            const btnConfirmar = document.querySelector('#sheet-carrinho .btn-main');
+            if(btnConfirmar) {
+                btnConfirmar.disabled = true;
+                btnConfirmar.innerHTML = '<div class="spinner-border spinner-border-sm text-light"></div> Processando Segurança...';
+            }
+            
+            const total = carrinho.reduce((acc, i) => acc + i.preco, 0) + taxaAtualCobrada;
+            
+            if (total === 0) {
+                finalizarPedidoNoSistema();
+            } else {
+                fecharSheet('sheet-carrinho');
+                document.getElementById('loading-pix').style.display = 'block';
+                document.getElementById('area-codigo-pix').style.display = 'none';
+                abrirSheet('sheet-pix');
                 
-                try { 
-                    const response = await fetch('/gerar-pix', { 
-                        method: 'POST', 
-                        headers: { 'Content-Type': 'application/json' }, 
-                        body: JSON.stringify({ valorTotal: total }) 
-                    }); 
-                    const data = await response.json(); 
+                try {
+                    const response = await fetch('/gerar-pix', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ valorTotal: total })
+                    });
+                    const data = await response.json();
                     
-                    if(data.qr_code_copia_cola && data.id_transacao) { 
-                        document.getElementById('loading-pix').style.display = 'none'; 
-                        document.getElementById('area-codigo-pix').style.display = 'block'; 
-                        document.getElementById('pix-code').innerText = data.qr_code_copia_cola; 
-                        verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000); 
-                    } else { 
-                        alert("Erro ao gerar PIX."); 
-                        fecharSheet('sheet-pix'); 
-                    } 
-                } catch (e) { 
-                    alert("Servidor offline."); 
-                    fecharSheet('sheet-pix'); 
-                } 
-            } 
+                    if(data.qr_code_copia_cola && data.id_transacao) {
+                        document.getElementById('loading-pix').style.display = 'none';
+                        document.getElementById('area-codigo-pix').style.display = 'block';
+                        document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
+                        verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
+                    } else {
+                        alert("Erro ao gerar PIX.");
+                        fecharSheet('sheet-pix');
+                        if(btnConfirmar) { btnConfirmar.disabled = false; btnConfirmar.innerHTML = '<i class="fa-brands fa-pix me-2"></i> Confirmar Pedido'; }
+                    }
+                } catch (e) {
+                    alert("Servidor offline.");
+                    fecharSheet('sheet-pix');
+                    if(btnConfirmar) { btnConfirmar.disabled = false; btnConfirmar.innerHTML = '<i class="fa-brands fa-pix me-2"></i> Confirmar Pedido'; }
+                }
+            }
         }
 
         function copiarPix() { 
