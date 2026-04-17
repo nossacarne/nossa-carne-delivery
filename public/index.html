@@ -98,7 +98,12 @@
         <div id="listagem-produtos"></div>
     </div>
     
-    <div class="main-container text-center mt-5 pt-4"><h5 style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">Leve no seu bolso!</h5><p class="text-muted small mb-3 fw-bold">Instale nosso aplicativo para pedir mais rápido.</p><img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px;"><img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px;"></div>
+    <div class="main-container text-center mt-5 pt-4">
+        <h5 style="color: var(--cor-texto); font-weight: 900; text-transform: uppercase;">Leve no seu bolso!</h5>
+        <p class="text-muted small mb-3 fw-bold">Instale nosso aplicativo para pedir mais rápido.</p>
+        <img src="https://developer.apple.com/app-store/marketing/guidelines/images/badge-download-on-the-app-store.svg" onclick="instalarApple()" style="cursor: pointer; width: 140px; margin: 5px;">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" onclick="instalarAndroid()" style="cursor: pointer; width: 140px; margin: 5px;">
+    </div>
     
     <section class="py-5 mt-5 border-top" style="background: white; border-radius: 30px 30px 0 0; border-top: 3px solid #EBE6DF !important;">
         <div class="main-container">
@@ -181,8 +186,8 @@
         let rolagemManualAtiva = false; 
         let escutaPedidos = null;
         
-        // Coordenada base exata do Restaurante atualizada
-        let configTaxasGlobal = { loja: { lat: -23.583785, lng: -46.574955 }, gratis_acima: 0, raios: [] }; 
+        // Coordenada base exata corrigida: Rua Francisco Polito, 995
+        let configTaxasGlobal = { loja: { lat: -23.58386, lng: -46.57496 }, gratis_acima: 0, raios: [] }; 
         let taxaAtualCobrada = 0; 
         let podeEntregar = true;
 
@@ -244,9 +249,6 @@
             }
         }
 
-        // ==========================================
-        // SISTEMA DE CÁLCULO DE DISTÂNCIA GPS E VIACEP
-        // ==========================================
         function getDistanciaEmKm(lat1, lon1, lat2, lon2) {
             var R = 6371; 
             var dLat = (lat2-lat1) * (Math.PI/180); 
@@ -284,9 +286,6 @@
             } 
         }
 
-        // ==========================================
-        // RENDERIZAÇÃO E INTERFACE
-        // ==========================================
         function renderizarCardapio(categoriasDinamicas) { 
             const menu = document.getElementById('menu-categorias'); 
             const lista = document.getElementById('listagem-produtos'); 
@@ -360,9 +359,6 @@
             setTimeout(() => { rolagemManualAtiva = false; }, 800); 
         }
 
-        // ==========================================
-        // OPÇÕES E CARRINHO
-        // ==========================================
         function abrirOpcoes(idItem) { 
             const p = todosProdutos.find(x => x.id_item === idItem); 
             let htmlOpcoes = `
@@ -740,9 +736,6 @@
             if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); 
         }
 
-        // ==========================================
-        // AUTENTICAÇÃO E TELAS DE PERFIL
-        // ==========================================
         function renderizarTelaAcesso() { 
             document.getElementById('titulo-tela-full').innerText = "Acessar Conta"; 
             const cont = document.getElementById('conteudo-perfil-full'); 
@@ -917,7 +910,7 @@
             }; 
             await db.collection('clientes').doc(usuario.uid).update(n); 
             usuario = { ...usuario, ...n }; 
-            alert("Dados atualizados com sucesso no cofre digital!"); 
+            alert("Dados atualizados com sucesso!"); 
             mostrarMenuPerfil(); 
         }
 
@@ -1031,6 +1024,10 @@
                 atualizarCarrinhoFlutuante(); 
                 fecharPerfilFull(); 
             }); 
+        }
+
+        function copiarPix() { 
+            navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); 
         }
 
         function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
