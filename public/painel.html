@@ -239,12 +239,17 @@
         if (!firebase.apps.length) {
             firebase.initializeApp(firebaseConfig);
             
+            // CONSERTO DE EMERGÊNCIA: PROVEDOR ENTERPRISE
             try {
                 const appCheck = firebase.appCheck();
-                appCheck.activate(
-                  '6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc',
-                  true
-                );
+                if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
+                    appCheck.activate(
+                        new firebase.appCheck.ReCaptchaEnterpriseProvider('6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc'), 
+                        true
+                    );
+                } else {
+                    appCheck.activate('6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc', true);
+                }
             } catch(e) {
                 console.log("Erro no App Check", e);
             }
