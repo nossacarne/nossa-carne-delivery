@@ -127,7 +127,7 @@
                                 <div class="mt-3 p-3 bg-white border border-dark rounded-4 font-mono small">
                                     <strong>Ponto de Partida do Motoboy:</strong><br>
                                     Endereço: Rua Francisco Polito, 995 - Vila Prudente<br>
-                                    Coordenadas GPS: <span id="loja-coords">-23.5786, -46.5742</span>
+                                    Coordenadas GPS: <span id="loja-coords">-23.583785, -46.574955</span>
                                 </div>
                             </div>
                         </div>
@@ -245,8 +245,8 @@
         let modProd; let modCat; let chartTicket; 
         let contadorGruposOpcoes = 0; let contadorItensExtra = 0;
         
-        // Coordenada base de envio: Francisco Polito, 995
-        let configTaxasGlobal = { loja: { lat: -23.5786, lng: -46.5742 }, gratis_acima: 0, raios: [] };
+        // Coordenada base exata corrigida para Francisco Polito, 995
+        let configTaxasGlobal = { loja: { lat: -23.583785, lng: -46.574955 }, gratis_acima: 0, raios: [] };
         let mapa; let circulosMapa = [];
 
         // Trava de Segurança
@@ -320,7 +320,8 @@
 
         function inicializarMapa() {
             if(!mapa) {
-                mapa = L.map('mapa-zonas').setView([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng], 13);
+                // Zoom 15 para aproximar melhor do quarteirão da Francisco Polito
+                mapa = L.map('mapa-zonas').setView([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng], 15);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(mapa);
                 L.marker([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng]).addTo(mapa).bindPopup("<b>Nossa Carne - Delivery</b><br>R. Francisco Polito, 995").openPopup();
                 desenharRaiosNoMapa();
@@ -394,7 +395,6 @@
             await db.collection('configuracoes').doc('taxas_gps').set(configTaxasGlobal, {merge: true}); 
             alert("Regra de Frete Grátis salva!"); 
         }
-
 
         // ==========================================
         // PRODUTOS E REGRAS DE OPÇÕES
