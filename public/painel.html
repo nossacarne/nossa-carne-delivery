@@ -101,8 +101,9 @@
                             <div class="card-stats p-0 border-0 shadow-none">
                                 <div id="mapa-zonas"></div>
                                 <div class="mt-3 p-3 bg-white border border-dark rounded-4 font-mono small">
-                                    <strong>Ponto de Partida:</strong> Restaurante Nossa Carne<br>
-                                    Coordenadas: <span id="loja-coords">-23.5855, -46.5780</span> (Vila Prudente)
+                                    <strong>Ponto de Partida do Motoboy:</strong><br>
+                                    Endereço: Rua Francisco Polito, 995 - Vila Prudente<br>
+                                    Coordenadas GPS: <span id="loja-coords">-23.5786, -46.5742</span>
                                 </div>
                             </div>
                         </div>
@@ -150,12 +151,8 @@
         const db = firebase.firestore(); const auth = firebase.auth();
         let modProd; let modCat; let chartTicket; let contadorGruposOpcoes = 0; let contadorItensExtra = 0;
         
-        // Configuração Padrão do Restaurante (Vila Prudente)
-        let configTaxasGlobal = { 
-            loja: { lat: -23.5855, lng: -46.5780 }, 
-            gratis_acima: 0, 
-            raios: [] 
-        };
+        // Coordenada base exata atualizada para Francisco Polito, 995
+        let configTaxasGlobal = { loja: { lat: -23.5786, lng: -46.5742 }, gratis_acima: 0, raios: [] };
         let mapa; let circulosMapa = [];
 
         auth.onAuthStateChanged(u => { if (u) { document.getElementById('tela-login').style.display = 'none'; document.getElementById('conteudo-admin').style.display = 'block'; modProd = new bootstrap.Modal(document.getElementById('modalProduto')); modCat = new bootstrap.Modal(document.getElementById('modalCategoria')); carregarStats(); carregarTabelaCategorias(); carregarConfigTaxas(); } else { document.getElementById('tela-login').style.display = 'flex'; document.getElementById('conteudo-admin').style.display = 'none'; } });
@@ -164,9 +161,7 @@
         function fazerLogout() { auth.signOut(); }
         function mostrarSecao(s) { document.querySelectorAll('section').forEach(x => x.style.display = 'none'); document.getElementById('secao-'+s).style.display = 'block'; document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); event.currentTarget.classList.add('active'); if(s==='cardapio') carregarCardapioAdmin(); if(s==='categorias') carregarTabelaCategorias(); if(s==='taxas') inicializarMapa(); }
 
-        // ==========================================
-        // SISTEMA DE ZONAS GPS E MAPAS (LEAFLET)
-        // ==========================================
+        // --- SISTEMA DE ZONAS GPS E MAPAS ---
         async function carregarConfigTaxas() {
             const doc = await db.collection('configuracoes').doc('taxas_gps').get();
             if (doc.exists) configTaxasGlobal = doc.data();
@@ -176,9 +171,9 @@
 
         function inicializarMapa() {
             if(!mapa) {
-                mapa = L.map('mapa-zonas').setView([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng], 12);
+                mapa = L.map('mapa-zonas').setView([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng], 13);
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(mapa);
-                L.marker([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng]).addTo(mapa).bindPopup("<b>Nossa Carne</b>").openPopup();
+                L.marker([configTaxasGlobal.loja.lat, configTaxasGlobal.loja.lng]).addTo(mapa).bindPopup("<b>Nossa Carne - Delivery</b><br>R. Francisco Polito").openPopup();
                 desenharRaiosNoMapa();
             } else { mapa.invalidateSize(); }
         }
@@ -215,45 +210,20 @@
             document.getElementById('novo-raio-km').value = ''; document.getElementById('novo-raio-valor').value = ''; renderizarTabelaRaios();
         }
 
-        async function removerRaioTaxa(index) {
-            configTaxasGlobal.raios.splice(index, 1);
-            await db.collection('configuracoes').doc('taxas_gps').set(configTaxasGlobal, {merge: true});
-            renderizarTabelaRaios();
-        }
+        async function removerRaioTaxa(index) { configTaxasGlobal.raios.splice(index, 1); await db.collection('configuracoes').doc('taxas_gps').set(configTaxasGlobal, {merge: true}); renderizarTabelaRaios(); }
+        async function salvarFreteGratis() { configTaxasGlobal.gratis_acima = parseFloat(document.getElementById('taxa-gratis').value) || 0; await db.collection('configuracoes').doc('taxas_gps').set(configTaxasGlobal, {merge: true}); alert("Regra salva!"); }
 
-        async function salvarFreteGratis() {
-            configTaxasGlobal.gratis_acima = parseFloat(document.getElementById('taxa-gratis').value) || 0;
-            await db.collection('configuracoes').doc('taxas_gps').set(configTaxasGlobal, {merge: true}); alert("Regra salva!");
-        }
-
-        // Funções de Produtos mantidas
-        function adicionarGrupoOpcao(grupo=null){/* Lógica mantida idêntica à anterior para focar na entrega */}
-        function adicionarItemLinha(grupoId,itemData=null){/* Mantido */}
-        function extrairGruposOpcoes(){ return []; /* Simulado para não poluir espaço, use a original que mandei antes */ }
-        async function carregarOpcoesCat(catAtual){/* Mantido */}
-        async function carregarTabelaCategorias(){/* Mantido */}
-        function abrirModalCategoria(){/* Mantido */}
-        async function editarCategoria(id){/* Mantido */}
-        async function salvarCategoria(){/* Mantido */}
-        async function excluirCategoria(){/* Mantido */}
-        async function carregarCardapioAdmin(){/* Mantido */}
-        async function abrirModalProduto(){/* Mantido */}
-        async function editarProduto(id){/* Mantido */}
-        async function salvarProduto(){/* Mantido */}
-        async function excluirProduto(){/* Mantido */}
-        async function carregarStats(){/* Mantido */}
-        async function exportarExcelVendas(){/* Mantido */}
-        
-        // Restaurando as funcções de Produtos completas abaixo:
         function adicionarGrupoOpcao(grupo = null) { contadorGruposOpcoes++; const id = contadorGruposOpcoes; const div = document.createElement('div'); div.className = 'card-opcao shadow-sm'; div.id = `grupo-op-${id}`; div.innerHTML = `<button type="button" class="btn-remover-opcao" onclick="document.getElementById('grupo-op-${id}').remove()"><i class="fa-solid fa-trash"></i></button><div class="row g-2 mb-3 pb-2 border-bottom border-dark"><div class="col-md-5"><label class="small fw-bold text-muted font-mono">TÍTULO (Ex: Extras)</label><input type="text" class="form-control form-control-sm grp-titulo fw-bold" value="${grupo ? grupo.titulo : ''}"></div><div class="col-md-4"><label class="small fw-bold text-muted font-mono">REGRA</label><select class="form-select form-select-sm grp-tipo fw-bold"><option value="simples" ${grupo && grupo.tipo === 'simples' ? 'selected' : ''}>Apenas 1 (Rádio)</option><option value="multiplo" ${grupo && grupo.tipo === 'multiplo' ? 'selected' : ''}>Múltipla (Check)</option></select></div><div class="col-md-3"><label class="small fw-bold text-muted font-mono">LIM. MÁX.</label><input type="number" class="form-control form-control-sm grp-max fw-bold" value="${grupo ? grupo.maximo : '1'}"></div></div><div class="p-3 bg-white rounded border border-dark"><label class="small fw-bold text-primary mb-2 font-mono"><i class="fa-solid fa-cart-plus"></i> ITENS DA LISTA:</label><div id="itens-grupo-${id}" class="d-flex flex-column gap-2 mb-2"></div><button type="button" class="btn btn-sm btn-outline-dark w-100 fw-bold font-mono mt-2" onclick="adicionarItemLinha(${id})">+ INSERIR ITEM</button></div>`; document.getElementById('lista-grupos-opcoes').appendChild(div); if (grupo && grupo.itens && grupo.itens.length > 0) { grupo.itens.forEach(item => adicionarItemLinha(id, item)); } else { adicionarItemLinha(id); } }
         function adicionarItemLinha(grupoId, itemData = null) { contadorItensExtra++; let iNome = '', iPreco = '', iPdv = ''; if (itemData !== null) { if (typeof itemData === 'string') { iNome = itemData; iPreco = 0; } else { iNome = itemData.nome || ''; iPreco = itemData.preco || 0; iPdv = itemData.pdv || ''; } } const divItem = document.createElement('div'); divItem.className = 'row g-1 align-items-center item-opcao-row'; divItem.innerHTML = `<div class="col-5"><input type="text" class="form-control form-control-sm item-nome fw-bold" placeholder="Nome" value="${iNome}"></div><div class="col-3"><div class="input-group input-group-sm"><span class="input-group-text bg-light text-success fw-bold border-dark">R$</span><input type="number" step="0.01" class="form-control border-dark item-preco" placeholder="0,00" value="${iPreco}"></div></div><div class="col-3"><input type="text" class="form-control form-control-sm item-pdv bg-light border-dark" placeholder="Cód PDV" value="${iPdv}"></div><div class="col-1 text-end"><button type="button" class="btn btn-sm text-danger border-0" tabindex="-1" onclick="this.parentElement.parentElement.remove()"><i class="fa-solid fa-xmark fa-lg"></i></button></div>`; document.getElementById(`itens-grupo-${grupoId}`).appendChild(divItem); }
         function extrairGruposOpcoes() { let grupos = []; document.querySelectorAll('[id^="grupo-op-"]').forEach(el => { const titulo = el.querySelector('.grp-titulo').value.trim(); const tipo = el.querySelector('.grp-tipo').value; const maximo = parseInt(el.querySelector('.grp-max').value) || 1; let itensDoGrupo = []; el.querySelectorAll('.item-opcao-row').forEach(row => { const nome = row.querySelector('.item-nome').value.trim(); const preco = parseFloat(row.querySelector('.item-preco').value) || 0; const pdv = row.querySelector('.item-pdv').value.trim(); if (nome) itensDoGrupo.push({ nome: nome, preco: preco, pdv: pdv }); }); if(titulo && itensDoGrupo.length > 0) { grupos.push({ titulo: titulo, tipo: tipo, maximo: maximo, itens: itensDoGrupo }); } }); return grupos; }
+
         async function carregarOpcoesCat(catAtual) { const s = await db.collection('categorias').orderBy('ordem').get(); const sel = document.getElementById('item-categoria'); sel.innerHTML = ''; let achou = false; s.forEach(d => { sel.innerHTML += `<option value="${d.data().nome}">${d.data().nome}</option>`; if(d.data().nome === catAtual) achou = true; }); if(catAtual && !achou) sel.innerHTML += `<option value="${catAtual}">${catAtual} (Não cadastrada)</option>`; if(s.empty && !catAtual) sel.innerHTML = '<option value="Geral">Crie categorias primeiro</option>'; sel.value = catAtual || sel.options[0].value; }
         async function carregarTabelaCategorias() { const s = await db.collection('categorias').orderBy('ordem').get(); document.getElementById('tabela-categorias').innerHTML = ''; s.forEach(d => { document.getElementById('tabela-categorias').innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().ordem}</td><td><button class="btn btn-sm btn-dark font-mono rounded-pill" onclick="editarCategoria('${d.id}')">EDITAR</button></td></tr>`; }); }
         function abrirModalCategoria() { document.getElementById('cat-id').value=''; document.getElementById('cat-nome').value=''; document.getElementById('cat-ordem').value=''; modCat.show(); }
         async function editarCategoria(id) { const d = await db.collection('categorias').doc(id).get(); document.getElementById('cat-id').value=id; document.getElementById('cat-nome').value=d.data().nome; document.getElementById('cat-ordem').value=d.data().ordem; modCat.show(); }
         async function salvarCategoria() { const id = document.getElementById('cat-id').value; const d = { nome: document.getElementById('cat-nome').value, ordem: parseInt(document.getElementById('cat-ordem').value)||99 }; id ? await db.collection('categorias').doc(id).update(d) : await db.collection('categorias').add(d); modCat.hide(); carregarTabelaCategorias(); }
         async function excluirCategoria() { const id = document.getElementById('cat-id').value; if(id && confirm("Apagar?")) { await db.collection('categorias').doc(id).delete(); modCat.hide(); carregarTabelaCategorias(); } }
+
         async function carregarCardapioAdmin() { const s = await db.collection('cardapio').get(); document.getElementById('tabela-cardapio').innerHTML = ''; s.forEach(d => { const p = d.data(); const status = p.ativo === false ? '<span class="badge bg-danger">PAUSADO</span>' : '<span class="badge bg-success">ATIVO</span>'; document.getElementById('tabela-cardapio').innerHTML += `<tr><td><img src="${p.imagem_url}" class="img-preview"></td><td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria}</small></td><td class="fw-bold font-mono text-success">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</td><td>${status}</td><td><button class="btn btn-sm btn-dark font-mono rounded-pill" onclick="editarProduto('${d.id}')">EDITAR</button></td></tr>`; }); }
         async function abrirModalProduto() { await carregarOpcoesCat(''); document.getElementById('item-id').value=''; document.getElementById('item-nome').value=''; document.getElementById('item-descricao').value=''; document.getElementById('item-preco').value=''; document.getElementById('item-foto').value=''; document.getElementById('item-pdv').value=''; document.getElementById('item-status').value='ativo'; document.getElementById('item-permite-resgate').value='nao'; document.getElementById('item-custo-pontos').value='0'; document.getElementById('lista-grupos-opcoes').innerHTML = ''; modProd.show(); }
         async function editarProduto(id) { const d = await db.collection('cardapio').doc(id).get(); const p = d.data(); await carregarOpcoesCat(p.categoria); document.getElementById('item-id').value=id; document.getElementById('item-nome').value=p.nome; document.getElementById('item-descricao').value=p.descricao||''; document.getElementById('item-preco').value=p.preco_atual; document.getElementById('item-foto').value=p.imagem_url; document.getElementById('item-pdv').value=p.codigo_pdv||''; document.getElementById('item-status').value=p.ativo===false?'pausado':'ativo'; document.getElementById('item-permite-resgate').value = p.fidelidade?.permite_resgate ? 'sim' : 'nao'; document.getElementById('item-custo-pontos').value = p.fidelidade?.custo_em_pontos||0; document.getElementById('lista-grupos-opcoes').innerHTML = ''; let grupos = p.grupos_opcoes || []; if (grupos.length === 0) { const n = p.nome.toLowerCase(); const cat = p.categoria || ""; const isLanche = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'].includes(cat) || n.includes('burger') || n.includes('lanche'); if (cat === "Sucos") grupos.push({ titulo: "Sabor do Suco", tipo: "simples", maximo: 1, itens: ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"] }); if (cat === "Milk Shakes") grupos.push({ titulo: "Sabor do Shake", tipo: "simples", maximo: 1, itens: ["Merengue", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango"] }); if (cat === "Saladas") { grupos.push({ titulo: "Proteína", tipo: "simples", maximo: 1, itens: ["Frango Grelhado", "Frango Empanado", "Mignon", "Salmão", "Tilápia"] }); grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Mostarda com Mel", "Maionese Chimichurri"] }); } if (cat === "Parmegianas") { grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Vermelho", "Branco"] }); grupos.push({ titulo: "Acompanha", tipo: "simples", maximo: 1, itens: ["Fritas", "Salada"] }); } if (isLanche && !n.includes('beirute') && !n.includes('baguete')) { grupos.push({ titulo: "Escolha o Pão", tipo: "simples", maximo: 1, itens: ["Hamburger", "Crocante"] }); } if ((isLanche || cat === "Monte Seu Prato" || n.includes('fraldinha') || n.includes('mignon')) && !(n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro'))) { grupos.push({ titulo: "Ponto da Carne", tipo: "simples", maximo: 1, itens: ["Mal Passado", "Ao Ponto", "Bem Passado"] }); } if (n.includes('x-mignon')) { grupos.push({ titulo: "Maionese", tipo: "simples", maximo: 1, itens: ["Da Casa", "Bacon", "Alho", "Sem Maionese"] }); } if (cat === "Monte Seu Prato") { grupos.push({ titulo: "Acompanhamentos (Exatamente 3)", tipo: "multiplo", maximo: 3, itens: ["Abóbora Grelhada", 'Aligot', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa", "Rodelas de Pão", "Banana Milanesa"] }); } } grupos.forEach(g => adicionarGrupoOpcao(g)); modProd.show(); }
