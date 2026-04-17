@@ -37,7 +37,6 @@
         @media (min-width: 992px) { .wrapper { display: flex; flex-direction: row; min-height: 100vh; } .sidebar { width: 280px; height: 100vh; position: fixed; } .main-content { margin-left: 280px; padding: 40px; flex-grow: 1; } }
         @media (max-width: 991px) { .sidebar { width: 100%; padding: 10px !important; position: relative; } .main-content { padding: 20px; } .nav { flex-direction: row !important; overflow-x: auto; white-space: nowrap; flex-wrap: nowrap; } .nav-link { display: inline-block; } }
         
-        /* Modal Brutalista */
         .modal-content { border-radius: 2rem; border: 3px solid var(--cor-primaria); box-shadow: 10px 10px 0px var(--cor-primaria); background: var(--cor-bg); }
         .form-control, .form-select { border: 2px solid var(--cor-primaria); border-radius: 0.8rem; font-weight: 500; }
         .form-control:focus, .form-select:focus { box-shadow: 4px 4px 0px var(--cor-acento); border-color: var(--cor-acento); }
@@ -45,16 +44,7 @@
 </head>
 <body oncontextmenu="return false;">
 
-    <div id="tela-login">
-        <div class="login-card text-center">
-            <img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" width="80" class="mb-3 rounded">
-            <h2 class="drama-text mb-4">Painel do Sócio</h2>
-            <input type="email" id="email-admin" class="form-control mb-3 p-3" placeholder="E-mail Administrador">
-            <input type="password" id="senha-admin" class="form-control mb-4 p-3" placeholder="Senha">
-            <button class="btn btn-dark w-100 fw-bold py-3 rounded-pill" onclick="fazerLoginAdmin()" style="background-color: var(--cor-primaria);">ACESSO ESTRATÉGICO</button>
-            <p id="erro-auth" class="text-danger mt-3 small font-mono fw-bold" style="display:none;">ACESSO NEGADO.</p>
-        </div>
-    </div>
+    <div id="tela-login"><div class="login-card text-center"><img src="https://static.ifood-static.com.br/image/upload/t_thumbnail/logosgde/ef733dfb-3edf-42ef-9aea-9a87b00dcbdc/202510141310_BXc1_i.png" width="80" class="mb-3 rounded"><h2 class="drama-text mb-4">Painel do Sócio</h2><input type="email" id="email-admin" class="form-control mb-3 p-3" placeholder="E-mail Administrador"><input type="password" id="senha-admin" class="form-control mb-4 p-3" placeholder="Senha"><button class="btn btn-dark w-100 fw-bold py-3 rounded-pill" onclick="fazerLoginAdmin()" style="background-color: var(--cor-primaria);">ACESSO ESTRATÉGICO</button><p id="erro-auth" class="text-danger mt-3 small font-mono fw-bold" style="display:none;">ACESSO NEGADO.</p></div></div>
 
     <div id="conteudo-admin" style="display:none;">
         <div class="wrapper">
@@ -64,6 +54,7 @@
                     <a class="nav-link active font-mono" onclick="mostrarSecao('dashboard')">ESTATÍSTICAS</a>
                     <a class="nav-link font-mono" onclick="mostrarSecao('cardapio')">PRODUTOS</a>
                     <a class="nav-link font-mono" onclick="mostrarSecao('categorias')">CATEGORIAS</a>
+                    <a class="nav-link font-mono" onclick="mostrarSecao('taxas')">LOGÍSTICA / TAXAS</a>
                     <a class="nav-link font-mono mt-lg-5 border border-danger text-danger text-center" style="opacity: 1; background: rgba(230, 59, 46, 0.1);" onclick="fazerLogout()">SAIR</a>
                 </nav>
             </div>
@@ -87,14 +78,7 @@
                         <h2 class="drama-text m-0">Gestão do Cardápio</h2>
                         <button class="btn text-white fw-bold rounded-pill px-4 py-2" style="background-color: var(--cor-acento);" onclick="abrirModalProduto()"><i class="fa-solid fa-plus"></i> NOVO ITEM</button>
                     </div>
-                    <div class="card-stats">
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead class="font-mono opacity-50"><tr><th>FOTO</th><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÃO</th></tr></thead>
-                                <tbody id="tabela-cardapio"></tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div class="card-stats"><div class="table-responsive"><table class="table align-middle"><thead class="font-mono opacity-50"><tr><th>FOTO</th><th>PRODUTO</th><th>PREÇO</th><th>STATUS</th><th>AÇÃO</th></tr></thead><tbody id="tabela-cardapio"></tbody></table></div></div>
                 </section>
 
                 <section id="secao-categorias" style="display:none;">
@@ -102,12 +86,37 @@
                         <h2 class="drama-text m-0">Gerenciar Categorias</h2>
                         <button class="btn text-white fw-bold rounded-pill px-4 py-2" style="background-color: var(--cor-acento);" onclick="abrirModalCategoria()"><i class="fa-solid fa-plus"></i> NOVA CATEGORIA</button>
                     </div>
-                    <div class="card-stats">
-                        <div class="table-responsive">
-                            <table class="table align-middle">
-                                <thead class="font-mono opacity-50"><tr><th>NOME</th><th>ORDEM</th><th>AÇÕES</th></tr></thead>
-                                <tbody id="tabela-categorias"></tbody>
-                            </table>
+                    <div class="card-stats"><div class="table-responsive"><table class="table align-middle"><thead class="font-mono opacity-50"><tr><th>NOME</th><th>ORDEM</th><th>AÇÕES</th></tr></thead><tbody id="tabela-categorias"></tbody></table></div></div>
+                </section>
+
+                <section id="secao-taxas" style="display:none;">
+                    <h2 class="drama-text mb-4">Logística e Taxas de Entrega</h2>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card-stats">
+                                <h5 class="fw-bold font-mono border-bottom border-dark pb-3 mb-4">REGRAS GERAIS</h5>
+                                <label class="form-label fw-bold font-mono small">TAXA PADRÃO (Para bairros não cadastrados)</label>
+                                <div class="input-group mb-3"><span class="input-group-text border-dark bg-light fw-bold">R$</span><input type="number" id="taxa-padrao" class="form-control border-dark"></div>
+                                <label class="form-label fw-bold font-mono small">FRETE GRÁTIS ACIMA DE (Zero para desativar)</label>
+                                <div class="input-group mb-4"><span class="input-group-text border-dark bg-light fw-bold">R$</span><input type="number" id="taxa-gratis" class="form-control border-dark"></div>
+                                <button class="btn btn-dark w-100 fw-bold rounded-pill font-mono py-2" onclick="salvarRegrasGerais()">SALVAR REGRAS</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card-stats">
+                                <h5 class="fw-bold font-mono border-bottom border-dark pb-3 mb-4">ADICIONAR BAIRRO ESPECÍFICO</h5>
+                                <div class="row g-2 mb-4">
+                                    <div class="col-8"><label class="form-label fw-bold font-mono small">NOME DO BAIRRO (Ex: Vila Prudente)</label><input type="text" id="novo-bairro-nome" class="form-control border-dark"></div>
+                                    <div class="col-4"><label class="form-label fw-bold font-mono small">TAXA (R$)</label><input type="number" id="novo-bairro-valor" class="form-control border-dark"></div>
+                                    <div class="col-12 mt-3"><button class="btn text-white w-100 fw-bold rounded-pill font-mono py-2" style="background-color: var(--cor-acento);" onclick="adicionarBairroTaxa()">+ ADICIONAR NA LISTA</button></div>
+                                </div>
+                                <h6 class="fw-bold font-mono mt-4">BAIRROS CADASTRADOS</h6>
+                                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                                    <table class="table align-middle font-mono small">
+                                        <tbody id="tabela-taxas-bairros"></tbody>
+                                    </table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -115,59 +124,8 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalProduto" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header border-bottom border-dark border-2">
-                    <h5 class="modal-title fw-bold font-mono">EDITAR PRODUTO</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <input type="hidden" id="item-id">
-                    <div class="row g-3">
-                        <div class="col-md-8"><label class="form-label fw-bold font-mono small">NOME</label><input type="text" id="item-nome" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label fw-bold font-mono small text-danger">STATUS</label><select id="item-status" class="form-select"><option value="ativo">Ativo</option><option value="pausado">Pausado</option></select></div>
-                        <div class="col-12"><label class="form-label fw-bold font-mono small">DESCRIÇÃO</label><textarea id="item-descricao" class="form-control" rows="2"></textarea></div>
-                        <div class="col-md-4"><label class="form-label fw-bold font-mono small">PREÇO BASE</label><input type="number" step="0.01" id="item-preco" class="form-control"></div>
-                        <div class="col-md-4"><label class="form-label fw-bold font-mono small">CATEGORIA</label><select id="item-categoria" class="form-select"></select></div>
-                        <div class="col-md-4"><label class="form-label fw-bold font-mono small">CÓD PDV BASE</label><input type="text" id="item-pdv" class="form-control"></div>
-                        <div class="col-12"><label class="form-label fw-bold font-mono small">URL IMAGEM</label><input type="text" id="item-foto" class="form-control"></div>
-                        
-                        <div class="col-12 mt-4 pt-3 border-top border-dark border-2"><h6 class="fw-bold font-mono text-warning"><i class="fa-solid fa-star"></i> CLUBE FIDELIDADE</h6></div>
-                        <div class="col-md-6"><label class="form-label fw-bold font-mono small">PERMITE RESGATE?</label><select id="item-permite-resgate" class="form-select"><option value="sim">Sim</option><option value="nao">Não</option></select></div>
-                        <div class="col-md-6"><label class="form-label fw-bold font-mono small">CUSTO (PONTOS)</label><input type="number" id="item-custo-pontos" class="form-control"></div>
-                        
-                        <div class="col-12 mt-4 pt-3 border-top border-dark border-2">
-                            <h6 class="fw-bold font-mono text-primary mb-3"><i class="fa-solid fa-list-check"></i> GRUPOS DE EXTRAS E ADICIONAIS</h6>
-                            <div id="lista-grupos-opcoes"></div>
-                            <button type="button" class="btn btn-dark fw-bold mt-2 w-100 rounded-pill py-2 font-mono" onclick="adicionarGrupoOpcao()">+ ADICIONAR REGRA / GRUPO</button>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer border-top border-dark border-2">
-                    <button class="btn btn-outline-danger me-auto fw-bold font-mono rounded-pill" onclick="excluirProduto()">EXCLUIR</button>
-                    <button class="btn text-white fw-bold font-mono rounded-pill px-4" style="background-color: var(--cor-acento);" onclick="salvarProduto()">SALVAR PRODUTO</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="modalCategoria" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header border-bottom border-dark border-2"><h5 class="modal-title fw-bold font-mono">EDITAR CATEGORIA</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-                <div class="modal-body p-4">
-                    <input type="hidden" id="cat-id">
-                    <label class="form-label fw-bold font-mono small">NOME DA CATEGORIA</label><input type="text" id="cat-nome" class="form-control mb-3">
-                    <label class="form-label fw-bold font-mono small">ORDEM (Nº)</label><input type="number" id="cat-ordem" class="form-control mb-3">
-                </div>
-                <div class="modal-footer border-top border-dark border-2">
-                    <button class="btn btn-outline-danger me-auto fw-bold font-mono rounded-pill" onclick="excluirCategoria()">EXCLUIR</button>
-                    <button class="btn text-white fw-bold font-mono rounded-pill px-4" style="background-color: var(--cor-acento);" onclick="salvarCategoria()">SALVAR</button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="modalProduto" tabindex="-1" aria-hidden="true"><div class="modal-dialog modal-lg"><div class="modal-content"><div class="modal-header border-bottom border-dark border-2"><h5 class="modal-title fw-bold font-mono">EDITAR PRODUTO</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="item-id"><div class="row g-3"><div class="col-md-8"><label class="form-label fw-bold font-mono small">NOME</label><input type="text" id="item-nome" class="form-control"></div><div class="col-md-4"><label class="form-label fw-bold font-mono small text-danger">STATUS</label><select id="item-status" class="form-select"><option value="ativo">Ativo</option><option value="pausado">Pausado</option></select></div><div class="col-12"><label class="form-label fw-bold font-mono small">DESCRIÇÃO</label><textarea id="item-descricao" class="form-control" rows="2"></textarea></div><div class="col-md-4"><label class="form-label fw-bold font-mono small">PREÇO BASE</label><input type="number" step="0.01" id="item-preco" class="form-control"></div><div class="col-md-4"><label class="form-label fw-bold font-mono small">CATEGORIA</label><select id="item-categoria" class="form-select"></select></div><div class="col-md-4"><label class="form-label fw-bold font-mono small">CÓD PDV BASE</label><input type="text" id="item-pdv" class="form-control"></div><div class="col-12"><label class="form-label fw-bold font-mono small">URL IMAGEM</label><input type="text" id="item-foto" class="form-control"></div><div class="col-12 mt-4 pt-3 border-top border-dark border-2"><h6 class="fw-bold font-mono text-warning"><i class="fa-solid fa-star"></i> CLUBE FIDELIDADE</h6></div><div class="col-md-6"><label class="form-label fw-bold font-mono small">PERMITE RESGATE?</label><select id="item-permite-resgate" class="form-select"><option value="sim">Sim</option><option value="nao">Não</option></select></div><div class="col-md-6"><label class="form-label fw-bold font-mono small">CUSTO (PONTOS)</label><input type="number" id="item-custo-pontos" class="form-control"></div><div class="col-12 mt-4 pt-3 border-top border-dark border-2"><h6 class="fw-bold font-mono text-primary mb-3"><i class="fa-solid fa-list-check"></i> GRUPOS DE EXTRAS E ADICIONAIS</h6><div id="lista-grupos-opcoes"></div><button type="button" class="btn btn-dark fw-bold mt-2 w-100 rounded-pill py-2 font-mono" onclick="adicionarGrupoOpcao()">+ ADICIONAR REGRA / GRUPO</button></div></div></div><div class="modal-footer border-top border-dark border-2"><button class="btn btn-outline-danger me-auto fw-bold font-mono rounded-pill" onclick="excluirProduto()">EXCLUIR</button><button class="btn text-white fw-bold font-mono rounded-pill px-4" style="background-color: var(--cor-acento);" onclick="salvarProduto()">SALVAR PRODUTO</button></div></div></div></div>
+    <div class="modal fade" id="modalCategoria" tabindex="-1"><div class="modal-dialog"><div class="modal-content"><div class="modal-header border-bottom border-dark border-2"><h5 class="modal-title fw-bold font-mono">EDITAR CATEGORIA</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body p-4"><input type="hidden" id="cat-id"><label class="form-label fw-bold font-mono small">NOME DA CATEGORIA</label><input type="text" id="cat-nome" class="form-control mb-3"><label class="form-label fw-bold font-mono small">ORDEM (Nº)</label><input type="number" id="cat-ordem" class="form-control mb-3"></div><div class="modal-footer border-top border-dark border-2"><button class="btn btn-outline-danger me-auto fw-bold font-mono rounded-pill" onclick="excluirCategoria()">EXCLUIR</button><button class="btn text-white fw-bold font-mono rounded-pill px-4" style="background-color: var(--cor-acento);" onclick="salvarCategoria()">SALVAR</button></div></div></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -179,57 +137,46 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore(); const auth = firebase.auth();
         let modProd; let modCat; let chartTicket; let contadorGruposOpcoes = 0; let contadorItensExtra = 0;
+        let configTaxasGlobal = { padrao: 0, gratis_acima: 0, bairros: {} };
 
-        auth.onAuthStateChanged(u => { if (u) { document.getElementById('tela-login').style.display = 'none'; document.getElementById('conteudo-admin').style.display = 'block'; modProd = new bootstrap.Modal(document.getElementById('modalProduto')); modCat = new bootstrap.Modal(document.getElementById('modalCategoria')); carregarStats(); carregarTabelaCategorias(); } else { document.getElementById('tela-login').style.display = 'flex'; document.getElementById('conteudo-admin').style.display = 'none'; } });
+        auth.onAuthStateChanged(u => { if (u) { document.getElementById('tela-login').style.display = 'none'; document.getElementById('conteudo-admin').style.display = 'block'; modProd = new bootstrap.Modal(document.getElementById('modalProduto')); modCat = new bootstrap.Modal(document.getElementById('modalCategoria')); carregarStats(); carregarTabelaCategorias(); carregarConfigTaxas(); } else { document.getElementById('tela-login').style.display = 'flex'; document.getElementById('conteudo-admin').style.display = 'none'; } });
 
         async function fazerLoginAdmin() { try { await auth.signInWithEmailAndPassword(document.getElementById('email-admin').value, document.getElementById('senha-admin').value); } catch(e){ document.getElementById('erro-auth').style.display='block'; } }
         function fazerLogout() { auth.signOut(); }
         function mostrarSecao(s) { document.querySelectorAll('section').forEach(x => x.style.display = 'none'); document.getElementById('secao-'+s).style.display = 'block'; document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active')); event.currentTarget.classList.add('active'); if(s==='cardapio') carregarCardapioAdmin(); if(s==='categorias') carregarTabelaCategorias(); }
 
-        // SISTEMA AVANÇADO DE ADICIONAIS RESTAURADO
-        function adicionarGrupoOpcao(grupo = null) {
-            contadorGruposOpcoes++; const id = contadorGruposOpcoes;
-            const div = document.createElement('div'); div.className = 'card-opcao shadow-sm'; div.id = `grupo-op-${id}`;
-            div.innerHTML = `
-                <button type="button" class="btn-remover-opcao" onclick="document.getElementById('grupo-op-${id}').remove()"><i class="fa-solid fa-trash"></i></button>
-                <div class="row g-2 mb-3 pb-2 border-bottom border-dark">
-                    <div class="col-md-5"><label class="small fw-bold text-muted font-mono">TÍTULO (Ex: Extras)</label><input type="text" class="form-control form-control-sm grp-titulo fw-bold" value="${grupo ? grupo.titulo : ''}"></div>
-                    <div class="col-md-4"><label class="small fw-bold text-muted font-mono">REGRA</label><select class="form-select form-select-sm grp-tipo fw-bold"><option value="simples" ${grupo && grupo.tipo === 'simples' ? 'selected' : ''}>Apenas 1 (Rádio)</option><option value="multiplo" ${grupo && grupo.tipo === 'multiplo' ? 'selected' : ''}>Múltipla (Check)</option></select></div>
-                    <div class="col-md-3"><label class="small fw-bold text-muted font-mono">LIM. MÁX.</label><input type="number" class="form-control form-control-sm grp-max fw-bold" value="${grupo ? grupo.maximo : '1'}"></div>
-                </div>
-                <div class="p-3 bg-white rounded border border-dark">
-                    <label class="small fw-bold text-primary mb-2 font-mono"><i class="fa-solid fa-cart-plus"></i> ITENS DA LISTA:</label>
-                    <div id="itens-grupo-${id}" class="d-flex flex-column gap-2 mb-2"></div>
-                    <button type="button" class="btn btn-sm btn-outline-dark w-100 fw-bold font-mono mt-2" onclick="adicionarItemLinha(${id})">+ INSERIR ITEM</button>
-                </div>
-            `;
-            document.getElementById('lista-grupos-opcoes').appendChild(div);
-            if (grupo && grupo.itens && grupo.itens.length > 0) { grupo.itens.forEach(item => adicionarItemLinha(id, item)); } else { adicionarItemLinha(id); }
+        // --- SISTEMA DE TAXAS ---
+        async function carregarConfigTaxas() {
+            const doc = await db.collection('configuracoes').doc('taxas').get();
+            if (doc.exists) configTaxasGlobal = doc.data();
+            document.getElementById('taxa-padrao').value = configTaxasGlobal.padrao || 0;
+            document.getElementById('taxa-gratis').value = configTaxasGlobal.gratis_acima || 0;
+            renderizarTabelaBairros();
         }
+        function renderizarTabelaBairros() {
+            let html = ''; const bairros = configTaxasGlobal.bairros || {};
+            Object.keys(bairros).forEach(b => { html += `<tr><td class="fw-bold">${b.toUpperCase()}</td><td class="text-success fw-bold">R$ ${parseFloat(bairros[b]).toFixed(2)}</td><td class="text-end"><button class="btn btn-sm btn-outline-danger border-0" onclick="removerBairroTaxa('${b}')"><i class="fa-solid fa-trash"></i></button></td></tr>`; });
+            document.getElementById('tabela-taxas-bairros').innerHTML = html || '<tr><td class="text-muted text-center py-3">Nenhum bairro específico.</td></tr>';
+        }
+        async function salvarRegrasGerais() {
+            configTaxasGlobal.padrao = parseFloat(document.getElementById('taxa-padrao').value) || 0;
+            configTaxasGlobal.gratis_acima = parseFloat(document.getElementById('taxa-gratis').value) || 0;
+            await db.collection('configuracoes').doc('taxas').set(configTaxasGlobal, {merge: true}); alert("Regras gerais salvas!");
+        }
+        async function adicionarBairroTaxa() {
+            const nome = document.getElementById('novo-bairro-nome').value.trim(); const valor = parseFloat(document.getElementById('novo-bairro-valor').value);
+            if(!nome || isNaN(valor)) return alert("Preencha bairro e valor!");
+            if(!configTaxasGlobal.bairros) configTaxasGlobal.bairros = {};
+            configTaxasGlobal.bairros[nome] = valor;
+            await db.collection('configuracoes').doc('taxas').set(configTaxasGlobal, {merge: true});
+            document.getElementById('novo-bairro-nome').value = ''; document.getElementById('novo-bairro-valor').value = ''; renderizarTabelaBairros();
+        }
+        async function removerBairroTaxa(nome) { delete configTaxasGlobal.bairros[nome]; await db.collection('configuracoes').doc('taxas').set(configTaxasGlobal, {merge: true}); renderizarTabelaBairros(); }
 
-        function adicionarItemLinha(grupoId, itemData = null) {
-            contadorItensExtra++; let iNome = '', iPreco = '', iPdv = '';
-            if (itemData !== null) { if (typeof itemData === 'string') { iNome = itemData; iPreco = 0; } else { iNome = itemData.nome || ''; iPreco = itemData.preco || 0; iPdv = itemData.pdv || ''; } }
-            const divItem = document.createElement('div'); divItem.className = 'row g-1 align-items-center item-opcao-row';
-            divItem.innerHTML = `
-                <div class="col-5"><input type="text" class="form-control form-control-sm item-nome fw-bold" placeholder="Nome" value="${iNome}"></div>
-                <div class="col-3"><div class="input-group input-group-sm"><span class="input-group-text bg-light text-success fw-bold border-dark">R$</span><input type="number" step="0.01" class="form-control border-dark item-preco" placeholder="0,00" value="${iPreco}"></div></div>
-                <div class="col-3"><input type="text" class="form-control form-control-sm item-pdv bg-light border-dark" placeholder="Cód PDV" value="${iPdv}"></div>
-                <div class="col-1 text-end"><button type="button" class="btn btn-sm text-danger border-0" tabindex="-1" onclick="this.parentElement.parentElement.remove()"><i class="fa-solid fa-xmark fa-lg"></i></button></div>
-            `;
-            document.getElementById(`itens-grupo-${grupoId}`).appendChild(divItem);
-        }
-
-        function extrairGruposOpcoes() {
-            let grupos = [];
-            document.querySelectorAll('[id^="grupo-op-"]').forEach(el => {
-                const titulo = el.querySelector('.grp-titulo').value.trim(); const tipo = el.querySelector('.grp-tipo').value; const maximo = parseInt(el.querySelector('.grp-max').value) || 1;
-                let itensDoGrupo = [];
-                el.querySelectorAll('.item-opcao-row').forEach(row => { const nome = row.querySelector('.item-nome').value.trim(); const preco = parseFloat(row.querySelector('.item-preco').value) || 0; const pdv = row.querySelector('.item-pdv').value.trim(); if (nome) itensDoGrupo.push({ nome: nome, preco: preco, pdv: pdv }); });
-                if(titulo && itensDoGrupo.length > 0) { grupos.push({ titulo: titulo, tipo: tipo, maximo: maximo, itens: itensDoGrupo }); }
-            });
-            return grupos;
-        }
+        // Funções de PRODUTOS E CARDS MANTIDAS
+        function adicionarGrupoOpcao(grupo = null) { contadorGruposOpcoes++; const id = contadorGruposOpcoes; const div = document.createElement('div'); div.className = 'card-opcao shadow-sm'; div.id = `grupo-op-${id}`; div.innerHTML = `<button type="button" class="btn-remover-opcao" onclick="document.getElementById('grupo-op-${id}').remove()"><i class="fa-solid fa-trash"></i></button><div class="row g-2 mb-3 pb-2 border-bottom border-dark"><div class="col-md-5"><label class="small fw-bold text-muted font-mono">TÍTULO (Ex: Extras)</label><input type="text" class="form-control form-control-sm grp-titulo fw-bold" value="${grupo ? grupo.titulo : ''}"></div><div class="col-md-4"><label class="small fw-bold text-muted font-mono">REGRA</label><select class="form-select form-select-sm grp-tipo fw-bold"><option value="simples" ${grupo && grupo.tipo === 'simples' ? 'selected' : ''}>Apenas 1 (Rádio)</option><option value="multiplo" ${grupo && grupo.tipo === 'multiplo' ? 'selected' : ''}>Múltipla (Check)</option></select></div><div class="col-md-3"><label class="small fw-bold text-muted font-mono">LIM. MÁX.</label><input type="number" class="form-control form-control-sm grp-max fw-bold" value="${grupo ? grupo.maximo : '1'}"></div></div><div class="p-3 bg-white rounded border border-dark"><label class="small fw-bold text-primary mb-2 font-mono"><i class="fa-solid fa-cart-plus"></i> ITENS DA LISTA:</label><div id="itens-grupo-${id}" class="d-flex flex-column gap-2 mb-2"></div><button type="button" class="btn btn-sm btn-outline-dark w-100 fw-bold font-mono mt-2" onclick="adicionarItemLinha(${id})">+ INSERIR ITEM</button></div>`; document.getElementById('lista-grupos-opcoes').appendChild(div); if (grupo && grupo.itens && grupo.itens.length > 0) { grupo.itens.forEach(item => adicionarItemLinha(id, item)); } else { adicionarItemLinha(id); } }
+        function adicionarItemLinha(grupoId, itemData = null) { contadorItensExtra++; let iNome = '', iPreco = '', iPdv = ''; if (itemData !== null) { if (typeof itemData === 'string') { iNome = itemData; iPreco = 0; } else { iNome = itemData.nome || ''; iPreco = itemData.preco || 0; iPdv = itemData.pdv || ''; } } const divItem = document.createElement('div'); divItem.className = 'row g-1 align-items-center item-opcao-row'; divItem.innerHTML = `<div class="col-5"><input type="text" class="form-control form-control-sm item-nome fw-bold" placeholder="Nome" value="${iNome}"></div><div class="col-3"><div class="input-group input-group-sm"><span class="input-group-text bg-light text-success fw-bold border-dark">R$</span><input type="number" step="0.01" class="form-control border-dark item-preco" placeholder="0,00" value="${iPreco}"></div></div><div class="col-3"><input type="text" class="form-control form-control-sm item-pdv bg-light border-dark" placeholder="Cód PDV" value="${iPdv}"></div><div class="col-1 text-end"><button type="button" class="btn btn-sm text-danger border-0" tabindex="-1" onclick="this.parentElement.parentElement.remove()"><i class="fa-solid fa-xmark fa-lg"></i></button></div>`; document.getElementById(`itens-grupo-${grupoId}`).appendChild(divItem); }
+        function extrairGruposOpcoes() { let grupos = []; document.querySelectorAll('[id^="grupo-op-"]').forEach(el => { const titulo = el.querySelector('.grp-titulo').value.trim(); const tipo = el.querySelector('.grp-tipo').value; const maximo = parseInt(el.querySelector('.grp-max').value) || 1; let itensDoGrupo = []; el.querySelectorAll('.item-opcao-row').forEach(row => { const nome = row.querySelector('.item-nome').value.trim(); const preco = parseFloat(row.querySelector('.item-preco').value) || 0; const pdv = row.querySelector('.item-pdv').value.trim(); if (nome) itensDoGrupo.push({ nome: nome, preco: preco, pdv: pdv }); }); if(titulo && itensDoGrupo.length > 0) { grupos.push({ titulo: titulo, tipo: tipo, maximo: maximo, itens: itensDoGrupo }); } }); return grupos; }
 
         async function carregarOpcoesCat(catAtual) { const s = await db.collection('categorias').orderBy('ordem').get(); const sel = document.getElementById('item-categoria'); sel.innerHTML = ''; let achou = false; s.forEach(d => { sel.innerHTML += `<option value="${d.data().nome}">${d.data().nome}</option>`; if(d.data().nome === catAtual) achou = true; }); if(catAtual && !achou) sel.innerHTML += `<option value="${catAtual}">${catAtual} (Não cadastrada)</option>`; if(s.empty && !catAtual) sel.innerHTML = '<option value="Geral">Crie categorias primeiro</option>'; sel.value = catAtual || sel.options[0].value; }
         async function carregarTabelaCategorias() { const s = await db.collection('categorias').orderBy('ordem').get(); document.getElementById('tabela-categorias').innerHTML = ''; s.forEach(d => { document.getElementById('tabela-categorias').innerHTML += `<tr><td class="fw-bold">${d.data().nome}</td><td>${d.data().ordem}</td><td><button class="btn btn-sm btn-dark font-mono rounded-pill" onclick="editarCategoria('${d.id}')">EDITAR</button></td></tr>`; }); }
@@ -239,29 +186,8 @@
         async function excluirCategoria() { const id = document.getElementById('cat-id').value; if(id && confirm("Apagar?")) { await db.collection('categorias').doc(id).delete(); modCat.hide(); carregarTabelaCategorias(); } }
 
         async function carregarCardapioAdmin() { const s = await db.collection('cardapio').get(); document.getElementById('tabela-cardapio').innerHTML = ''; s.forEach(d => { const p = d.data(); const status = p.ativo === false ? '<span class="badge bg-danger">PAUSADO</span>' : '<span class="badge bg-success">ATIVO</span>'; document.getElementById('tabela-cardapio').innerHTML += `<tr><td><img src="${p.imagem_url}" class="img-preview"></td><td><strong>${p.nome}</strong><br><small class="text-muted">${p.categoria}</small></td><td class="fw-bold font-mono text-success">R$ ${p.preco_atual.toFixed(2).replace('.',',')}</td><td>${status}</td><td><button class="btn btn-sm btn-dark font-mono rounded-pill" onclick="editarProduto('${d.id}')">EDITAR</button></td></tr>`; }); }
-
         async function abrirModalProduto() { await carregarOpcoesCat(''); document.getElementById('item-id').value=''; document.getElementById('item-nome').value=''; document.getElementById('item-descricao').value=''; document.getElementById('item-preco').value=''; document.getElementById('item-foto').value=''; document.getElementById('item-pdv').value=''; document.getElementById('item-status').value='ativo'; document.getElementById('item-permite-resgate').value='nao'; document.getElementById('item-custo-pontos').value='0'; document.getElementById('lista-grupos-opcoes').innerHTML = ''; modProd.show(); }
-
-        async function editarProduto(id) {
-            const d = await db.collection('cardapio').doc(id).get(); const p = d.data(); await carregarOpcoesCat(p.categoria);
-            document.getElementById('item-id').value=id; document.getElementById('item-nome').value=p.nome; document.getElementById('item-descricao').value=p.descricao||''; document.getElementById('item-preco').value=p.preco_atual; document.getElementById('item-foto').value=p.imagem_url; document.getElementById('item-pdv').value=p.codigo_pdv||''; document.getElementById('item-status').value=p.ativo===false?'pausado':'ativo'; document.getElementById('item-permite-resgate').value = p.fidelidade?.permite_resgate ? 'sim' : 'nao'; document.getElementById('item-custo-pontos').value = p.fidelidade?.custo_em_pontos||0;
-            document.getElementById('lista-grupos-opcoes').innerHTML = '';
-            let grupos = p.grupos_opcoes || [];
-            if (grupos.length === 0) {
-                const n = p.nome.toLowerCase(); const cat = p.categoria || ""; const isLanche = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'].includes(cat) || n.includes('burger') || n.includes('lanche');
-                if (cat === "Sucos") grupos.push({ titulo: "Sabor do Suco", tipo: "simples", maximo: 1, itens: ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"] });
-                if (cat === "Milk Shakes") grupos.push({ titulo: "Sabor do Shake", tipo: "simples", maximo: 1, itens: ["Merengue", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango"] });
-                if (cat === "Saladas") { grupos.push({ titulo: "Proteína", tipo: "simples", maximo: 1, itens: ["Frango Grelhado", "Frango Empanado", "Mignon", "Salmão", "Tilápia"] }); grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Mostarda com Mel", "Maionese Chimichurri"] }); }
-                if (cat === "Parmegianas") { grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Vermelho", "Branco"] }); grupos.push({ titulo: "Acompanha", tipo: "simples", maximo: 1, itens: ["Fritas", "Salada"] }); }
-                if (isLanche && !n.includes('beirute') && !n.includes('baguete')) { grupos.push({ titulo: "Escolha o Pão", tipo: "simples", maximo: 1, itens: ["Hamburger", "Crocante"] }); }
-                if ((isLanche || cat === "Monte Seu Prato" || n.includes('fraldinha') || n.includes('mignon')) && !(n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro'))) { grupos.push({ titulo: "Ponto da Carne", tipo: "simples", maximo: 1, itens: ["Mal Passado", "Ao Ponto", "Bem Passado"] }); }
-                if (n.includes('x-mignon')) { grupos.push({ titulo: "Maionese", tipo: "simples", maximo: 1, itens: ["Da Casa", "Bacon", "Alho", "Sem Maionese"] }); }
-                if (cat === "Monte Seu Prato") { grupos.push({ titulo: "Acompanhamentos (Exatamente 3)", tipo: "multiplo", maximo: 3, itens: ["Abóbora Grelhada", 'Aligot', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa", "Rodelas de Pão", "Banana Milanesa"] }); }
-            }
-            grupos.forEach(g => adicionarGrupoOpcao(g));
-            modProd.show();
-        }
-
+        async function editarProduto(id) { const d = await db.collection('cardapio').doc(id).get(); const p = d.data(); await carregarOpcoesCat(p.categoria); document.getElementById('item-id').value=id; document.getElementById('item-nome').value=p.nome; document.getElementById('item-descricao').value=p.descricao||''; document.getElementById('item-preco').value=p.preco_atual; document.getElementById('item-foto').value=p.imagem_url; document.getElementById('item-pdv').value=p.codigo_pdv||''; document.getElementById('item-status').value=p.ativo===false?'pausado':'ativo'; document.getElementById('item-permite-resgate').value = p.fidelidade?.permite_resgate ? 'sim' : 'nao'; document.getElementById('item-custo-pontos').value = p.fidelidade?.custo_em_pontos||0; document.getElementById('lista-grupos-opcoes').innerHTML = ''; let grupos = p.grupos_opcoes || []; if (grupos.length === 0) { const n = p.nome.toLowerCase(); const cat = p.categoria || ""; const isLanche = ['Burgers Especiais', 'Clássicos', 'Combos Burger', 'Lanches Especiais', 'Fininhos'].includes(cat) || n.includes('burger') || n.includes('lanche'); if (cat === "Sucos") grupos.push({ titulo: "Sabor do Suco", tipo: "simples", maximo: 1, itens: ["Laranja", "Limão", "Maracujá", "Abacaxi com Hortelã", "Morango"] }); if (cat === "Milk Shakes") grupos.push({ titulo: "Sabor do Shake", tipo: "simples", maximo: 1, itens: ["Merengue", "Banoffee", "Ovomaltine", "Nutella", "Chocolate", "Morango"] }); if (cat === "Saladas") { grupos.push({ titulo: "Proteína", tipo: "simples", maximo: 1, itens: ["Frango Grelhado", "Frango Empanado", "Mignon", "Salmão", "Tilápia"] }); grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Mostarda com Mel", "Maionese Chimichurri"] }); } if (cat === "Parmegianas") { grupos.push({ titulo: "Molho", tipo: "simples", maximo: 1, itens: ["Vermelho", "Branco"] }); grupos.push({ titulo: "Acompanha", tipo: "simples", maximo: 1, itens: ["Fritas", "Salada"] }); } if (isLanche && !n.includes('beirute') && !n.includes('baguete')) { grupos.push({ titulo: "Escolha o Pão", tipo: "simples", maximo: 1, itens: ["Hamburger", "Crocante"] }); } if ((isLanche || cat === "Monte Seu Prato" || n.includes('fraldinha') || n.includes('mignon')) && !(n.includes('cupim') || n.includes('costelinha') || n.includes('frango') || n.includes('tilápia') || n.includes('salmão') || n.includes('carnivoro'))) { grupos.push({ titulo: "Ponto da Carne", tipo: "simples", maximo: 1, itens: ["Mal Passado", "Ao Ponto", "Bem Passado"] }); } if (n.includes('x-mignon')) { grupos.push({ titulo: "Maionese", tipo: "simples", maximo: 1, itens: ["Da Casa", "Bacon", "Alho", "Sem Maionese"] }); } if (cat === "Monte Seu Prato") { grupos.push({ titulo: "Acompanhamentos (Exatamente 3)", tipo: "multiplo", maximo: 3, itens: ["Abóbora Grelhada", 'Aligot', "Saladinha", "2 Ovos Fritos", "Fritas", "Legumes na Manteiga", "Arroz Branco", "Vinagrete", "Arroz do Dia", "Maionese de Legumes", "Feijão", "Farofa", "Rodelas de Pão", "Banana Milanesa"] }); } } grupos.forEach(g => adicionarGrupoOpcao(g)); modProd.show(); }
         async function salvarProduto() { const id = document.getElementById('item-id').value; const d = { nome: document.getElementById('item-nome').value, descricao: document.getElementById('item-descricao').value, preco_atual: parseFloat(document.getElementById('item-preco').value), categoria: document.getElementById('item-categoria').value, codigo_pdv: document.getElementById('item-pdv').value, imagem_url: document.getElementById('item-foto').value, ativo: document.getElementById('item-status').value==='ativo', fidelidade: { permite_resgate: document.getElementById('item-permite-resgate').value==='sim', custo_em_pontos: parseInt(document.getElementById('item-custo-pontos').value)||0 }, grupos_opcoes: extrairGruposOpcoes(), id_item: id||document.getElementById('item-nome').value.toLowerCase().replace(/ /g, "_") }; id ? await db.collection('cardapio').doc(id).update(d) : await db.collection('cardapio').add(d); modProd.hide(); carregarCardapioAdmin(); }
         async function excluirProduto() { const id=document.getElementById('item-id').value; if(id && confirm("Excluir item permanentemente?")){ await db.collection('cardapio').doc(id).delete(); modProd.hide(); carregarCardapioAdmin(); } }
 
