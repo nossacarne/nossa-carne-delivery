@@ -163,15 +163,19 @@
         if (!firebase.apps.length) { 
             const app = firebase.initializeApp(firebaseConfig); 
             
-            // INICIALIZAÇÃO DO ESCUDO DE SEGURANÇA (APP CHECK)
+            // CONSERTO DE EMERGÊNCIA: PROVEDOR ENTERPRISE
             try {
                 const appCheck = firebase.appCheck();
-                appCheck.activate(
-                  '6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc',
-                  true // Permite a atualização automática do token de segurança
-                );
+                if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
+                    appCheck.activate(
+                        new firebase.appCheck.ReCaptchaEnterpriseProvider('6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc'), 
+                        true
+                    );
+                } else {
+                    appCheck.activate('6LeWj7ssAAAAAP5MOlIW13JbXc7gwtYKPraguQuc', true);
+                }
             } catch(e) {
-                console.log("App Check initialization info:", e);
+                console.log("Aviso: Configuração App Check ajustada", e);
             }
         }
         
