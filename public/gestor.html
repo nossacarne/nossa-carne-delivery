@@ -48,7 +48,7 @@
             <input type="email" id="email-admin" class="form-control mb-3 p-3 rounded-4 border-dark border-2" placeholder="E-mail Operacional">
             <input type="password" id="senha-admin" class="form-control mb-4 p-3 rounded-4 border-dark border-2" placeholder="Senha">
             <button class="btn btn-dark w-100 fw-bold py-3 rounded-pill" onclick="fazerLogin()">ENTRAR NO KDS</button>
-            <p id="erro-auth" class="text-danger mt-3 small font-mono fw-bold" style="display:none;">ACESSO NEGADO.</p>
+            <p id="erro-auth" class="text-danger mt-3 small font-mono fw-bold" style="display:none;">CREDENCIAIS INCORRETAS.</p>
         </div>
     </div>
 
@@ -61,7 +61,7 @@
                 </div>
                 <nav class="d-flex gap-4">
                     <button class="aba-btn ativo font-mono" id="tab-pedidos" onclick="alternarAba('pedidos')">PEDIDOS</button>
-                    <button class="aba-btn font-mono" id="tab-cardapio" onclick="alternarAba('cardapio')">CARDAPIO</button>
+                    <button class="aba-btn font-mono" id="tab-cardapio" onclick="alternarAba('cardapio')">CONTROLE ESTOQUE</button>
                 </nav>
             </div>
             <div class="d-flex gap-3 mt-3 mt-md-0 w-100 w-md-auto justify-content-between">
@@ -73,7 +73,9 @@
         <div class="container-fluid p-4">
             <section id="secao-pedidos">
                 <div class="row g-4" id="lista-gestor-pedidos">
-                    <div class="text-center text-muted fw-bold mt-5 font-mono"><div class="spinner-border text-danger mb-3"></div><br>AGUARDANDO CONEXÃO...</div>
+                    <div class="text-center text-muted fw-bold mt-5 font-mono">
+                        <div class="spinner-border text-danger mb-3"></div><br>AGUARDANDO CONEXÃO...
+                    </div>
                 </div>
             </section>
 
@@ -81,7 +83,6 @@
                 <div class="card p-4 border-2 shadow-sm mx-auto" style="border-radius: 2rem; max-width: 1000px; border-color: var(--cor-primaria); box-shadow: 8px 8px 0px var(--cor-papel);">
                     <h2 class="drama-text mb-1">Disponibilidade de Itens</h2>
                     <p class="text-muted fw-bold small mb-4 font-mono">PAUSE ITENS QUE ESGOTARAM PARA RETIRÁ-LOS IMEDIATAMENTE DO APP DO CLIENTE.</p>
-                    
                     <div class="table-responsive">
                         <table class="table align-middle border-dark">
                             <thead class="font-mono opacity-50">
@@ -100,96 +101,268 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", authDomain: "nossa-carne-fidelidade.firebaseapp.com", projectId: "nossa-carne-fidelidade" };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore(); const auth = firebase.auth();
-        let qtdPedidosPendentes = 0; let listaTodosPedidos = [];
+        const firebaseConfig = { 
+            apiKey: "AIzaSyA-UN0RBgrqJIXLZ9LcZrjn7fQKs8qkPb8", 
+            authDomain: "nossa-carne-fidelidade.firebaseapp.com", 
+            projectId: "nossa-carne-fidelidade" 
+        };
+        
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        
+        const db = firebase.firestore(); 
+        const auth = firebase.auth();
+        let qtdPedidosPendentes = 0; 
+        let listaTodosPedidos = [];
 
-        auth.onAuthStateChanged(u => { if (u) { document.getElementById('tela-login').style.display = 'none'; document.getElementById('conteudo-gestor').style.display = 'block'; carregarGestorPedidos(); } else { document.getElementById('tela-login').style.display = 'flex'; document.getElementById('conteudo-gestor').style.display = 'none'; } });
-        async function fazerLogin() { try { await auth.signInWithEmailAndPassword(document.getElementById('email-admin').value, document.getElementById('senha-admin').value); } catch(e){ document.getElementById('erro-auth').style.display='block'; } }
-        function fazerLogout() { auth.signOut(); }
-        function pedirPermissaoAudio() { document.getElementById('som-campainha').play().then(() => { document.getElementById('som-campainha').pause(); alert("SISTEMA DE ÁUDIO OPERACIONAL."); }).catch(e => alert("ERRO AO ATIVAR SOM.")); }
+        // Trava de Segurança
+        auth.onAuthStateChanged(async u => { 
+            if (u) { 
+                try {
+                    const docAdmin = await db.collection('admins').doc(u.uid).get();
+                    if (docAdmin.exists) {
+                        document.getElementById('tela-login').style.display = 'none'; 
+                        document.getElementById('conteudo-gestor').style.display = 'block'; 
+                        carregarGestorPedidos(); 
+                    } else {
+                        auth.signOut();
+                        alert("🔒 ALERTA DE SEGURANÇA: Acesso Restrito à Operação.");
+                        document.getElementById('tela-login').style.display = 'flex'; 
+                        document.getElementById('conteudo-gestor').style.display = 'none'; 
+                    }
+                } catch(e) {
+                    auth.signOut();
+                    alert("🔒 Erro de Permissão no Banco de Dados.");
+                }
+            } else { 
+                document.getElementById('tela-login').style.display = 'flex'; 
+                document.getElementById('conteudo-gestor').style.display = 'none'; 
+            } 
+        });
+
+        async function fazerLogin() { 
+            try { 
+                await auth.signInWithEmailAndPassword(
+                    document.getElementById('email-admin').value, 
+                    document.getElementById('senha-admin').value
+                ); 
+            } catch(e) { 
+                document.getElementById('erro-auth').style.display = 'block'; 
+            } 
+        }
+
+        function fazerLogout() { 
+            auth.signOut(); 
+        }
+
+        function pedirPermissaoAudio() { 
+            document.getElementById('som-campainha').play().then(() => { 
+                document.getElementById('som-campainha').pause(); 
+                alert("SISTEMA DE ÁUDIO OPERACIONAL."); 
+            }).catch(e => alert("ERRO AO ATIVAR SOM. Verifique as permissões do navegador.")); 
+        }
 
         function alternarAba(aba) {
             document.getElementById('secao-pedidos').style.display = aba === 'pedidos' ? 'block' : 'none';
             document.getElementById('secao-cardapio').style.display = aba === 'cardapio' ? 'block' : 'none';
             document.getElementById('tab-pedidos').classList.toggle('ativo', aba === 'pedidos');
             document.getElementById('tab-cardapio').classList.toggle('ativo', aba === 'cardapio');
-            if(aba === 'cardapio') carregarCardapioRapido();
+            if(aba === 'cardapio') {
+                carregarCardapioRapido();
+            }
         }
 
         async function carregarCardapioRapido() {
             document.getElementById('tabela-pausa-itens').innerHTML = '<tr><td colspan="4" class="text-center py-4"><div class="spinner-border text-danger"></div></td></tr>';
-            const s = await db.collection('cardapio').get(); let html = '';
-            let itens = []; s.forEach(d => itens.push({ id: d.id, ...d.data() }));
-            itens.sort((a, b) => a.nome.localeCompare(b.nome));
-
-            itens.forEach(p => {
-                const isAtivo = p.ativo !== false;
-                const badge = isAtivo ? '<span class="status-tag bg-success text-white border-0">DISPONÍVEL</span>' : '<span class="status-tag bg-danger text-white border-0">ESGOTADO</span>';
-                const btn = isAtivo 
-                    ? `<button class="btn btn-sm btn-outline-danger fw-bold font-mono w-100 rounded-pill" onclick="pausarItemRapido('${p.id}', false)">PAUSAR HOJE</button>` 
-                    : `<button class="btn btn-sm btn-success fw-bold font-mono w-100 rounded-pill" onclick="pausarItemRapido('${p.id}', true)">REATIVAR</button>`;
+            
+            try {
+                const snapshot = await db.collection('cardapio').get(); 
+                let html = '';
+                let itens = []; 
                 
-                html += `<tr><td><div class="d-flex align-items-center gap-3"><img src="${p.imagem_url || 'https://via.placeholder.com/150'}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; border: 1px solid #111;"> <span class="fw-bold">${p.nome}</span></div></td><td><span class="font-mono small opacity-75">${p.categoria}</span></td><td>${badge}</td><td style="width: 160px;">${btn}</td></tr>`;
-            });
-            document.getElementById('tabela-pausa-itens').innerHTML = html;
+                snapshot.forEach(doc => {
+                    itens.push({ id: doc.id, ...doc.data() });
+                });
+                
+                itens.sort((a, b) => a.nome.localeCompare(b.nome));
+
+                itens.forEach(p => {
+                    const isAtivo = p.ativo !== false;
+                    const badge = isAtivo 
+                        ? '<span class="status-tag bg-success text-white border-0">DISPONÍVEL</span>' 
+                        : '<span class="status-tag bg-danger text-white border-0">ESGOTADO</span>';
+                    const btn = isAtivo 
+                        ? `<button class="btn btn-sm btn-outline-danger fw-bold font-mono w-100 rounded-pill" onclick="pausarItemRapido('${p.id}', false)">PAUSAR HOJE</button>` 
+                        : `<button class="btn btn-sm btn-success fw-bold font-mono w-100 rounded-pill" onclick="pausarItemRapido('${p.id}', true)">REATIVAR</button>`;
+                    
+                    html += `
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <img src="${p.imagem_url || 'https://via.placeholder.com/150'}" style="width:40px; height:40px; object-fit:cover; border-radius:8px; border: 1px solid #111;"> 
+                                    <span class="fw-bold">${p.nome}</span>
+                                </div>
+                            </td>
+                            <td><span class="font-mono small opacity-75">${p.categoria}</span></td>
+                            <td>${badge}</td>
+                            <td style="width: 160px;">${btn}</td>
+                        </tr>
+                    `;
+                });
+                document.getElementById('tabela-pausa-itens').innerHTML = html;
+            } catch(e) {
+                document.getElementById('tabela-pausa-itens').innerHTML = '<tr><td colspan="4" class="text-danger text-center">Erro ao carregar cardápio.</td></tr>';
+            }
         }
 
-        async function pausarItemRapido(id, status) { try { await db.collection('cardapio').doc(id).update({ ativo: status }); carregarCardapioRapido(); } catch(e) { alert("ERRO NO SISTEMA."); } }
+        async function pausarItemRapido(id, status) { 
+            try { 
+                await db.collection('cardapio').doc(id).update({ ativo: status }); 
+                carregarCardapioRapido(); 
+            } catch(e) { 
+                alert("ERRO NO SISTEMA AO ATUALIZAR STATUS."); 
+            } 
+        }
 
         function carregarGestorPedidos() {
-            db.collection('vendas_concluidas').orderBy('data_pedido','desc').limit(40).onSnapshot(s => {
-                let html = ''; let novosPendentes = 0; listaTodosPedidos = [];
-                s.forEach(d => {
-                    const p = d.data(); p.id = d.id; listaTodosPedidos.push(p);
+            db.collection('vendas_concluidas').orderBy('data_pedido','desc').limit(40).onSnapshot(snapshot => {
+                let html = ''; 
+                let novosPendentes = 0; 
+                listaTodosPedidos = [];
+                
+                snapshot.forEach(doc => {
+                    const p = doc.data(); 
+                    p.id = doc.id; 
+                    listaTodosPedidos.push(p);
+                    
                     const status = p.status || 'pendente';
                     if (status === 'pendente') novosPendentes++;
 
-                    let statusTxt = ''; let btnAcao = '';
-                    if(status === 'pendente') { statusTxt = 'AGUARDANDO'; btnAcao = `<button class="btn text-white fw-bold font-mono w-100 rounded-pill py-2 mb-2" style="background-color: var(--cor-acento);" onclick="mudarStatusPedido('${p.id}', 'confirmado')">ACEITAR PEDIDO</button>`; }
-                    if(status === 'confirmado') { statusTxt = 'CONFIRMADO'; btnAcao = `<button class="btn btn-dark fw-bold font-mono w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'preparo')">INICIAR PREPARO</button>`; }
-                    if(status === 'preparo') { statusTxt = 'EM PREPARO'; btnAcao = `<button class="btn btn-warning fw-bold font-mono text-dark w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'rota')">${p.logistica?.modo_entrega==='retirada'?'PRONTO P/ RETIRADA':'SAIU PARA ENTREGA'}</button>`; }
-                    if(status === 'rota') { statusTxt = p.logistica?.modo_entrega==='retirada'?'DISP. RETIRADA':'EM ROTA'; btnAcao = `<button class="btn btn-success fw-bold font-mono w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'concluido')">CONCLUIR PEDIDO</button>`; }
-                    if(status === 'concluido') statusTxt = 'ENTREGUE';
+                    let statusTxt = ''; 
+                    let btnAcao = '';
+                    
+                    if(status === 'pendente') { 
+                        statusTxt = 'AGUARDANDO'; 
+                        btnAcao = `<button class="btn text-white fw-bold font-mono w-100 rounded-pill py-2 mb-2" style="background-color: var(--cor-acento);" onclick="mudarStatusPedido('${p.id}', 'confirmado')">ACEITAR PEDIDO</button>`; 
+                    }
+                    else if(status === 'confirmado') { 
+                        statusTxt = 'CONFIRMADO'; 
+                        btnAcao = `<button class="btn btn-dark fw-bold font-mono w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'preparo')">INICIAR PREPARO</button>`; 
+                    }
+                    else if(status === 'preparo') { 
+                        statusTxt = 'EM PREPARO'; 
+                        const txtBotao = p.logistica?.modo_entrega === 'retirada' ? 'PRONTO P/ RETIRADA' : 'SAIU PARA ENTREGA';
+                        btnAcao = `<button class="btn btn-warning fw-bold font-mono text-dark w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'rota')">${txtBotao}</button>`; 
+                    }
+                    else if(status === 'rota') { 
+                        statusTxt = p.logistica?.modo_entrega === 'retirada' ? 'DISP. RETIRADA' : 'EM ROTA'; 
+                        btnAcao = `<button class="btn btn-success fw-bold font-mono w-100 rounded-pill py-2 mb-2" onclick="mudarStatusPedido('${p.id}', 'concluido')">CONCLUIR PEDIDO</button>`; 
+                    }
+                    else if(status === 'concluido') {
+                        statusTxt = 'ENTREGUE';
+                    }
 
                     let itensHtml = '';
-                    p.itens.forEach(i => { itensHtml += `<div class="mb-2 border-bottom border-dark pb-1 font-mono small fw-bold">1x ${i.nome}<br><span class="opacity-50" style="font-size:10px;">${i.obsDetalhes || ''}</span></div>`; });
+                    p.itens.forEach(item => { 
+                        itensHtml += `
+                            <div class="mb-2 border-bottom border-dark pb-1 font-mono small fw-bold">
+                                1x ${item.nome}<br>
+                                <span class="opacity-50" style="font-size:10px;">${item.obsDetalhes || ''}</span>
+                            </div>
+                        `; 
+                    });
+                    
                     const dataStr = p.data_pedido ? p.data_pedido.toDate().toLocaleTimeString('pt-BR', {hour: '2-digit', minute:'2-digit'}) : '';
+                    const tipoEntrega = p.logistica?.modo_entrega === 'retirada' ? 'RETIRADA' : 'DELIVERY';
 
                     html += `
                     <div class="col-md-4 col-lg-3">
                         <div class="pedido-card-admin ${status}">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h3 class="font-mono m-0 fw-bold" style="color: var(--cor-acento);">#${p.numero_pedido || p.id.substring(0,4)}</h3>
-                                <span class="status-tag bg-dark text-white">${p.logistica?.modo_entrega==='retirada'?'RETIRADA':'DELIVERY'}</span>
+                                <h3 class="font-mono m-0 fw-bold" style="color: var(--cor-acento);">${p.numero_pedido || p.id.substring(0,4)}</h3>
+                                <span class="status-tag bg-dark text-white">${tipoEntrega}</span>
                             </div>
                             <div class="fw-bold mb-1">${p.cliente.nome} <span class="font-mono opacity-50 float-end">${dataStr}</span></div>
-                            <div class="small opacity-75 mb-3 font-mono" style="font-size:11px;"><i class="fa-solid fa-location-dot"></i> ${p.logistica?.endereco}</div>
-                            <div class="p-3 rounded-4 mb-3 border border-dark" style="background: var(--cor-bg); min-height: 100px; max-height: 180px; overflow-y:auto;">${itensHtml}</div>
+                            <div class="small opacity-75 mb-3 font-mono" style="font-size:11px;">
+                                <i class="fa-solid fa-location-dot"></i> ${p.logistica?.endereco}
+                            </div>
+                            <div class="p-3 rounded-4 mb-3 border border-dark" style="background: var(--cor-bg); min-height: 100px; max-height: 180px; overflow-y:auto;">
+                                ${itensHtml}
+                            </div>
                             <div class="d-flex justify-content-between align-items-center mb-3">
                                 <span class="fw-bold text-success font-mono">R$ ${p.financeiro.total_pago_reais.toFixed(2)}</span>
                                 <span class="status-tag">${statusTxt}</span>
                             </div>
                             ${btnAcao}
-                            <button class="btn btn-outline-dark btn-sm font-mono w-100 rounded-pill" onclick="imprimirComanda('${p.id}')"><i class="fa-solid fa-print"></i> IMPRIMIR</button>
+                            <button class="btn btn-outline-dark btn-sm font-mono w-100 rounded-pill" onclick="imprimirComanda('${p.id}')">
+                                <i class="fa-solid fa-print"></i> IMPRIMIR
+                            </button>
                         </div>
                     </div>`;
                 });
+                
                 document.getElementById('lista-gestor-pedidos').innerHTML = html;
-                if (novosPendentes > qtdPedidosPendentes) { document.getElementById('som-campainha').play().catch(e => {}); }
+                
+                // Toca o som apenas se o número de pedidos pendentes aumentou
+                if (novosPendentes > qtdPedidosPendentes) { 
+                    document.getElementById('som-campainha').play().catch(e => console.log("Áudio bloqueado pelo navegador.")); 
+                }
                 qtdPedidosPendentes = novosPendentes;
             });
         }
 
-        async function mudarStatusPedido(id, status) { await db.collection('vendas_concluidas').doc(id).update({ status: status }); }
+        async function mudarStatusPedido(id, status) { 
+            await db.collection('vendas_concluidas').doc(id).update({ status: status }); 
+        }
 
         function imprimirComanda(idPedido) {
-            const p = listaTodosPedidos.find(x => x.id === idPedido); if(!p) return;
-            let itensPrint = ''; p.itens.forEach(i => { itensPrint += `<div style="font-weight: bold; margin-top: 5px;">1x ${i.nome} - R$ ${i.preco.toFixed(2)}</div><div style="font-size: 12px; margin-left: 10px;">${i.obsDetalhes || ''}</div><div style="border-bottom: 1px dashed #000; margin: 5px 0;"></div>`; });
+            const p = listaTodosPedidos.find(x => x.id === idPedido); 
+            if(!p) return;
+            
+            let itensPrint = ''; 
+            p.itens.forEach(i => { 
+                itensPrint += `
+                    <div style="font-weight: bold; margin-top: 5px;">1x ${i.nome} - R$ ${i.preco.toFixed(2)}</div>
+                    <div style="font-size: 12px; margin-left: 10px;">${i.obsDetalhes || ''}</div>
+                    <div style="border-bottom: 1px dashed #000; margin: 5px 0;"></div>
+                `; 
+            });
+            
             const dataStr = p.data_pedido ? p.data_pedido.toDate().toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
             const janela = window.open('', '', 'width=400,height=600');
-            janela.document.write(`<html><head><title>Comanda</title><style>body { font-family: monospace; width: 300px; margin: 0; padding: 10px; color: #000; } .center { text-align: center; } .bold { font-weight: bold; } .line { border-bottom: 1px dashed #000; margin: 10px 0; }</style></head><body><h2 class="center m-0">NOSSA CARNE</h2><div class="center">Pedido #${p.numero_pedido || p.id.substring(0,4)}</div><div class="center" style="font-size:12px;">${dataStr}</div><div class="line"></div><div><span class="bold">Cliente:</span> ${p.cliente.nome}</div><div><span class="bold">WhatsApp:</span> ${p.cliente.telefone}</div><div><span class="bold">Tipo:</span> ${p.logistica?.modo_entrega.toUpperCase()}</div><div style="font-size:14px; font-weight:bold; margin-top:5px;">Endereço:</div><div>${p.logistica?.endereco}</div><div class="line"></div><h3 class="center m-0">ITENS DO PEDIDO</h3><div class="line"></div>${itensPrint}<div style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 10px;">TOTAL: R$ ${p.financeiro.total_pago_reais.toFixed(2)}</div><div class="line"></div><div class="center" style="font-size:12px;">Obrigado pela preferência!</div><script>setTimeout(() => { window.print(); window.close(); }, 500);<\/script></body></html>`);
+            
+            janela.document.write(`
+                <html>
+                <head>
+                    <title>Comanda</title>
+                    <style>
+                        body { font-family: monospace; width: 300px; margin: 0; padding: 10px; color: #000; } 
+                        .center { text-align: center; } 
+                        .bold { font-weight: bold; } 
+                        .line { border-bottom: 1px dashed #000; margin: 10px 0; }
+                    </style>
+                </head>
+                <body>
+                    <h2 class="center m-0">NOSSA CARNE</h2>
+                    <div class="center">Pedido ${p.numero_pedido || p.id.substring(0,4)}</div>
+                    <div class="center" style="font-size:12px;">${dataStr}</div>
+                    <div class="line"></div>
+                    <div><span class="bold">Cliente:</span> ${p.cliente.nome}</div>
+                    <div><span class="bold">Endereço:</span> ${p.logistica?.endereco}</div>
+                    <div class="line"></div>
+                    <h3 class="center m-0">ITENS</h3>
+                    <div class="line"></div>
+                    ${itensPrint}
+                    <div style="font-size: 18px; font-weight: bold; text-align: right; margin-top: 10px;">
+                        TOTAL: R$ ${p.financeiro.total_pago_reais.toFixed(2)}
+                    </div>
+                    <script>
+                        setTimeout(() => { window.print(); window.close(); }, 500);
+                    <\/script>
+                </body>
+                </html>
+            `);
         }
     </script>
 </body>
