@@ -150,6 +150,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
 
     <script>
@@ -186,7 +187,7 @@
         let rolagemManualAtiva = false; 
         let escutaPedidos = null;
         
-        // Coordenada base exata corrigida: Rua Francisco Polito, 995
+        // Coordenada base exata do Restaurante
         let configTaxasGlobal = { loja: { lat: -23.58386, lng: -46.57496 }, gratis_acima: 0, raios: [] }; 
         let taxaAtualCobrada = 0; 
         let podeEntregar = true;
@@ -1024,10 +1025,6 @@
                 atualizarCarrinhoFlutuante(); 
                 fecharPerfilFull(); 
             }); 
-        }
-
-        function copiarPix() { 
-            navigator.clipboard.writeText(document.getElementById('pix-code').innerText).then(() => { alert("Código copiado!"); }); 
         }
 
         function instalarApple() { alert("🍎 Safari > Compartilhar > Adicionar à Tela de Início."); }
