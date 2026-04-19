@@ -641,7 +641,7 @@
                 abrirSheet('sheet-pix');
                 
                 try {
-                    const response = await fetch('/gerar-pix', {
+                    const response = await fetch('http://localhost:3000/gerar-pix', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ valorTotal: total })
@@ -672,7 +672,7 @@
 
         async function verificarStatusPagamento(idT) { 
             try { 
-                const r = await fetch(`/consultar-pix/${idT}`); 
+                const r = await fetch(`http://localhost:3000/consultar-pix/${idT}`); 
                 const d = await r.json(); 
                 if(d.status === 'approved') { 
                     clearInterval(verificadorPix); 
@@ -739,6 +739,26 @@
             o.querySelector('.bottom-sheet').classList.remove('show'); 
             setTimeout(() => o.style.display = 'none', 300); 
             if(id === 'sheet-pix' && verificadorPix) clearInterval(verificadorPix); 
+        }
+
+        function abrirPerfilFull() { 
+            const tela = document.getElementById('tela-perfil-full'); 
+            tela.style.display = 'flex'; 
+            setTimeout(() => tela.classList.add('show'), 10); 
+            
+            if (usuario) { 
+                mostrarMenuPerfil(); 
+            } else if (usuarioIncompleto) { 
+                renderizarTelaCompletarCadastro(); 
+            } else { 
+                renderizarTelaAcesso(); 
+            } 
+        }
+
+        function fecharPerfilFull() { 
+            const tela = document.getElementById('tela-perfil-full'); 
+            tela.classList.remove('show'); 
+            setTimeout(() => tela.style.display = 'none', 300); 
         }
 
         function renderizarTelaAcesso() { 
