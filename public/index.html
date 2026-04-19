@@ -143,14 +143,13 @@
         <div class="conteudo-full" id="conteudo-perfil-full"></div>
     </div>
     
-    <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')"><div class="bottom-sheet text-center" onclick="event.stopPropagation()"><div class="handle"></div><i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i><h4 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pagamento Instantâneo</h4><div id="loading-pix" class="my-4"><div class="spinner-border text-success spinner-border-sm"></div> <span class="fw-bold ms-2">Gerando código...</span></div><div id="area-codigo-pix" style="display: none;"><div id="pix-code" class="p-3 bg-white rounded border border-2 border-dark my-4 small text-break fw-bold text-muted" style="border-style: dashed !important;"></div><button class="btn-main mb-4" onclick="copiarPix()"><i class="fa-regular fa-copy me-2"></i> Copiar Código PIX</button><div class="d-flex align-items-center justify-content-center gap-2"><div class="spinner-border spinner-border-sm" style="color: var(--cor-primaria);"></div><span class="small fw-bold">Aguardando banco...</span></div></div></div></div>
+    <div class="sheet-overlay" id="sheet-pix" onclick="fecharSheet('sheet-pix')"><div class="bottom-sheet text-center" onclick="event.stopPropagation()"><div class="handle"></div><i class="fa-brands fa-pix fa-3x mb-3" style="color: #32bcad;"></i><h4 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pagamento Instantâneo</h4><div id="loading-pix" class="my-4"><div class="spinner-border text-success spinner-border-sm"></div> <span class="fw-bold ms-2">Gerando código...</span></div><div id="area-codigo-pix" style="display: none;"></div></div></div>
     
     <div class="sheet-overlay" id="sheet-sucesso" onclick="fecharSheet('sheet-sucesso')"><div class="bottom-sheet text-center" onclick="event.stopPropagation()"><div class="handle"></div><i class="fa-solid fa-circle-check fa-4x mb-3" style="color: #198754;"></i><h3 class="fw-bold" style="font-weight: 900; text-transform: uppercase;">Pedido Enviado!</h3><p class="text-muted fw-bold mb-4">Acompanhe o preparo do seu pedido em tempo real.</p><button class="btn-main" onclick="fecharSheet('sheet-sucesso'); abrirPerfilFull(); mostrarHistoricoPedidos();">Acompanhar Meu Pedido</button></div></div>
 
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app-check.js"></script>
 
     <script>
@@ -162,8 +161,6 @@
         
         if (!firebase.apps.length) { 
             const app = firebase.initializeApp(firebaseConfig); 
-            
-            // CONSERTO DE EMERGÊNCIA: PROVEDOR ENTERPRISE
             try {
                 const appCheck = firebase.appCheck();
                 if (firebase.appCheck.ReCaptchaEnterpriseProvider) {
@@ -623,7 +620,6 @@
                 return abrirPerfilFull();
             }
             
-            // TRAVA DE SEGURANÇA: Impede Duplo Clique e Spam
             const btnConfirmar = document.querySelector('#sheet-carrinho .btn-main');
             if(btnConfirmar) {
                 btnConfirmar.disabled = true;
@@ -641,7 +637,7 @@
                 abrirSheet('sheet-pix');
                 
                 try {
-                    const response = await fetch('http://localhost:3000/gerar-pix', {
+                    const response = await fetch('https://www.nossacarnedelivery.com.br/gerar-pix', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ valorTotal: total })
@@ -651,7 +647,23 @@
                     if(data.qr_code_copia_cola && data.id_transacao) {
                         document.getElementById('loading-pix').style.display = 'none';
                         document.getElementById('area-codigo-pix').style.display = 'block';
-                        document.getElementById('pix-code').innerText = data.qr_code_copia_cola;
+                        
+                        // Mostra o QR Code Visual para escanear e o Copia e Cola
+                        document.getElementById('area-codigo-pix').innerHTML = `
+                            <div class="mb-3">
+                                <img src="data:image/jpeg;base64,${data.qr_code_base64}" alt="QR Code PIX" style="width: 220px; max-width: 100%; border-radius: 12px; border: 2px solid #EBE6DF; padding: 10px;">
+                            </div>
+                            <div class="small fw-bold text-muted mb-2">Ou copie o código abaixo:</div>
+                            <div id="pix-code" class="p-3 bg-white rounded border border-2 border-dark mb-4 small text-break fw-bold text-muted" style="border-style: dashed !important; user-select: all;">
+                                ${data.qr_code_copia_cola}
+                            </div>
+                            <button class="btn-main mb-4" onclick="copiarPix()"><i class="fa-regular fa-copy me-2"></i> Copiar Código PIX</button>
+                            <div class="d-flex align-items-center justify-content-center gap-2">
+                                <div class="spinner-border spinner-border-sm" style="color: var(--cor-primaria);"></div>
+                                <span class="small fw-bold">Aguardando confirmação do banco...</span>
+                            </div>
+                        `;
+                        
                         verificadorPix = setInterval(() => { verificarStatusPagamento(data.id_transacao); }, 3000);
                     } else {
                         alert("Erro ao gerar PIX.");
@@ -672,7 +684,7 @@
 
         async function verificarStatusPagamento(idT) { 
             try { 
-                const r = await fetch(`http://localhost:3000/consultar-pix/${idT}`); 
+                const r = await fetch(`https://www.nossacarnedelivery.com.br/consultar-pix/${idT}`); 
                 const d = await r.json(); 
                 if(d.status === 'approved') { 
                     clearInterval(verificadorPix); 
@@ -818,11 +830,25 @@
         async function fazerLoginAuth() { 
             const email = document.getElementById('login-email').value.trim(); 
             const senha = document.getElementById('login-senha').value.trim(); 
-            if(!email || !senha) return alert("Preencha e-mail e senha."); 
+            
+            if(!email || !senha) {
+                return alert("⚠️ Por favor, preencha o seu e-mail e a sua senha."); 
+            }
+            
             try { 
                 await auth.signInWithEmailAndPassword(email, senha); 
             } catch(e) { 
-                alert("Erro ao entrar. Verifique seu e-mail e senha."); 
+                if (e.code === 'auth/wrong-password') {
+                    alert("❌ Senha incorreta! Verifique se digitou corretamente.");
+                } else if (e.code === 'auth/user-not-found') {
+                    alert("❌ E-mail não cadastrado! Clique em 'Criar conta' abaixo.");
+                } else if (e.code === 'auth/invalid-email') {
+                    alert("❌ O formato do e-mail é inválido.");
+                } else if (e.code === 'auth/too-many-requests') {
+                    alert("❌ Muitas tentativas falhadas. Conta bloqueada temporariamente por segurança.");
+                } else {
+                    alert("❌ Erro ao entrar: " + e.message); 
+                }
             } 
         }
 
@@ -847,8 +873,12 @@
             const bairro = document.getElementById('cad-bairro').value.trim(); 
             const cidade = document.getElementById('cad-cidade').value.trim(); 
             
-            if(!nome || !email || !senha || !whats || !cep || !rua || !num || !bairro) return alert("Preencha todos os campos obrigatórios."); 
-            if(!window.tempCoords) return alert("Por favor, preencha um CEP válido para calcularmos sua localização GPS."); 
+            if(!nome || !email || !senha || !whats || !cep || !rua || !num || !bairro) {
+                return alert("⚠️ Preencha todos os campos obrigatórios."); 
+            }
+            if(!window.tempCoords) {
+                return alert("📍 Por favor, preencha um CEP válido para calcularmos a sua localização GPS."); 
+            }
             
             try { 
                 const credencial = await auth.createUserWithEmailAndPassword(email, senha); 
@@ -862,7 +892,13 @@
                 }; 
                 await db.collection('clientes').doc(credencial.user.uid).set(dadosCliente); 
             } catch(e) { 
-                alert("Erro no cadastro."); 
+                if (e.code === 'auth/email-already-in-use') {
+                    alert("⚠️ Este e-mail já está cadastrado! Volte e faça o Login.");
+                } else if (e.code === 'auth/weak-password') {
+                    alert("⚠️ A sua senha é muito fraca. Use pelo menos 6 caracteres.");
+                } else {
+                    alert("❌ Erro no cadastro: " + e.message); 
+                }
             } 
         }
 
