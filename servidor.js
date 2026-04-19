@@ -12,8 +12,9 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
 // COLE O SEU ACCESS TOKEN DO MERCADO PAGO AQUI:
-const client = new MercadoPagoConfig({ accessToken: 'APP_USR-7463754427993645-041909-65dc8b9e14c46eaad67076562b1178ec-656782665', options: { timeout: 5000 } });
-
+const client = new MercadoPagoConfig({ 
+    accessToken: process.env.MP_ACCESS_TOKEN 
+});
 // 2. Rota de geração de PIX
 app.post('/gerar-pix', async (req, res) => {
     console.log("👉 Iniciando pedido de PIX. Valor: R$", req.body.valorTotal);
