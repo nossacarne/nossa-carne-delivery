@@ -684,60 +684,68 @@
 
         async function verificarStatusPagamento(idT) { 
             try { 
-                const r = await fetch(`https://www.nossacarnedelivery.com.br/consultar-pix/${idT}`); 
+                const tempo = new Date().getTime();
+                const r = await fetch(`https://www.nossacarnedelivery.com.br/consultar-pix/${idT}?v=${tempo}`, {
+                    cache: 'no-store',
+                    headers: { 'Pragma': 'no-cache' }
+                }); 
                 const d = await r.json(); 
+                
                 if(d.status === 'approved') { 
                     clearInterval(verificadorPix); 
-                    alert("✅ PIX Confirmado!"); 
+                    
+                    // AVISO VISUAL IMEDIATO: O cliente vê que pagou na hora!
+                    document.getElementById('area-codigo-pix').innerHTML = '<div class="text-center mt-4"><i class="fa-solid fa-circle-check fa-4x mb-3" style="color: #198754;"></i><h4 class="fw-bold">Pagamento Aprovado!</h4><p class="text-muted fw-bold">A enviar o seu pedido para a cozinha...</p></div>';
+                    
                     finalizarPedidoNoSistema(); 
                 } 
-            } catch(e) {} 
+            } catch(e) {
+                console.log("Erro na vigilância:", e);
+            } 
         }
         
         async function finalizarPedidoNoSistema() { 
-            const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); 
-            const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); 
-            
-            let endStr = "Retirada na Loja: R. Pinheiro Guimarães, 50 - Vila Prudente";
-            if(modoEntregaAtual === 'delivery') { 
-                const e = usuario.endereco; 
-                endStr = `${e.rua}, ${e.numero}`; 
-                if(e.complemento) endStr += ` - Compl: ${e.complemento}`; 
-                endStr += ` - ${e.bairro} - CEP ${e.cep}`; 
-                if(e.cidade) endStr += ` (${e.cidade})`; 
-            }
-            
-            const inicioDoDia = new Date(); 
-            let startOfDay = new Date(inicioDoDia.getFullYear(), inicioDoDia.getMonth(), inicioDoDia.getDate());
-            const snapHoje = await db.collection('vendas_concluidas').where('data_pedido', '>=', startOfDay).get();
-            let countEntregas = 1; 
-            
-            snapHoje.forEach(doc => { 
-                const d = doc.data(); 
-                if(d.logistica?.modo_entrega === 'delivery') countEntregas++; 
-            });
-            
-            const idGerado = modoEntregaAtual === 'delivery' ? `ENTREGA ${countEntregas}` : `RETIRADA NA LOJA`;
+            try {
+                const totalR = carrinho.reduce((acc, i) => acc + i.preco, 0); 
+                const totalPts = carrinho.filter(i => i.tipo === 'resgate').reduce((acc, i) => acc + i.pontos, 0); 
+                
+                let endStr = "Retirada na Loja: R. Pinheiro Guimarães, 50 - Vila Prudente";
+                if(modoEntregaAtual === 'delivery') { 
+                    const e = usuario.endereco; 
+                    endStr = `${e.rua}, ${e.numero}`; 
+                    if(e.complemento) endStr += ` - Compl: ${e.complemento}`; 
+                    endStr += ` - ${e.bairro} - CEP ${e.cep}`; 
+                    if(e.cidade) endStr += ` (${e.cidade})`; 
+                }
+                
+                // CORREÇÃO MESTRA: Cria um número de pedido seguro usando a hora
+                const numCurto = new Date().getTime().toString().slice(-4);
+                const idGerado = modoEntregaAtual === 'delivery' ? `ENTREGA #${numCurto}` : `RETIRADA #${numCurto}`;
 
-            await db.collection('vendas_concluidas').add({ 
-                numero_pedido: idGerado, 
-                status: 'pendente',
-                data_pedido: firebase.firestore.FieldValue.serverTimestamp(), 
-                cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, 
-                logistica: { modo_entrega: modoEntregaAtual, endereco: endStr }, 
-                itens: carrinho, 
-                financeiro: { 
-                    total_pago_reais: totalR + taxaAtualCobrada, 
-                    taxa_entrega: taxaAtualCobrada, 
-                    pontos_utilizados: totalPts, 
-                    metodo_pagamento: (totalR + taxaAtualCobrada) > 0 ? "PIX" : "Apenas Pontos" 
-                } 
-            }); 
-            
-            fecharSheet('sheet-pix'); 
-            carrinho = []; 
-            atualizarCarrinhoFlutuante(); 
-            abrirSheet('sheet-sucesso'); 
+                await db.collection('vendas_concluidas').add({ 
+                    numero_pedido: idGerado, 
+                    status: 'pendente',
+                    data_pedido: firebase.firestore.FieldValue.serverTimestamp(), 
+                    cliente: { uid: usuario.uid, nome: usuario.nome, telefone: usuario.whatsapp }, 
+                    logistica: { modo_entrega: modoEntregaAtual, endereco: endStr }, 
+                    itens: carrinho, 
+                    financeiro: { 
+                        total_pago_reais: totalR + taxaAtualCobrada, 
+                        taxa_entrega: taxaAtualCobrada, 
+                        pontos_utilizados: totalPts, 
+                        metodo_pagamento: (totalR + taxaAtualCobrada) > 0 ? "PIX" : "Apenas Pontos" 
+                    } 
+                }); 
+                
+                fecharSheet('sheet-pix'); 
+                carrinho = []; 
+                atualizarCarrinhoFlutuante(); 
+                abrirSheet('sheet-sucesso'); 
+                
+            } catch (erro) {
+                console.error("Erro ao salvar no Firebase:", erro);
+                alert("O pagamento foi confirmado, mas houve um erro de segurança ao enviar para a cozinha: " + erro.message);
+            }
         }
 
         function abrirSheet(id) { 
